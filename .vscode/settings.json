@@ -1,0 +1,12 @@
+{
+    "python.analysis.diagnosticSeverity": {
+        "reportCallIssue": "none",
+        "reportOptionalMemberAccess": "none",
+        "reportOptionalSubscript": "none",
+        "reportGeneralTypeIssues": "none",
+        "reportArgumentType": "none",
+        "reportAttributeAccessIssue": "none",
+        "reportFunctionMemberAccess": "none"
+    },
+    "python.analysis.typeCheckingMode": "off"
+}

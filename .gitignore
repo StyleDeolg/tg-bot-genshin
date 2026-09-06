@@ -1,0 +1,18 @@
+echo ".venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+.env
+.DS_Store
+node_modules/
+dist/
+build/
+*.log
+alembic/versions/*.pyc
+frontend/node_modules/
+frontend/.env
+frontend/dist/
+" > .gitignore

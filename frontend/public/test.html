@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Test</title>
+</head>
+
+<body>
+    <h1>Telegram Test</h1>
+    <pre id="output"></pre>
+    <script>
+        const out = document.getElementById('output');
+        if (window.Telegram && window.Telegram.WebApp) {
+            out.textContent = JSON.stringify(window.Telegram.WebApp.initDataUnsafe, null, 2);
+        } else {
+            out.textContent = '❌ window.Telegram не найден!';
+        }
+    </script>
+</body>
+
+</html>
