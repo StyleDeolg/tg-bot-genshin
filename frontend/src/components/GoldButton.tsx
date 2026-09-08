@@ -7,6 +7,7 @@ interface GoldButtonProps {
     disabled?: boolean;
     icon?: React.ReactNode;
     className?: string;
+    style?: React.CSSProperties;  // ← ДОБАВЛЯЕМ
 }
 
 export default function GoldButton({
@@ -16,12 +17,14 @@ export default function GoldButton({
     disabled = false,
     icon,
     className = '',
+    style = {},  // ← ДОБАВЛЯЕМ
 }: GoldButtonProps) {
     return (
         <button
             className={`gold-button ${outline ? 'outline' : ''} ${className}`}
             onClick={onClick}
             disabled={disabled}
+            style={style}  // ← ДОБАВЛЯЕМ
         >
             {icon && <span className="gold-button-icon">{icon}</span>}
             <span className="gold-button-text">{text}</span>

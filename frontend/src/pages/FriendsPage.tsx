@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
-import { getReferral } from '../api';
+import { getReferral } from '../api/referral';
 import TicketIcon from '../components/TicketIcon';
 
 export default function FriendsPage() {

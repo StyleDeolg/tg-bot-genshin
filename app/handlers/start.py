@@ -69,7 +69,6 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=keyboard
         )
     else:
-        db.close()
         keyboard = get_keyboard_for_user(user.id)
         await update.message.reply_text(
             f"👋 С возвращением, {user.first_name or 'пользователь'}!\n\n"

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
-import { getProfile, getAvatar } from '../api';
+import { getProfile } from '../api/profile';
+import { getAvatar } from '../api/auth';
 import TicketIcon from '../components/TicketIcon';
-import PrimogemIcon from '../components/PrimogemIcon';
+import ShardIcon from '../components/ShardIcon';
 
 export default function ProfilePage() {
     const { user } = useAuthStore();
@@ -60,8 +61,8 @@ export default function ProfilePage() {
                 </div>
                 <hr />
                 <div className="info-row">
-                    <span className="info-label"><PrimogemIcon size={16} style={{ marginRight: 6 }} /> Примогемы</span>
-                    <span className="info-value">{profile?.primogems ?? 0}</span>
+                    <span className="info-label"><ShardIcon size={16} style={{ marginRight: 6 }} /> Осколки луны</span>
+                    <span className="info-value">{profile?.moon_shards ?? 0}/6</span>
                 </div>
                 <hr />
                 <div className="info-row">

@@ -1,7 +1,7 @@
-import os
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import auth, wheel, profile, referral, tasks, sponsors  # ← ДОБАВЛЯЕМ SPONSORS
+from app.api import auth, wheel, profile, referral, tasks
+import os  # ← ДОБАВИТЬ
 
 # --- ИМПОРТЫ ДЛЯ WEBHOOK ---
 from telegram import Update
@@ -16,6 +16,10 @@ from app.handlers import (
     unbind_uid,
     app_command,
     donate_command,
+    add_sponsor,
+    add_sponsor_task,
+    list_sponsors,
+    add_referral_reward,
     error_handler
 )
 from app.handlers.buttons import handle_buttons
@@ -36,7 +40,6 @@ app.include_router(wheel.router)
 app.include_router(profile.router)
 app.include_router(referral.router)
 app.include_router(tasks.router)
-app.include_router(sponsors.router)  # ← ДОБАВЛЯЕМ
 
 @app.get("/ping")
 async def ping():
@@ -57,6 +60,10 @@ bot_app.add_handler(CommandHandler("profile", profile_command))
 bot_app.add_handler(CommandHandler("unbind_uid", unbind_uid))
 bot_app.add_handler(CommandHandler("app", app_command))
 bot_app.add_handler(CommandHandler("bind_uid", bind_uid_start))
+bot_app.add_handler(CommandHandler("add_sponsor", add_sponsor))
+bot_app.add_handler(CommandHandler("add_sponsor_task", add_sponsor_task))
+bot_app.add_handler(CommandHandler("list_sponsors", list_sponsors))
+bot_app.add_handler(CommandHandler("add_referral_reward", add_referral_reward))
 bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons))
 bot_app.add_error_handler(error_handler)
 

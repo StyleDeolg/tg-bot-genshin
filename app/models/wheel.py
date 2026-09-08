@@ -11,7 +11,7 @@ class WheelSpin(Base):
     user_id = Column(UUID(as_uuid=True), nullable=False)
     prize = Column(String, nullable=False)
     prize_value = Column(Integer, nullable=False)
-    prize_type = Column(String, nullable=True)  # moon, shard, crystals_60, crystals_330, empty
+    prize_type = Column(String, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
 
 
@@ -24,6 +24,6 @@ class WheelConfig(Base):
     chance = Column(Integer, nullable=False)
     emoji = Column(String, nullable=True)
     is_active = Column(String, default="true")
-    prize_type = Column(String, nullable=True)
+    prize_type = Column(String, nullable=False, unique=True)  # ← УНИКАЛЬНЫЙ!
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())

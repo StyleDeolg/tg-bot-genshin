@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getProfile } from '../api';
+import { getProfile } from '../api/profile';
 
 export interface User {
     public_id: string;
@@ -9,7 +9,8 @@ export interface User {
     last_name: string | null;
     genshin_uid: string | null;
     tickets: number;
-    primogems: number;
+    moon_shards: number;
+    is_donator: boolean;
     referrals_count?: number;
     tasks_completed?: number;
 }
@@ -40,7 +41,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                     user: {
                         ...currentUser,
                         tickets: profile.tickets,
-                        primogems: profile.primogems,
+                        moon_shards: profile.moon_shards,
+                        is_donator: profile.is_donator,
                         referrals_count: profile.referrals_count,
                         tasks_completed: profile.tasks_completed,
                     },
@@ -63,7 +65,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 user: {
                     ...user,
                     tickets: profile.tickets,
-                    primogems: profile.primogems,
+                    moon_shards: profile.moon_shards,
+                    is_donator: profile.is_donator,
                     referrals_count: profile.referrals_count,
                     tasks_completed: profile.tasks_completed,
                 }

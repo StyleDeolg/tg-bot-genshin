@@ -1,83 +1,70 @@
 import { useEffect, useState, useRef } from 'react';
-import { getPrizes } from '../api';
-
-interface Prize {
-    name: string;
-    value: number;
-    emoji: string;
-    color: string;
-}
+import { getPrizes, type Prize } from '../api/wheel';
+import ShardIcon from './ShardIcon';
 
 interface WheelProps {
     isSpinning?: boolean;
-    resultPrize?: string | null;
+    resultSegmentIndex?: number | null;
+    onSpinComplete?: () => void;
 }
 
-export default function Wheel({ isSpinning = false, resultPrize = null }: WheelProps) {
+export default function Wheel({
+    isSpinning = false,
+    resultSegmentIndex = null,
+    onSpinComplete
+}: WheelProps) {
     const [segments, setSegments] = useState<Prize[]>([]);
     const [rotation, setRotation] = useState(0);
-    const [targetRotation, setTargetRotation] = useState<number | null>(null);
     const [isAnimating, setIsAnimating] = useState(false);
-    const idleIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-    // Загружаем призы
+    const spinRef = useRef<number | null>(null);
+
     useEffect(() => {
-        getPrizes().then((data: Prize[]) => {
+        getPrizes().then(data => {
+            // Сохраняем порядок КАК ЕСТЬ из БД
+            console.log('📦 Призы из БД:', data.map((p, i) => `${i}: ${p.name} (${p.prize_type})`));
             setSegments(data);
         });
     }, []);
 
-    // Когда приходит результат — вычисляем целевой угол
-    useEffect(() => {
-        if (resultPrize && segments.length > 0 && !isAnimating) {
-            const targetIndex = segments.findIndex(p => p.name === resultPrize);
+    const spinToIndex = (index: number) => {
+        if (!segments.length || isAnimating) return;
 
-            if (targetIndex !== -1) {
-                const segmentAngle = 360 / segments.length;
-                const targetAngle = 360 - (targetIndex * segmentAngle + segmentAngle / 2);
-                const spins = 5 + Math.random() * 3;
-                const totalRotation = spins * 360 + targetAngle;
+        setIsAnimating(true);
 
-                setTargetRotation(totalRotation);
-            }
-        }
-    }, [resultPrize, segments]);
+        // Сбрасываем текущее вращение
+        const currentAngle = rotation % 360;
+        const resetAngle = -currentAngle;
+        setRotation(prev => prev + resetAngle);
 
-    // Применяем вращение
-    useEffect(() => {
-        if (isSpinning && targetRotation !== null && !isAnimating) {
-            setIsAnimating(true);
+        const total = segments.length;
+        const segmentAngle = 360 / total;
 
-            if (idleIntervalRef.current) {
-                clearInterval(idleIntervalRef.current);
-                idleIntervalRef.current = null;
-            }
+        let targetAngle = 270 - (index * segmentAngle + segmentAngle / 2);
+        while (targetAngle < 0) targetAngle += 360;
+        while (targetAngle >= 360) targetAngle -= 360;
 
-            setRotation(prev => prev + targetRotation);
+        const extraSpins = 5 + Math.floor(Math.random() * 2);
+        const totalRotation = extraSpins * 360 + targetAngle;
 
-            setTimeout(() => {
-                setIsAnimating(false);
-                setTargetRotation(null);
-            }, 5500);
-        }
-    }, [isSpinning, targetRotation]);
+        console.log(`🎯 Индекс ${index} → ${segments[index].name} → угол ${Math.round(targetAngle)}°`);
 
-    // После анимации — возвращаемся в idle
-    useEffect(() => {
-        if (!isAnimating && !isSpinning && segments.length > 0) {
-            startIdleRotation();
-        }
-    }, [isAnimating, isSpinning, segments.length]);
+        setTimeout(() => {
+            setRotation(prev => prev + totalRotation);
+        }, 50);
 
-    // Медленное вращение в простое
-    const startIdleRotation = () => {
-        if (idleIntervalRef.current) {
-            clearInterval(idleIntervalRef.current);
-        }
-        idleIntervalRef.current = setInterval(() => {
-            setRotation(prev => prev + 0.05);
-        }, 16);
+        if (spinRef.current) clearTimeout(spinRef.current);
+        spinRef.current = window.setTimeout(() => {
+            setIsAnimating(false);
+            if (onSpinComplete) onSpinComplete();
+        }, 5000);
     };
+
+    useEffect(() => {
+        if (isSpinning && resultSegmentIndex !== null && resultSegmentIndex !== undefined && !isAnimating) {
+            spinToIndex(resultSegmentIndex);
+        }
+    }, [isSpinning, resultSegmentIndex]);
 
     if (segments.length === 0) {
         return (
@@ -101,7 +88,22 @@ export default function Wheel({ isSpinning = false, resultPrize = null }: WheelP
             <div className="wheel-wrapper">
                 <div className="wheel-arrow-genshin">
                     <svg width="40" height="50" viewBox="0 0 40 50" fill="none">
-                        <path d="M20 0 L8 40 L20 32 L32 40 L20 0Z" fill="#d4af37" stroke="#b8962e" strokeWidth="2" />
+                        <defs>
+                            <linearGradient id="arrowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stopColor="#f0d060" />
+                                <stop offset="100%" stopColor="#b8962e" />
+                            </linearGradient>
+                            <filter id="arrowShadow">
+                                <feDropShadow dx="0" dy="4" stdDeviation="8" floodColor="#d4af37" floodOpacity="0.3" />
+                            </filter>
+                        </defs>
+                        <path
+                            d="M20 0 L8 40 L20 32 L32 40 L20 0Z"
+                            fill="url(#arrowGrad)"
+                            stroke="#d4af37"
+                            strokeWidth="2"
+                            filter="url(#arrowShadow)"
+                        />
                         <circle cx="20" cy="38" r="6" fill="#d4af37" stroke="#b8962e" strokeWidth="2" />
                         <circle cx="20" cy="38" r="2" fill="#1a1a2e" />
                     </svg>
@@ -114,21 +116,10 @@ export default function Wheel({ isSpinning = false, resultPrize = null }: WheelP
                     style={{
                         transform: `rotate(${rotation}deg)`,
                         transition: isAnimating
-                            ? 'transform 5.5s cubic-bezier(0.17, 0.67, 0.12, 0.99)'
+                            ? 'transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99)'
                             : 'none',
-                        filter: isAnimating ? 'drop-shadow(0 0 40px rgba(212,175,55,0.2))' : 'none',
                     }}
                 >
-                    <circle
-                        cx={center}
-                        cy={center}
-                        r={radius + 2}
-                        fill="none"
-                        stroke="url(#goldBorder)"
-                        strokeWidth="2"
-                        opacity="0.4"
-                    />
-
                     <defs>
                         <linearGradient id="goldBorder" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stopColor="#d4af37" />
@@ -136,6 +127,16 @@ export default function Wheel({ isSpinning = false, resultPrize = null }: WheelP
                             <stop offset="100%" stopColor="#b8962e" />
                         </linearGradient>
                     </defs>
+
+                    <circle
+                        cx={center}
+                        cy={center}
+                        r={radius + 2}
+                        fill="none"
+                        stroke="url(#goldBorder)"
+                        strokeWidth="3"
+                        opacity="0.6"
+                    />
 
                     {segments.map((seg, i) => {
                         const startAngle = i * angle - Math.PI / 2;
@@ -148,14 +149,17 @@ export default function Wheel({ isSpinning = false, resultPrize = null }: WheelP
 
                         const iconX = center + (radius * 0.55) * Math.cos(midAngle);
                         const iconY = center + (radius * 0.55) * Math.sin(midAngle);
-                        const iconSize = seg.name === "Луна Genshin" ? 34 : 26;
-
                         const labelX = center + (radius * 0.82) * Math.cos(midAngle);
                         const labelY = center + (radius * 0.82) * Math.sin(midAngle);
 
-                        const isZero = seg.value === 0;
-                        const isMoon = seg.name === "Луна Genshin";
+                        const isEmpty = seg.prize_type?.startsWith('empty');
+                        const isMoon = seg.prize_type === 'moon';
+                        const isShard = seg.prize_type === 'shard';
                         const isGold = i % 2 === 0;
+
+                        let iconSize = 26;
+                        if (isMoon) iconSize = 34;
+                        if (isShard) iconSize = 28;
 
                         return (
                             <g key={i}>
@@ -163,7 +167,7 @@ export default function Wheel({ isSpinning = false, resultPrize = null }: WheelP
                                     d={`M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 0 1 ${x2} ${y2} Z`}
                                     fill={isGold ? '#d4af37' : '#1a1a2e'}
                                     stroke="#b8962e"
-                                    strokeWidth="1"
+                                    strokeWidth="1.5"
                                     opacity={0.95}
                                 />
 
@@ -179,7 +183,27 @@ export default function Wheel({ isSpinning = false, resultPrize = null }: WheelP
                                     />
                                 )}
 
-                                {!isZero && !isMoon && (
+                                {isShard && (
+                                    <foreignObject
+                                        x={iconX - iconSize / 2}
+                                        y={iconY - iconSize / 2}
+                                        width={iconSize}
+                                        height={iconSize}
+                                        transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${iconX}, ${iconY})`}
+                                    >
+                                        <div style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            width: '100%',
+                                            height: '100%',
+                                        }}>
+                                            <ShardIcon size={iconSize - 4} />
+                                        </div>
+                                    </foreignObject>
+                                )}
+
+                                {!isEmpty && !isMoon && !isShard && (
                                     <image
                                         href="/images/wheel/primogem.png"
                                         x={iconX - iconSize / 2}
@@ -190,7 +214,7 @@ export default function Wheel({ isSpinning = false, resultPrize = null }: WheelP
                                     />
                                 )}
 
-                                {isZero && (
+                                {isEmpty && (
                                     <text
                                         x={iconX}
                                         y={iconY + 8}
@@ -205,7 +229,7 @@ export default function Wheel({ isSpinning = false, resultPrize = null }: WheelP
                                     </text>
                                 )}
 
-                                {!isZero && !isMoon && (
+                                {!isEmpty && !isMoon && !isShard && (
                                     <text
                                         x={labelX}
                                         y={labelY + 4}
@@ -231,6 +255,21 @@ export default function Wheel({ isSpinning = false, resultPrize = null }: WheelP
                                         letterSpacing="0.5"
                                     >
                                         ЛУНА
+                                    </text>
+                                )}
+
+                                {isShard && (
+                                    <text
+                                        x={labelX}
+                                        y={labelY + 4}
+                                        fill={isGold ? '#1a1a2e' : '#f0ece5'}
+                                        fontSize={8}
+                                        fontWeight="600"
+                                        textAnchor="middle"
+                                        transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${labelX}, ${labelY})`}
+                                        letterSpacing="0.3"
+                                    >
+                                        ОСКОЛОК
                                     </text>
                                 )}
                             </g>

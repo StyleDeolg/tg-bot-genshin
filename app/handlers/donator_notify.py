@@ -1,28 +1,93 @@
 from telegram import Bot
 from app.config import config
+import os
 
 BOT_TOKEN = config.BOT_TOKEN
 bot = Bot(token=BOT_TOKEN)
 
-async def notify_donator(winner_telegram_id: int, prize: str, uid: str, server: str, username: str):
-    """Отправляет уведомление донатчику"""
+DONATOR_CHAT_IDS = [
+    int(id.strip()) for id in os.getenv("DONATOR_CHAT_IDS", "5646848256").split(",")
+]
+
+async def notify_donator(winner_telegram_id: int, prize: str, uid: str, server: str, username: str, first_name: str = None):
+    """Отправляет уведомление донатору о выигрыше"""
+    
+    user_display = f"@{username}" if username else first_name or str(winner_telegram_id)
+    
+    prize_names = {
+        "moon": "🌙 Луна Genshin",
+        "shard": "🔮 Осколок луны",
+        "crystals_60": "💎 60 кристаллов",
+        "crystals_330": "💎 330 кристаллов",
+        "empty": "💨 Пусто",
+    }
+    prize_display = prize_names.get(prize, prize)
+    
     text = (
-        f"🎁 *Новый донат!*\n\n"
-        f"👤 Победитель: @{username or 'Unknown'}\n"
-        f"🆔 UID: `{uid}`\n"
-        f"🌍 Регион: {server}\n"
-        f"🏆 Выигрыш: {prize}\n\n"
-        f"Пожалуйста, свяжитесь с победителем и совершите донат!"
+        f"🎁 *НОВЫЙ ДОНАТ!*\n\n"
+        f"👤 Победитель: {user_display}\n"
+        f"🆔 Telegram ID: `{winner_telegram_id}`\n"
+        f"🆔 Genshin UID: `{uid or 'Не указан'}`\n"
+        f"🌍 Регион: {server or 'Не указан'}\n"
+        f"🏆 Выигрыш: {prize_display}\n\n"
+        f"📌 Свяжитесь с победителем и совершите донат!"
     )
     
-    # TODO: Заменить на ID донатчика
-    DONATOR_CHAT_ID = 5646848256  # Твой ID или ID донатчика
+    success_count = 0
+    for chat_id in DONATOR_CHAT_IDS:
+        try:
+            await bot.send_message(
+                chat_id=chat_id,
+                text=text,
+                parse_mode="Markdown"
+            )
+            success_count += 1
+        except Exception as e:
+            print(f"❌ Ошибка отправки уведомления донатору {chat_id}: {e}")
+    
+    if success_count > 0:
+        print(f"✅ Уведомление отправлено {success_count} донаторам")
+
+
+async def notify_user_win(telegram_id: int, prize: str, shards: int = 0):
+    """Отправляет пользователю уведомление о выигрыше"""
+    
+    prize_messages = {
+        "moon": (
+            "🌙 *ПОЗДРАВЛЯЮ!*\n\n"
+            "Ты выиграл ЛУНУ в Genshin Impact! 🎉\n\n"
+            "Скоро с тобой свяжется донатор для передачи награды."
+        ),
+        "shard": (
+            "🔮 *ОСКОЛОК ЛУНЫ!*\n\n"
+            f"Ты получил осколок луны! ({shards}/6)\n"
+            f"Собери 6 осколков и получи ЛУНУ! 🌙"
+        ),
+        "crystals_60": (
+            "💎 *60 КРИСТАЛЛОВ!*\n\n"
+            "Ты выиграл 60 кристаллов!\n"
+            "Скоро с тобой свяжется донатор для передачи награды."
+        ),
+        "crystals_330": (
+            "💎 *330 КРИСТАЛЛОВ!*\n\n"
+            "Ты выиграл 330 кристаллов!\n"
+            "Скоро с тобой свяжется донатор для передачи награды."
+        ),
+        "empty": (
+            "💨 *ПУСТО!*\n\n"
+            "Тебе ничего не выпало...\n"
+            "Попробуй ещё раз! 🎡"
+        ),
+    }
+    
+    text = prize_messages.get(prize, f"🎁 Ты выиграл {prize}!")
     
     try:
         await bot.send_message(
-            chat_id=DONATOR_CHAT_ID,
+            chat_id=telegram_id,
             text=text,
             parse_mode="Markdown"
         )
+        print(f"✅ Уведомление отправлено пользователю {telegram_id}")
     except Exception as e:
-        print(f"❌ Ошибка отправки уведомления донатчику: {e}")
+        print(f"❌ Ошибка отправки уведомления пользователю {telegram_id}: {e}")

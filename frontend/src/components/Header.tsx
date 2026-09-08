@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
-import { getAvatar } from '../api';
+import { getAvatar } from '../api/auth';
 import TicketIcon from './TicketIcon';
-import PrimogemIcon from './PrimogemIcon';
+import ShardIcon from './ShardIcon';
 
 export default function Header() {
     const { user } = useAuthStore();
@@ -38,8 +38,8 @@ export default function Header() {
                         <span className="stat-value">{user?.tickets ?? 0}</span>
                     </span>
                     <span className="stat-item">
-                        <PrimogemIcon size={20} />
-                        <span className="stat-value">{user?.primogems ?? 0}</span>
+                        <ShardIcon size={18} />
+                        <span className="stat-value">{user?.moon_shards ?? 0}/6</span>
                     </span>
                 </div>
             </div>

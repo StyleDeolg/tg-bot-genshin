@@ -11,11 +11,11 @@ class Task(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(String, nullable=False)
     description = Column(String, nullable=False)
-    reward = Column(Integer, nullable=False)  # билетики
-    task_type = Column(String, nullable=False)  # social, daily, sponsor
+    reward = Column(Integer, nullable=False)
+    task_type = Column(String, nullable=False)
     required_count = Column(Integer, nullable=False)
     is_active = Column(Boolean, default=True)
-    is_repeatable = Column(Boolean, default=True)  # для daily и social
+    is_repeatable = Column(Boolean, default=True)
     sponsor_id = Column(UUID(as_uuid=True), ForeignKey("sponsors.id"), nullable=True)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
@@ -31,6 +31,7 @@ class UserTask(Base):
     task_id = Column(UUID(as_uuid=True), ForeignKey("tasks.id"), nullable=False)
     progress = Column(Integer, default=0)
     completed_at = Column(DateTime, nullable=True)
+    claimed_at = Column(DateTime, nullable=True)
     last_claimed_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
