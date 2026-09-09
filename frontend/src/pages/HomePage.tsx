@@ -32,20 +32,19 @@ export default function HomePage() {
         try {
             const data = await spinWheel(user.telegram_id);
 
+            // 👇 ПРЯМОЙ ИНДЕКС — БЕЗ МАППИНГА
             setDebugInfo(`🎯 ${data.prize} (индекс: ${data.segment_index})`);
             setResult({
                 ...data,
                 visual_index: data.segment_index,
             });
 
-            // 👇 ОБНОВЛЯЕМ ЗАДАНИЯ СРАЗУ ПОСЛЕ СПИНА
             try {
                 await checkTasks(user.telegram_id);
             } catch (e) {
                 console.log('checkTasks error:', e);
             }
 
-            // 👇 ОБНОВЛЯЕМ ПРОФИЛЬ (билетики)
             await updateProfile();
 
         } catch (err: any) {

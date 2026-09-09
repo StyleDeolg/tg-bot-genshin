@@ -16,6 +16,7 @@ export default function TasksPage() {
     const [timeLeft, setTimeLeft] = useState<{ [key: string]: string }>({});
 
     const animationRef = useRef<number | undefined>(undefined);
+    const prevTimeLeftRef = useRef<{ [key: string]: string }>({});
 
     const loadData = async () => {
         if (!user) return;
@@ -38,7 +39,7 @@ export default function TasksPage() {
         loadData();
     }, [user]);
 
-    // ===== ОБНОВЛЕНИЕ ТАЙМЕРОВ В РЕАЛЬНОМ ВРЕМЕНИ =====
+    // ===== ОБНОВЛЕНИЕ ТАЙМЕРОВ (БЕЗ ЛОГОВ) =====
     useEffect(() => {
         const updateTimers = () => {
             const now = Date.now();
@@ -59,30 +60,29 @@ export default function TasksPage() {
                     } else {
                         newTimeLeft[task.id] = '✅ Готово!';
                     }
+                } else if (task.task_type === 'daily' && !task.last_claimed_at) {
+                    // Если нет last_claimed_at — задание можно забрать
+                    newTimeLeft[task.id] = '🎁 Забрать!';
                 }
             });
 
-            setTimeLeft(newTimeLeft);
+            // Обновляем состояние ТОЛЬКО если есть изменения
+            const currentStr = JSON.stringify(newTimeLeft);
+            const prevStr = JSON.stringify(prevTimeLeftRef.current);
+            if (currentStr !== prevStr) {
+                setTimeLeft(newTimeLeft);
+                prevTimeLeftRef.current = newTimeLeft;
+            }
         };
 
         // Первое обновление
         updateTimers();
 
-        // Используем requestAnimationFrame для плавного обновления
-        let lastUpdate = Date.now();
-
-        const animate = () => {
-            const now = Date.now();
-            if (now - lastUpdate >= 1000) {
-                updateTimers();
-                lastUpdate = now;
-            }
-            animationRef.current = requestAnimationFrame(animate);
-        };
-
-        animationRef.current = requestAnimationFrame(animate);
+        // Обновление раз в секунду
+        const interval = setInterval(updateTimers, 1000);
 
         return () => {
+            clearInterval(interval);
             if (animationRef.current) {
                 cancelAnimationFrame(animationRef.current);
             }
@@ -366,10 +366,14 @@ export default function TasksPage() {
                                 buttonText = isClaiming ? '⏳ Забираю...' : '🎁 Забрать награду';
                                 buttonDisabled = isClaiming;
                                 buttonOnClick = () => handleClaim(task.id);
-                            } else if (timer && timer !== '✅ Готово!') {
+                            } else if (timer && timer !== '✅ Готово!' && timer !== '🎁 Забрать!') {
                                 buttonText = `⏳ ${timer}`;
                                 buttonDisabled = true;
                                 buttonOnClick = async () => { };
+                            } else if (timer === '🎁 Забрать!') {
+                                buttonText = '🎁 Забрать награду';
+                                buttonDisabled = false;
+                                buttonOnClick = () => handleClaim(task.id);
                             } else if (timer === '✅ Готово!') {
                                 buttonText = '🎁 Забрать награду';
                                 buttonDisabled = false;
