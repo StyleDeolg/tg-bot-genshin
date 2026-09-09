@@ -4,8 +4,9 @@ from app.database import SessionLocal
 from app.models.user import User
 from app.models.referral import Referral
 from app.keyboards import get_keyboard_for_user
-from app.config import ADMIN_IDS
+from app.config import config  # 👈 ИМПОРТИРУЕМ config
 import uuid
+
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.effective_user or not update.message:
