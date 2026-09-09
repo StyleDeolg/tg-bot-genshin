@@ -3,8 +3,6 @@ import { useAuthStore } from '../store/authStore';
 import { spinWheel } from '../api/wheel';
 import { checkTasks } from '../api/tasks';
 import Wheel from '../components/Wheel';
-import LiyueButton from '../components/LiyueButton';
-import LiyueCard from '../components/LiyueCard';
 import TicketIcon from '../components/TicketIcon';
 import ShardIcon from '../components/ShardIcon';
 
@@ -95,27 +93,29 @@ export default function HomePage() {
         <div className="page home-page">
             <div className="home-content">
                 <div className="page-header">
-                    <span className="page-title-chinese">乾坤</span>
+                    <span className="page-title-chinese">命运之轮</span>
                     <h1 className="page-title">Колесо Фортуны</h1>
                     <p className="page-subtitle">Крути и выигрывай призы</p>
                 </div>
 
-                <LiyueCard>
+                <div className="glass-card">
                     <Wheel
                         isSpinning={isSpinning}
                         resultSegmentIndex={result?.visual_index ?? null}
                         onSpinComplete={handleSpinComplete}
                     />
-                </LiyueCard>
+                </div>
 
                 {debugInfo && <div className="debug-info">{debugInfo}</div>}
 
-                <LiyueButton
-                    text={isSpinning ? 'Вращается...' : 'Вращать'}
+                <button
+                    className="btn-mond"
                     onClick={handleSpin}
                     disabled={isSpinning || (user?.tickets ?? 0) < 1}
-                    icon={!isSpinning ? <TicketIcon size={18} /> : undefined}
-                />
+                >
+                    {isSpinning ? 'Вращается...' : 'Вращать'}
+                    {!isSpinning && <TicketIcon size={18} className="btn-mond-icon" />}
+                </button>
 
                 {showResult && resultDisplay && (
                     <div className="spin-result">

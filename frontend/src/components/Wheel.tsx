@@ -18,7 +18,6 @@ export default function Wheel({
     const [isAnimating, setIsAnimating] = useState(false);
 
     const spinRef = useRef<number | null>(null);
-
     const OFFSET = -2;
 
     useEffect(() => {
@@ -70,8 +69,8 @@ export default function Wheel({
 
     if (segments.length === 0) {
         return (
-            <div className="wheel-container-liyue">
-                <div style={{ textAlign: 'center', padding: '40px', color: 'rgba(232,221,208,0.05)' }}>
+            <div className="wheel-container-mond">
+                <div style={{ textAlign: 'center', padding: '40px', color: 'rgba(232,224,212,0.05)' }}>
                     Загрузка...
                 </div>
             </div>
@@ -83,44 +82,28 @@ export default function Wheel({
     const radius = size / 2 - 14;
     const angle = (2 * Math.PI) / segments.length;
 
-    const colorPalette = [
-        ['#1a1410', '#2a1a14'],
-        ['#2a1a14', '#1a1410'],
-        ['#1a1410', '#2a1a14'],
-        ['#2a1a14', '#1a1410'],
-        ['#1a1410', '#2a1a14'],
-        ['#2a1a14', '#1a1410'],
-        ['#1a1410', '#2a1a14'],
-        ['#2a1a14', '#1a1410'],
-    ];
-
     return (
-        <div className="wheel-container-liyue">
-            <div className={`wheel-glow-liyue ${isAnimating ? 'spinning' : ''}`}>
-                <div className="wheel-glow-liyue-inner"></div>
-                <div className="wheel-glow-liyue-outer"></div>
-            </div>
-
+        <div className="wheel-container-mond">
             <div className="wheel-wrapper">
-                <div className="wheel-arrow-liyue">
+                <div className="wheel-arrow-mond">
                     <svg width="40" height="52" viewBox="0 0 40 52" fill="none">
                         <defs>
-                            <linearGradient id="arrowLiyue" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" stopColor="#b83a2a" />
-                                <stop offset="100%" stopColor="#8a2a1a" />
+                            <linearGradient id="arrowMond" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stopColor="#d4af37" />
+                                <stop offset="100%" stopColor="#b8962e" />
                             </linearGradient>
-                            <filter id="arrowShadowLiyue">
-                                <feDropShadow dx="0" dy="6" stdDeviation="16" floodColor="#b83a2a" floodOpacity="0.05" />
+                            <filter id="arrowShadowMond">
+                                <feDropShadow dx="0" dy="6" stdDeviation="16" floodColor="#d4af37" floodOpacity="0.02" />
                             </filter>
                         </defs>
                         <path
                             d="M20 0 L6 40 L20 32 L34 40 L20 0Z"
-                            fill="url(#arrowLiyue)"
-                            filter="url(#arrowShadowLiyue)"
+                            fill="url(#arrowMond)"
+                            filter="url(#arrowShadowMond)"
                         />
-                        <circle cx="20" cy="40" r="8" fill="#b83a2a" opacity="0.05" />
-                        <circle cx="20" cy="40" r="4" fill="#b83a2a" />
-                        <circle cx="20" cy="40" r="1.5" fill="#1a1410" />
+                        <circle cx="20" cy="40" r="8" fill="#d4af37" opacity="0.02" />
+                        <circle cx="20" cy="40" r="4" fill="#d4af37" />
+                        <circle cx="20" cy="40" r="1.5" fill="#1a2a3a" />
                     </svg>
                 </div>
 
@@ -133,30 +116,31 @@ export default function Wheel({
                         transition: isAnimating
                             ? 'transform 5.5s cubic-bezier(0.08, 0.75, 0.12, 0.98)'
                             : 'none',
-                        filter: isAnimating ? 'drop-shadow(0 0 60px rgba(180,60,40,0.02))' : 'none',
                     }}
                 >
                     <defs>
-                        <linearGradient id="glowRingLiyue" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#b83a2a" stopOpacity="0.04" />
-                            <stop offset="50%" stopColor="#b83a2a" stopOpacity="0.01" />
-                            <stop offset="100%" stopColor="#b83a2a" stopOpacity="0.04" />
+                        <linearGradient id="glowMond" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#d4af37" stopOpacity="0.02" />
+                            <stop offset="50%" stopColor="#d4af37" stopOpacity="0.005" />
+                            <stop offset="100%" stopColor="#d4af37" stopOpacity="0.02" />
                         </linearGradient>
-                        <radialGradient id="centerGlowLiyue">
-                            <stop offset="0%" stopColor="#b83a2a" stopOpacity="0.01" />
-                            <stop offset="100%" stopColor="#b83a2a" stopOpacity="0" />
-                        </radialGradient>
                     </defs>
 
-                    <circle
-                        cx={center}
-                        cy={center}
-                        r={radius + 4}
+                    {/* Внешняя рамка в виде восьмиугольника */}
+                    <polygon
+                        points={
+                            Array.from({ length: 8 }, (_, i) => {
+                                const a = (i / 8) * 2 * Math.PI - Math.PI / 8;
+                                const r = radius + 8;
+                                return `${center + r * Math.cos(a)},${center + r * Math.sin(a)}`;
+                            }).join(' ')
+                        }
                         fill="none"
-                        stroke="rgba(180,60,40,0.02)"
+                        stroke="rgba(212,175,55,0.02)"
                         strokeWidth="1"
                     />
 
+                    {/* Сектора */}
                     {segments.map((seg, i) => {
                         const startAngle = i * angle - Math.PI / 2;
                         const endAngle = startAngle + angle;
@@ -174,30 +158,26 @@ export default function Wheel({
                         const isEmpty = seg.prize_type?.startsWith('empty');
                         const isMoon = seg.prize_type === 'moon';
                         const isShard = seg.prize_type === 'shard';
+                        const isGold = i % 2 === 0;
 
                         let iconSize = 26;
                         if (isMoon) iconSize = 34;
                         if (isShard) iconSize = 28;
 
-                        const [color1, color2] = colorPalette[i % colorPalette.length];
-
                         return (
                             <g key={`segment-${i}-${seg.prize_type}`}>
-                                <linearGradient id={`grad-${i}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stopColor={color1} />
-                                    <stop offset="100%" stopColor={color2} />
-                                </linearGradient>
                                 <path
                                     d={`M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 0 1 ${x2} ${y2} Z`}
-                                    fill={`url(#grad-${i})`}
-                                    stroke="rgba(180,60,40,0.01)"
+                                    fill={isGold ? 'rgba(212,175,55,0.06)' : 'rgba(26,42,58,0.6)'}
+                                    stroke="rgba(212,175,55,0.01)"
                                     strokeWidth="0.5"
-                                    opacity={0.9}
+                                    opacity={isGold ? 0.9 : 0.8}
                                 />
 
+                                {/* Декоративная линия */}
                                 <path
                                     d={`M ${center + radius * 0.2 * Math.cos(midAngle)} ${center + radius * 0.2 * Math.sin(midAngle)} L ${center + radius * 0.9 * Math.cos(midAngle)} ${center + radius * 0.9 * Math.sin(midAngle)}`}
-                                    stroke="rgba(255,255,255,0.01)"
+                                    stroke="rgba(212,175,55,0.005)"
                                     strokeWidth="0.5"
                                     strokeDasharray="2 2"
                                 />
@@ -210,7 +190,7 @@ export default function Wheel({
                                         width={iconSize}
                                         height={iconSize}
                                         transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${iconX}, ${iconY})`}
-                                        style={{ filter: 'drop-shadow(0 0 30px rgba(180,60,40,0.04))' }}
+                                        style={{ filter: 'drop-shadow(0 0 30px rgba(212,175,55,0.02))' }}
                                     />
                                 )}
 
@@ -263,7 +243,7 @@ export default function Wheel({
                                     <text
                                         x={labelX}
                                         y={labelY + 5}
-                                        fill="rgba(255,255,255,0.15)"
+                                        fill="rgba(255,255,255,0.08)"
                                         fontSize={13}
                                         fontWeight="700"
                                         textAnchor="middle"
@@ -278,15 +258,15 @@ export default function Wheel({
                                     <text
                                         x={labelX}
                                         y={labelY + 5}
-                                        fill="rgba(180,60,40,0.2)"
+                                        fill="rgba(212,175,55,0.08)"
                                         fontSize={10}
                                         fontWeight="700"
                                         textAnchor="middle"
                                         transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${labelX}, ${labelY})`}
-                                        fontFamily="'Ma Shan Zheng', cursive"
+                                        fontFamily="'Cinzel', serif"
                                         letterSpacing="1"
                                     >
-                                        月
+                                        ЛУНА
                                     </text>
                                 )}
 
@@ -294,7 +274,7 @@ export default function Wheel({
                                     <text
                                         x={labelX}
                                         y={labelY + 5}
-                                        fill="rgba(255,255,255,0.05)"
+                                        fill="rgba(255,255,255,0.02)"
                                         fontSize={9}
                                         fontWeight="600"
                                         textAnchor="middle"
@@ -302,39 +282,31 @@ export default function Wheel({
                                         fontFamily="'Inter', sans-serif"
                                         letterSpacing="0.3"
                                     >
-                                        碎片
+                                        ОСКОЛОК
                                     </text>
                                 )}
                             </g>
                         );
                     })}
 
-                    <circle cx={center} cy={center} r={26} fill="#1a1410" stroke="rgba(180,60,40,0.02)" strokeWidth="1" />
-                    <circle cx={center} cy={center} r={22} fill="url(#centerGlowLiyue)" />
+                    {/* Центр */}
+                    <circle cx={center} cy={center} r={26} fill="#0d1520" stroke="rgba(212,175,55,0.01)" strokeWidth="1" />
+                    <circle cx={center} cy={center} r={20} fill="rgba(212,175,55,0.01)" />
 
-                    {[0, 45, 90, 135, 180, 225, 270, 315].map((deg, idx) => (
-                        <circle
-                            key={`dot-${idx}`}
-                            cx={center + 16 * Math.cos(deg * Math.PI / 180)}
-                            cy={center + 16 * Math.sin(deg * Math.PI / 180)}
-                            r={1}
-                            fill="rgba(180,60,40,0.04)"
-                        />
-                    ))}
-
+                    {/* Герб Мондштадта */}
                     <text
                         x={center}
                         y={center + 6}
                         textAnchor="middle"
                         fontSize="16"
-                        fill="rgba(180,60,40,0.03)"
-                        fontFamily="'Ma Shan Zheng', cursive"
+                        fill="rgba(212,175,55,0.02)"
+                        fontFamily="'Cinzel', serif"
                     >
-                        璃
+                        ⚜
                     </text>
 
-                    <circle cx={center} cy={center} r={4} fill="rgba(180,60,40,0.02)" />
-                    <circle cx={center} cy={center} r={1.5} fill="rgba(180,60,40,0.03)" />
+                    <circle cx={center} cy={center} r={4} fill="rgba(212,175,55,0.01)" />
+                    <circle cx={center} cy={center} r={1.5} fill="rgba(212,175,55,0.02)" />
                 </svg>
             </div>
         </div>

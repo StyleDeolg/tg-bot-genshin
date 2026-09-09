@@ -3,7 +3,6 @@ import { useAuthStore } from '../store/authStore';
 import { getTasks, claimTask, checkTasks } from '../api/tasks';
 import { getSponsors, checkSponsorSubscription } from '../api/sponsors';
 import type { Sponsor } from '../api/sponsors';
-import LiyueButton from '../components/LiyueButton';
 import TicketIcon from '../components/TicketIcon';
 
 export default function TasksPage() {
@@ -150,7 +149,7 @@ export default function TasksPage() {
         }
     };
 
-    if (loading) return <div className="loading-text">Загрузка заданий...</div>;
+    if (loading) return <div className="loading-text text-light opacity-25 text-center py-5">Загрузка заданий...</div>;
 
     const sponsorTasks = tasks.filter(task => task.task_type === 'sponsor');
     const regularTasks = tasks.filter(task => task.task_type !== 'sponsor');
@@ -197,26 +196,21 @@ export default function TasksPage() {
                                             href={sponsor.link}
                                             target="_blank"
                                             rel="noopener noreferrer"
+                                            className="text-decoration-none d-inline-flex align-items-center gap-2 px-3 py-2 rounded-1"
                                             style={{
-                                                display: 'inline-flex',
-                                                alignItems: 'center',
-                                                gap: '8px',
-                                                padding: '8px 18px',
-                                                background: 'rgba(180, 150, 120, 0.04)',
-                                                color: '#b08a6a',
-                                                borderRadius: '4px',
+                                                background: 'rgba(212, 175, 55, 0.02)',
+                                                color: '#d4af37',
+                                                border: '1px solid rgba(212, 175, 55, 0.02)',
                                                 fontSize: '13px',
                                                 fontWeight: '500',
-                                                textDecoration: 'none',
-                                                border: '1px solid rgba(180, 150, 120, 0.04)',
-                                                transition: 'all 0.3s ease',
                                                 width: 'fit-content',
+                                                transition: 'all 0.3s ease',
                                             }}
                                             onMouseEnter={(e) => {
-                                                e.currentTarget.style.background = 'rgba(180, 150, 120, 0.08)';
+                                                e.currentTarget.style.background = 'rgba(212, 175, 55, 0.04)';
                                             }}
                                             onMouseLeave={(e) => {
-                                                e.currentTarget.style.background = 'rgba(180, 150, 120, 0.04)';
+                                                e.currentTarget.style.background = 'rgba(212, 175, 55, 0.02)';
                                             }}
                                         >
                                             进入频道
@@ -225,16 +219,18 @@ export default function TasksPage() {
 
                                     <div className="task-actions">
                                         {isCompleted ? (
-                                            <div style={{ padding: '10px 0', textAlign: 'center', color: 'rgba(90, 143, 106, 0.3)', fontSize: '13px', fontWeight: '500' }}>
+                                            <div className="text-center py-2" style={{ color: 'rgba(90, 143, 106, 0.3)', fontSize: '13px', fontWeight: '500' }}>
                                                 Награда получена
                                             </div>
                                         ) : (
-                                            <LiyueButton
-                                                text={isChecking ? 'Проверяю...' : 'Проверить подписку'}
+                                            <button
+                                                className="btn-mond"
                                                 onClick={() => handleCheckSponsor(sponsor.id)}
                                                 disabled={isChecking}
-                                                icon={<TicketIcon size={16} />}
-                                            />
+                                            >
+                                                {isChecking ? 'Проверяю...' : 'Проверить подписку'}
+                                                <TicketIcon size={16} className="btn-mond-icon" />
+                                            </button>
                                         )}
                                     </div>
                                 </div>
@@ -331,16 +327,10 @@ export default function TasksPage() {
 
                                     <div className="task-actions">
                                         {buttonDisabled && !buttonText.includes('Награда получена') ? (
-                                            <div style={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                gap: '8px',
-                                                padding: '12px 20px',
-                                                background: 'rgba(180, 150, 120, 0.02)',
-                                                borderRadius: '4px',
-                                                border: '1px solid rgba(180, 150, 120, 0.02)',
-                                                color: 'rgba(61, 53, 46, 0.15)',
+                                            <div className="d-flex align-items-center justify-content-center gap-2 py-3 px-4 rounded-1" style={{
+                                                background: 'rgba(212, 175, 55, 0.01)',
+                                                border: '1px solid rgba(212, 175, 55, 0.01)',
+                                                color: 'rgba(232, 224, 212, 0.08)',
                                                 fontSize: '14px',
                                                 fontWeight: '500',
                                                 fontFamily: 'monospace',
@@ -350,12 +340,14 @@ export default function TasksPage() {
                                                 {buttonText}
                                             </div>
                                         ) : (
-                                            <LiyueButton
-                                                text={buttonText}
+                                            <button
+                                                className="btn-mond"
                                                 onClick={buttonOnClick}
                                                 disabled={buttonDisabled}
-                                                icon={!buttonDisabled && !buttonText.includes('Награда получена') ? <TicketIcon size={16} /> : undefined}
-                                            />
+                                            >
+                                                {buttonText}
+                                                {!buttonDisabled && !buttonText.includes('Награда получена') && <TicketIcon size={16} className="btn-mond-icon" />}
+                                            </button>
                                         )}
                                     </div>
                                 </div>
@@ -365,14 +357,10 @@ export default function TasksPage() {
                 )}
 
                 {tasks.length === 0 && (
-                    <div style={{
-                        textAlign: 'center',
-                        padding: '60px 20px',
-                        color: 'rgba(61, 53, 46, 0.08)',
-                    }}>
+                    <div className="text-center py-5" style={{ color: 'rgba(232, 224, 212, 0.04)' }}>
                         <div style={{ fontSize: '48px', marginBottom: '16px' }}>📭</div>
                         <p style={{ fontSize: '16px' }}>Заданий пока нет</p>
-                        <p style={{ fontSize: '13px', marginTop: '4px', color: 'rgba(61, 53, 46, 0.04)' }}>
+                        <p style={{ fontSize: '13px', marginTop: '4px', opacity: 0.5 }}>
                             Загляни позже, они скоро появятся!
                         </p>
                     </div>

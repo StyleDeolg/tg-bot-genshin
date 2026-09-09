@@ -37,25 +37,25 @@ export default function ProfilePage() {
     }, []);
 
     if (loading) {
-        return <div className="loading-text">Загрузка профиля...</div>;
+        return <div className="loading-text text-light text-center py-5">Загрузка профиля...</div>;
     }
 
     return (
         <div className="page profile-page">
             <div className="profile-header">
-                <span className="page-title-chinese">璃月</span>
+                <span className="page-title-chinese">蒙德</span>
                 <div className="profile-avatar">
                     {avatarUrl ? (
                         <img src={avatarUrl} alt={profile?.first_name || 'User'} className="profile-avatar-image" onError={() => setAvatarUrl(null)} />
                     ) : (
-                        <span className="profile-avatar-fallback">{profile?.first_name?.[0] || '璃'}</span>
+                        <span className="profile-avatar-fallback">{profile?.first_name?.[0] || '⚜'}</span>
                     )}
                 </div>
                 <h2>{profile?.first_name} {profile?.last_name}</h2>
-                <p>@{profile?.username || 'Путник'}</p>
+                <p className="text-light opacity-25">@{profile?.username || 'Искатель приключений'}</p>
             </div>
 
-            <div className="liyue-card profile-card">
+            <div className="glass-card profile-card">
                 <div className="info-row">
                     <span className="info-label"><TicketIcon size={16} style={{ marginRight: 6 }} /> Билетики</span>
                     <span className="info-value">{profile?.tickets ?? 0}</span>

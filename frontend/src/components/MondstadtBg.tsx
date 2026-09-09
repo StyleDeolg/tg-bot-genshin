@@ -1,22 +1,22 @@
 import { useEffect } from 'react';
 
-export default function LiyueBg() {
+export default function MondstadtBg() {
     useEffect(() => {
-        const container = document.querySelector('.liyue-bg');
+        const container = document.querySelector('.mondstadt-bg');
         if (!container) return;
 
-        const existing = container.querySelectorAll('.liyue-ornament');
+        const existing = container.querySelectorAll('.mondstadt-ornament');
         existing.forEach(el => el.remove());
 
-        const ornaments = ['岩', '璃', '月', '港'];
+        const ornaments = ['⚜', '✧', '✦', '✶'];
         for (let i = 0; i < 4; i++) {
             const el = document.createElement('div');
-            el.className = 'liyue-ornament';
+            el.className = 'mondstadt-ornament';
             el.textContent = ornaments[i % ornaments.length];
             el.style.top = (10 + Math.random() * 70) + '%';
             el.style.left = (5 + Math.random() * 85) + '%';
             el.style.fontSize = (50 + Math.random() * 80) + 'px';
-            el.style.opacity = String(0.01 + Math.random() * 0.02);
+            el.style.opacity = String(0.005 + Math.random() * 0.01);
             el.style.animation = `ornamentFloat ${25 + Math.random() * 20}s ease-in-out infinite`;
             el.style.animationDelay = Math.random() * 10 + 's';
             container.appendChild(el);
@@ -24,23 +24,11 @@ export default function LiyueBg() {
     }, []);
 
     return (
-        <div className="liyue-bg">
+        <div className="mondstadt-bg">
             <img
                 src="/images/liyue/liyue-bg.jpg"
-                alt="Liyue"
-                className="liyue-bg-image"
-            />
-            <div className="liyue-clouds-wrapper">
-                <img
-                    src="/images/liyue/oblako.png"
-                    alt="Clouds"
-                    className="liyue-clouds-pattern"
-                />
-            </div>
-            <img
-                src="/images/liyue/dragon.png"
-                alt="Dragon"
-                className="liyue-dragon-decor"
+                alt="Mondstadt"
+                className="mondstadt-bg-image"
             />
             <div className="liyue-pattern-overlay"></div>
         </div>

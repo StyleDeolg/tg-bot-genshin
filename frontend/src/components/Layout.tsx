@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 import Header from './Header';
 import BottomNav from './BottomNav';
-import LiyueBg from './LiyueBg';
+import MondstadtBg from './MondstadtBg';
 
 interface LayoutProps {
     children: ReactNode;
@@ -10,7 +10,7 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
     return (
         <div className="layout">
-            <LiyueBg />
+            <MondstadtBg />
             <Header />
             <main className="main-content">{children}</main>
             <BottomNav />
