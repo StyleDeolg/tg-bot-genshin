@@ -16,6 +16,11 @@ export default function HomePage() {
     const [showResult, setShowResult] = useState(false);
     const [debugInfo, setDebugInfo] = useState<string>('');
 
+    // 👇 СДВИГ ИНДЕКСА (попробуй 0, 2, 4, 6, -2)
+    // Если осколок показывает 60 кристаллов → попробуй OFFSET = 2
+    // Если 60 кристаллов показывает луну → попробуй OFFSET = 4
+    const OFFSET = 2;
+
     const handleSpin = async () => {
         if (!user || isSpinning) return;
         if (user.tickets < 1) {
@@ -32,11 +37,13 @@ export default function HomePage() {
         try {
             const data = await spinWheel(user.telegram_id);
 
-            // 👇 ПРЯМОЙ ИНДЕКС — БЕЗ МАППИНГА
-            setDebugInfo(`🎯 ${data.prize} (индекс: ${data.segment_index})`);
+            // 👇 ПРИМЕНЯЕМ СДВИГ
+            const visualIndex = (data.segment_index + OFFSET) % 8;
+
+            setDebugInfo(`🎯 ${data.prize} (индекс БД: ${data.segment_index} → визуальный: ${visualIndex})`);
             setResult({
                 ...data,
-                visual_index: data.segment_index,
+                visual_index: visualIndex,
             });
 
             try {
