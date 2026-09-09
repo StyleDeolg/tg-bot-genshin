@@ -164,7 +164,6 @@ export default function TasksPage() {
         <div className="page tasks-page">
             <div className="tasks-content">
                 <div className="page-header">
-                    <span className="page-title-chinese">Задания</span>
                     <h1 className="page-title">Задания</h1>
                     <p className="page-subtitle">Выполняй и получай награды</p>
                 </div>

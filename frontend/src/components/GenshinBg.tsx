@@ -16,7 +16,7 @@ export default function GenshinBg() {
             el.style.top = (5 + Math.random() * 85) + '%';
             el.style.left = (5 + Math.random() * 85) + '%';
             el.style.fontSize = (30 + Math.random() * 50) + 'px';
-            el.style.opacity = String(0.005 + Math.random() * 0.01);
+            el.style.opacity = String(0.01 + Math.random() * 0.02);
             el.style.animation = `ornamentFloat ${30 + Math.random() * 20}s ease-in-out infinite`;
             el.style.animationDelay = Math.random() * 15 + 's';
             container.appendChild(el);

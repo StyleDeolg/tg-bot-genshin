@@ -38,6 +38,7 @@ body {
 }
 
 /* ===== ФОН ===== */
+/* ===== ФОН ===== */
 .genshin-bg {
     position: fixed;
     top: 0;
@@ -59,8 +60,8 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.04;
-    filter: blur(4px) saturate(0.3);
+    opacity: 0.12;
+    filter: blur(6px) saturate(0.4) brightness(0.7);
 }
 
 .genshin-glow {
@@ -70,7 +71,7 @@ body {
     transform: translateX(-50%);
     width: 80%;
     height: 50%;
-    background: radial-gradient(ellipse at center, rgba(212, 175, 55, 0.02) 0%, transparent 70%);
+    background: radial-gradient(ellipse at center, rgba(212, 175, 55, 0.03) 0%, transparent 70%);
     pointer-events: none;
     animation: glowPulse 6s ease-in-out infinite alternate;
 }
@@ -90,7 +91,7 @@ body {
 .genshin-ornament {
     position: absolute;
     font-size: 40px;
-    color: rgba(212, 175, 55, 0.02);
+    color: rgba(212, 175, 55, 0.03);
     pointer-events: none;
 }
 
@@ -998,4 +999,8 @@ body {
     .main-content {
         padding: 12px 10px 80px;
     }
+}
+
+.home-content .btn-genshin {
+    margin: 0 auto;
 }

@@ -41,7 +41,6 @@ export default function FriendsPage() {
         <div className="page friends-page">
             <div className="friends-content">
                 <div className="page-header">
-                    <span className="page-title-chinese">Друзья</span>
                     <h1 className="page-title">Друзья</h1>
                     <p className="page-subtitle">Приглашай и получай бонусы</p>
                 </div>
@@ -65,7 +64,9 @@ export default function FriendsPage() {
                     </div>
                 </div>
 
-                <span className="list-title">Прогресс наград</span>
+                <div className="w-100 text-center mt-3">
+                    <span className="list-title">Прогресс наград</span>
+                </div>
 
                 <div className="referral-progress-wrapper">
                     {data?.rewards?.map((r: any, index: number) => {

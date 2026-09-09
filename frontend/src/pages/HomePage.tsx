@@ -14,7 +14,6 @@ export default function HomePage() {
     const [result, setResult] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
     const [showResult, setShowResult] = useState(false);
-    const [debugInfo, setDebugInfo] = useState<string>('');
 
     const OFFSET = -2;
 
@@ -29,13 +28,11 @@ export default function HomePage() {
         setResult(null);
         setError(null);
         setShowResult(false);
-        setDebugInfo('⏳ Отправка запроса...');
 
         try {
             const data = await spinWheel(user.telegram_id);
             const visualIndex = (data.segment_index + OFFSET) % 8;
 
-            setDebugInfo(`🎯 ${data.prize} (индекс БД: ${data.segment_index} → визуальный: ${visualIndex})`);
             setResult({
                 ...data,
                 visual_index: visualIndex,
@@ -51,7 +48,6 @@ export default function HomePage() {
 
         } catch (err: any) {
             setError(err.response?.data?.detail || 'Ошибка при вращении');
-            setDebugInfo('❌ Ошибка');
             setIsSpinning(false);
         }
     };
@@ -95,7 +91,6 @@ export default function HomePage() {
         <div className="page home-page">
             <div className="home-content">
                 <div className="page-header">
-                    <span className="page-title-chinese">Колесо Фортуны</span>
                     <h1 className="page-title">Колесо Фортуны</h1>
                     <p className="page-subtitle">Крути и выигрывай призы</p>
                 </div>
@@ -108,14 +103,14 @@ export default function HomePage() {
                     />
                 </GlassCard>
 
-                {debugInfo && <div className="debug-info">{debugInfo}</div>}
-
-                <ButtonGenshin
-                    text={isSpinning ? 'Вращается...' : 'Вращать'}
-                    onClick={handleSpin}
-                    disabled={isSpinning || (user?.tickets ?? 0) < 1}
-                    icon={!isSpinning ? <TicketIcon size={18} /> : undefined}
-                />
+                <div className="d-flex justify-content-center w-100">
+                    <ButtonGenshin
+                        text={isSpinning ? 'Вращается...' : 'Вращать'}
+                        onClick={handleSpin}
+                        disabled={isSpinning || (user?.tickets ?? 0) < 1}
+                        icon={!isSpinning ? <TicketIcon size={18} /> : undefined}
+                    />
+                </div>
 
                 {showResult && resultDisplay && (
                     <div className="spin-result">
