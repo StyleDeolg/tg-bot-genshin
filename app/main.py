@@ -68,22 +68,31 @@ async def get_bot_app():
         _bot_app.add_handler(CommandHandler("app", app_command))
         
         # ===== 2. CONVERSATION HANDLER =====
-        # ВАЖНО: ConversationHandler перехватывает ВСЕ текстовые сообщения,
-        # когда активен диалог. fallback срабатывает, если сообщение НЕ подошло под states.
         conv_handler = ConversationHandler(
             entry_points=[CommandHandler("bind_uid", bind_uid_start)],
             states={
                 WAITING_UID: [MessageHandler(filters.TEXT & ~filters.COMMAND, bind_uid_input)],
                 WAITING_SERVER: [MessageHandler(filters.TEXT & ~filters.COMMAND, bind_uid_server)],
             },
-            fallbacks=[
-                CommandHandler("start", start_command),
-                # 👇 СЮДА ПОПАДАЮТ СООБЩЕНИЯ, КОТОРЫЕ НЕ ПОДОШЛИ ПОД STATES
-                MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons)
-            ],
+            fallbacks=[CommandHandler("start", start_command)],
             allow_reentry=True,
         )
         _bot_app.add_handler(conv_handler)
+        
+        # ===== 3. ОБРАБОТЧИК КНОПОК (НО С ФИЛЬТРОМ) =====
+        # Он НЕ будет обрабатывать сообщения, если активен диалог bind_uid
+        async def button_handler_filtered(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            if context.user_data.get('conversation') == 'bind_uid':
+                # Если мы в диалоге — просто выходим, ничего не делаем
+                return
+            await handle_buttons(update, context)
+        
+        _bot_app.add_handler(
+            MessageHandler(
+                filters.TEXT & ~filters.COMMAND,
+                button_handler_filtered
+            )
+        )
         
         _bot_app.add_error_handler(error_handler)
         

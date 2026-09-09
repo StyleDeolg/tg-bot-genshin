@@ -30,9 +30,9 @@ from app.config import config
 
 async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
-    Обработчик кнопок и текстовых сообщений.
-    ВАЖНО: Этот обработчик НЕ ПОЛУЧАЕТ сообщения, когда активен ConversationHandler.
-    Все сообщения в диалоге bind_uid перехватываются ConversationHandler.
+    Обработчик кнопок.
+    Этот обработчик НЕ получает сообщения, когда активен диалог bind_uid,
+    потому что мы добавили фильтр в main.py
     """
     
     text = update.message.text
