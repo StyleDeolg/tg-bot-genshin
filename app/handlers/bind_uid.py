@@ -43,7 +43,7 @@ async def bind_uid_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     db.close()
     
-    # Устанавливаем флаг, что мы в диалоге привязки
+    # 👇 УСТАНАВЛИВАЕМ ФЛАГ, ЧТО МЫ В ДИАЛОГЕ ПРИВЯЗКИ
     context.user_data['conversation'] = 'bind_uid'
     
     await update.message.reply_text(
@@ -62,7 +62,6 @@ async def bind_uid_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     text = update.message.text.strip()
     
-    # Проверяем отмену
     if text == "❌ Отмена":
         context.user_data.pop('conversation', None)
         user_id = update.effective_user.id
@@ -147,7 +146,7 @@ async def bind_uid_server(update: Update, context: ContextTypes.DEFAULT_TYPE):
     db.commit()
     db.close()
 
-    # Очищаем состояние
+    # 👇 ОЧИЩАЕМ ФЛАГ
     context.user_data.pop('conversation', None)
     context.user_data.pop('uid', None)
     

@@ -6,7 +6,6 @@ from app.config import config
 
 app = FastAPI(title="Genshin Bot API", version="0.1.0")
 
-# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -15,7 +14,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Роутеры
 app.include_router(auth.router)
 app.include_router(wheel.router)
 app.include_router(profile.router)
@@ -49,7 +47,6 @@ TOKEN = config.BOT_TOKEN
 WEBHOOK_PATH = "/webhook"
 SECRET_TOKEN = config.WEBHOOK_SECRET_TOKEN
 
-# Глобальная переменная для бота
 _bot_app = None
 
 async def get_bot_app():
@@ -57,14 +54,13 @@ async def get_bot_app():
     if _bot_app is None:
         _bot_app = Application.builder().token(TOKEN).build()
         
-        # ===== КОМАНДЫ =====
         _bot_app.add_handler(CommandHandler("start", start_command))
         _bot_app.add_handler(CommandHandler("help", help_command))
         _bot_app.add_handler(CommandHandler("profile", profile_command))
         _bot_app.add_handler(CommandHandler("unbind_uid", unbind_uid))
         _bot_app.add_handler(CommandHandler("app", app_command))
         
-        # ===== CONVERSATION HANDLER (ДОЛЖЕН БЫТЬ ВЫШЕ MessageHandler) =====
+        # ===== CONVERSATION HANDLER =====
         conv_handler = ConversationHandler(
             entry_points=[CommandHandler("bind_uid", bind_uid_start)],
             states={
@@ -75,7 +71,7 @@ async def get_bot_app():
         )
         _bot_app.add_handler(conv_handler)
         
-        # ===== ОБРАБОТЧИК КНОПОК (ДОЛЖЕН БЫТЬ НИЖЕ ConversationHandler) =====
+        # ===== ОБРАБОТЧИК КНОПОК =====
         _bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons))
         _bot_app.add_error_handler(error_handler)
         

@@ -23,27 +23,20 @@ from app.handlers.sponsors import (
     delete_sponsor_start,
     delete_sponsor_confirm,
     list_sponsors_admin,
+    add_sponsor_start,
 )
 from app.config import config
 
 
 async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Обработчик кнопок и текстовых сообщений"""
+    
+    # 👇 ЕСЛИ ПОЛЬЗОВАТЕЛЬ В ДИАЛОГЕ ПРИВЯЗКИ UID — ПРОПУСКАЕМ
+    if context.user_data.get('conversation') == 'bind_uid':
+        return  # Ничего не делаем, ConversationHandler сам обработает
+    
     text = update.message.text
     user_id = update.effective_user.id
-    
-    # ===== ПРОВЕРЯЕМ, НЕ НАХОДИМСЯ ЛИ МЫ В ДИАЛОГЕ ПРИВЯЗКИ UID =====
-    # Если пользователь ввёл UID (9-10 цифр) — пропускаем, ConversationHandler сам обработает
-    if text and text.isdigit() and len(text) in (9, 10):
-        # Проверяем, есть ли активный диалог привязки
-        if context.user_data.get('conversation') == 'bind_uid':
-            return  # Пропускаем, обработка в bind_uid_input
-        
-        # Если пользователь ввёл UID не в диалоге — показываем сообщение
-        if 'uid' not in context.user_data:
-            await update.message.reply_text(
-                "❌ Используй /bind_uid для привязки UID"
-            )
-            return
     
     # ===== АКТИВНЫЕ ДЕЙСТВИЯ АДМИНКИ =====
     action = context.user_data.get('admin_action')
@@ -119,7 +112,6 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     elif text == "➕ Добавить спонсора":
         if user_id in config.ADMIN_IDS:
-            from app.handlers.sponsors import add_sponsor_start
             await add_sponsor_start(update, context)
         else:
             await update.message.reply_text("⛔ Нет доступа")
