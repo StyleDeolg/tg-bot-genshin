@@ -163,16 +163,15 @@ export default function TasksPage() {
         <div className="page tasks-page">
             <div className="tasks-content">
                 <div className="page-header">
-                    <span className="page-title-chinese">任务</span>
+                    <span className="page-title-chinese">Задания</span>
                     <h1 className="page-title">Задания</h1>
                     <p className="page-subtitle">Выполняй и получай награды</p>
                 </div>
 
-                {/* СПОНСОРЫ */}
                 {sponsorTasks.length > 0 && (
                     <div className="tasks-section">
                         <div className="tasks-section-header">
-                            <span className="tasks-section-title">赞助商</span>
+                            <span className="tasks-section-title">Спонсоры</span>
                             <span className="tasks-section-count">
                                 {sponsorTasks.filter(t => t.completed).length}/{sponsorTasks.length}
                             </span>
@@ -213,7 +212,7 @@ export default function TasksPage() {
                                                 e.currentTarget.style.background = 'rgba(212, 175, 55, 0.02)';
                                             }}
                                         >
-                                            进入频道
+                                            Перейти в канал
                                         </a>
                                     )}
 
@@ -239,11 +238,10 @@ export default function TasksPage() {
                     </div>
                 )}
 
-                {/* ОБЫЧНЫЕ ЗАДАНИЯ */}
                 {regularTasks.length > 0 && (
                     <div className="tasks-section">
                         <div className="tasks-section-header">
-                            <span className="tasks-section-title">任务</span>
+                            <span className="tasks-section-title">Другие задания</span>
                             <span className="tasks-section-count">
                                 {regularTasks.filter(t => t.completed).length}/{regularTasks.length}
                             </span>

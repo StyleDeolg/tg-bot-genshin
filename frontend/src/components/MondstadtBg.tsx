@@ -15,8 +15,8 @@ export default function MondstadtBg() {
             el.textContent = ornaments[i % ornaments.length];
             el.style.top = (10 + Math.random() * 70) + '%';
             el.style.left = (5 + Math.random() * 85) + '%';
-            el.style.fontSize = (50 + Math.random() * 80) + 'px';
-            el.style.opacity = String(0.005 + Math.random() * 0.01);
+            el.style.fontSize = (40 + Math.random() * 60) + 'px';
+            el.style.opacity = String(0.003 + Math.random() * 0.005);
             el.style.animation = `ornamentFloat ${25 + Math.random() * 20}s ease-in-out infinite`;
             el.style.animationDelay = Math.random() * 10 + 's';
             container.appendChild(el);

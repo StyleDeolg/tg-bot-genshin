@@ -859,3 +859,67 @@ body {
         font-size: 16px;
     }
 }
+
+/* ===== ВЫРАВНИВАНИЕ ===== */
+.home-content,
+.friends-content,
+.tasks-content,
+.profile-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.home-content .glass-card,
+.friends-content .glass-card,
+.tasks-content .task-card,
+.profile-page .glass-card {
+    width: 100%;
+}
+
+.page-header {
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.page-title,
+.page-subtitle,
+.page-title-chinese {
+    text-align: center;
+}
+
+/* ===== ЦЕНТРИРОВАНИЕ КОНТЕНТА ===== */
+.glass-card,
+.liyue-card {
+    width: 100%;
+}
+
+.task-actions {
+    width: 100%;
+}
+
+.task-actions .btn-mond {
+    max-width: 100%;
+}
+
+.referral-stats {
+    width: 100%;
+}
+
+.referral-progress-wrapper {
+    width: 100%;
+}
+
+/* ===== СПИСОК ЗАДАНИЙ ===== */
+.tasks-section {
+    width: 100%;
+}
+
+.tasks-section-header {
+    width: 100%;
+    justify-content: center;
+}

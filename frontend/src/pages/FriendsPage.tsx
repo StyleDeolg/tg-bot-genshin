@@ -41,7 +41,7 @@ export default function FriendsPage() {
         <div className="page friends-page">
             <div className="friends-content">
                 <div className="page-header">
-                    <span className="page-title-chinese">四海之内皆兄弟</span>
+                    <span className="page-title-chinese">Друзья</span>
                     <h1 className="page-title">Друзья</h1>
                     <p className="page-subtitle">Приглашай и получай бонусы</p>
                 </div>

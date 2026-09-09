@@ -93,7 +93,7 @@ export default function HomePage() {
         <div className="page home-page">
             <div className="home-content">
                 <div className="page-header">
-                    <span className="page-title-chinese">命运之轮</span>
+                    <span className="page-title-chinese">Колесо Фортуны</span>
                     <h1 className="page-title">Колесо Фортуны</h1>
                     <p className="page-subtitle">Крути и выигрывай призы</p>
                 </div>

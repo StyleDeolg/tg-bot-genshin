@@ -43,7 +43,7 @@ export default function ProfilePage() {
     return (
         <div className="page profile-page">
             <div className="profile-header">
-                <span className="page-title-chinese">蒙德</span>
+                <span className="page-title-chinese">Мондштадт</span>
                 <div className="profile-avatar">
                     {avatarUrl ? (
                         <img src={avatarUrl} alt={profile?.first_name || 'User'} className="profile-avatar-image" onError={() => setAvatarUrl(null)} />
