@@ -16,24 +16,6 @@ export default function HomePage() {
     const [showResult, setShowResult] = useState(false);
     const [debugInfo, setDebugInfo] = useState<string>('');
 
-    // ===== ПЕРЕОПРЕДЕЛЯЕМ ИНДЕКСЫ =====
-    // Бэкенд возвращает индекс, но на колесе порядок может отличаться
-    // Здесь мы задаём правильное соответствие
-    const getVisualIndex = (backendIndex: number): number => {
-        // Если перепутаны местами, меняем здесь
-        const mapping: Record<number, number> = {
-            0: 0,   // Пусто → Пусто
-            1: 1,   // Осколок → 60 кристаллов (если перепутаны)
-            2: 2,   // Пусто → Пусто
-            3: 3,   // 60 кристаллов → Осколок (если перепутаны)
-            4: 4,   // Пусто → Пусто
-            5: 5,   // Луна → 330 кристаллов (если перепутаны)
-            6: 6,   // Пусто → Пусто
-            7: 7,   // 330 кристаллов → Луна (если перепутаны)
-        };
-        return mapping[backendIndex] ?? backendIndex;
-    };
-
     const handleSpin = async () => {
         if (!user || isSpinning) return;
         if (user.tickets < 1) {
@@ -50,13 +32,11 @@ export default function HomePage() {
         try {
             const data = await spinWheel(user.telegram_id);
 
-            // Преобразуем индекс для визуального отображения
-            const visualIndex = getVisualIndex(data.segment_index);
-
-            setDebugInfo(`🎯 ${data.prize} (индекс БД: ${data.segment_index} → визуальный: ${visualIndex})`);
+            // 🔥 ИСПРАВЛЕНО: используем индекс из БД как есть, без маппинга
+            setDebugInfo(`🎯 ${data.prize} (индекс: ${data.segment_index})`);
             setResult({
                 ...data,
-                visual_index: visualIndex,  // ← добавляем визуальный индекс
+                visual_index: data.segment_index,  // просто используем тот же индекс
             });
 
             try {
@@ -85,23 +65,23 @@ export default function HomePage() {
             return { emoji: '💨', text: 'Тебе ничего не выпало... Попробуй ещё раз!' };
         }
         if (result.prize_type === 'moon') {
-            return { emoji: '🌙', text: 'Ты выиграл ЛУНУ! 🎉' };
+            return { emoji: '🌙', text: '🌙 Ты выиграл ЛУНУ! 🎉' };
         }
         if (result.prize_type === 'shard') {
             return {
                 icon: <ShardIcon size={28} />,
-                text: `Ты выиграл осколок! (${result.shards}/6)`
+                text: `🔮 Ты выиграл осколок! (${result.shards}/6)`
             };
         }
         if (result.prize_type === 'crystals_60' || result.prize_type === 'crystals_330') {
             return {
                 emoji: '💎',
-                text: `Ты выиграл ${result.prize_value} кристаллов!`
+                text: `💎 Ты выиграл ${result.prize_value} кристаллов!`
             };
         }
         return {
             emoji: result.emoji || '🎁',
-            text: `Ты выиграл ${result.prize}!`
+            text: `🎁 Ты выиграл ${result.prize}!`
         };
     };
 
@@ -138,7 +118,7 @@ export default function HomePage() {
                 )}
 
                 <GoldButton
-                    text={isSpinning ? '🔄 Крутится...' : 'Крутить'}
+                    text={isSpinning ? '🔄 Крутится...' : '🎡 Крутить'}
                     onClick={handleSpin}
                     disabled={isSpinning || (user?.tickets ?? 0) < 1}
                     icon={!isSpinning ? <TicketIcon size={18} /> : undefined}

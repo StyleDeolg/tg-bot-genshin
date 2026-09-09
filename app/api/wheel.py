@@ -37,7 +37,8 @@ async def spin(request: SpinRequest):
             db.close()
             raise HTTPException(status_code=400, detail="Недостаточно билетиков")
         
-        prizes = db.query(WheelConfig).filter_by(is_active="true").order_by(WheelConfig.created_at).all()
+        # 👇 ИСПРАВЛЕНО: order_by(WheelConfig.id) для стабильного порядка
+        prizes = db.query(WheelConfig).filter_by(is_active="true").order_by(WheelConfig.id).all()
         if not prizes:
             db.close()
             raise HTTPException(status_code=404, detail="Призы не настроены")
@@ -50,6 +51,7 @@ async def spin(request: SpinRequest):
             if p.prize_type == "shard":
                 # Базовый шанс 50% (5000)
                 # Уменьшаем в зависимости от количества осколков
+                # 0 осколков = 50%, 5 осколков = 0%
                 shard_factor = max(0, 1 - (user.moon_shards / 6))
                 chance = int(5000 * shard_factor)
                 
@@ -163,7 +165,8 @@ async def get_prizes():
     """Получить список активных призов для колеса"""
     db = SessionLocal()
     try:
-        prizes = db.query(WheelConfig).filter_by(is_active="true").order_by(WheelConfig.created_at).all()
+        # 👇 ИСПРАВЛЕНО: order_by(WheelConfig.id)
+        prizes = db.query(WheelConfig).filter_by(is_active="true").order_by(WheelConfig.id).all()
         
         if not prizes:
             return [
