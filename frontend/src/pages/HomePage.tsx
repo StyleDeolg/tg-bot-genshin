@@ -19,7 +19,7 @@ export default function HomePage() {
     // 👇 СДВИГ ИНДЕКСА (попробуй 0, 2, 4, 6, -2)
     // Если осколок показывает 60 кристаллов → попробуй OFFSET = 2
     // Если 60 кристаллов показывает луну → попробуй OFFSET = 4
-    const OFFSET = 2;
+    const OFFSET = -2;
 
     const handleSpin = async () => {
         if (!user || isSpinning) return;

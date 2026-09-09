@@ -28,7 +28,7 @@ export default function Header() {
                 </div>
                 <div>
                     <div className="user-name">{name}</div>
-                    <div className="user-username">@{user?.username || 'user'}</div>
+                    <div className="user-username">@{user?.username || 'Искатель приключений'}</div>
                 </div>
             </div>
             <div className="header-right">

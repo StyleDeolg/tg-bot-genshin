@@ -1,37 +1,12 @@
 import { useState, useEffect } from 'react';
 import './LoadingScreen.css';
 
-// ПЕРСОНАЖИ С ИХ ФРАЗАМИ
+// ПЕРСОНАЖИ МОНДШТАДТА
 const characters = [
     {
-        name: 'Альбедо',
-        image: '/characters/Albedo.png',
-        quote: '«Мои исследования — это не просто работа, это моя страсть.»'
-    },
-    {
-        name: 'Беннет',
-        image: '/characters/Bennett.png',
-        quote: '«Не сдавайся! Даже если всё идёт не по плану!»'
-    },
-    {
-        name: 'Дилюк',
-        image: '/characters/Diluc.png',
-        quote: '«Тьма не может скрыть правду, как и свет — ложь.»'
-    },
-    {
-        name: 'Фишль',
-        image: '/characters/Fischl.png',
-        quote: '«Я, Фишль, приветствую тебя в моём мире!»'
-    },
-    {
-        name: 'Гань Юй',
-        image: '/characters/Ganyu.png',
-        quote: '«Я всегда рада помочь, даже если это значит работать сверхурочно.»'
-    },
-    {
-        name: 'Ху Тао',
-        image: '/characters/Hutao.png',
-        quote: '«Жизнь коротка, так что давай веселиться!»'
+        name: 'Венти',
+        image: '/characters/Venti.png',
+        quote: '«Ветер свободы всегда ведёт нас вперёд.»'
     },
     {
         name: 'Джинн',
@@ -39,29 +14,29 @@ const characters = [
         quote: '«Я клянусь защищать Мондштадт до последнего вздоха.»'
     },
     {
-        name: 'Кадзуха',
-        image: '/characters/Kazuha.png',
-        quote: '«Ветер помнит тех, кто ушёл, но не тех, кто остался.»'
+        name: 'Дилюк',
+        image: '/characters/Diluc.png',
+        quote: '«Тьма не может скрыть правду, как и свет — ложь.»'
     },
     {
-        name: 'Кэ Цин',
-        image: '/characters/Keqing.png',
-        quote: '«Ли Я, Кэ Цин, не привыкла ждать чуда. Я сама творю свою судьбу.»'
+        name: 'Кэйа',
+        image: '/characters/Kaeya.png',
+        quote: '«Лёд и пламя — две стороны одной медали.»'
     },
     {
-        name: 'Кокоми',
-        image: '/characters/Kokomi.png',
-        quote: '«Стратегия — это искусство, и я его мастер.»'
+        name: 'Лиза',
+        image: '/characters/Lisa.png',
+        quote: '«Знания — это сила, но не всегда безопасная.»'
     },
     {
-        name: 'Мона',
-        image: '/characters/Mona.png',
-        quote: '«Звёзды говорят мне, что нас ждёт великое приключение.»'
+        name: 'Беннет',
+        image: '/characters/Bennett.png',
+        quote: '«Не сдавайся! Даже если всё идёт не по плану!»'
     },
     {
-        name: 'Нахида',
-        image: '/characters/Nahida.png',
-        quote: '«Знание — это свет, который ведёт нас сквозь тьму.»'
+        name: 'Фишль',
+        image: '/characters/Fischl.png',
+        quote: '«Я, Фишль, приветствую тебя в моём мире!»'
     },
     {
         name: 'Ноэль',
@@ -69,44 +44,14 @@ const characters = [
         quote: '«Я защищу вас, чего бы это ни стоило!»'
     },
     {
-        name: 'Рэйзор',
-        image: '/characters/Razor.png',
-        quote: '«Я — волк. Волк — это я. Мы вместе.»'
-    },
-    {
-        name: 'Розария',
-        image: '/characters/Rosaria.png',
-        quote: '«Я не люблю шумные компании, но ты — исключение.»'
-    },
-    {
-        name: 'Райдэн Эи',
-        image: '/characters/Shougun.png',
-        quote: '«Вечность — это не просто слово, это мой путь.»'
-    },
-    {
         name: 'Сахароза',
         image: '/characters/Sucrose.png',
         quote: '«Я... Я просто хочу помочь тебе в твоих исследованиях.»'
     },
     {
-        name: 'Тарталья',
-        image: '/characters/Tartaglia.png',
-        quote: '«Битва — это поэзия, и я её главный поэт.»'
-    },
-    {
-        name: 'Венти',
-        image: '/characters/Venti.png',
-        quote: '«Ветер всегда со мной, и я всегда с ветром.»'
-    },
-    {
-        name: 'Сяо',
-        image: '/characters/Xiao.png',
-        quote: '«Я страж, и мой долг — защищать этот мир.»'
-    },
-    {
-        name: 'Чжун Ли',
-        image: '/characters/Zhongli.png',
-        quote: '«Контракты должны соблюдаться, даже если время идёт против нас.»'
+        name: 'Альбедо',
+        image: '/characters/Albedo.png',
+        quote: '«Мои исследования — это не просто работа, это моя страсть.»'
     },
 ];
 
@@ -123,7 +68,6 @@ export default function LoadingScreen({ onLoadingComplete }: LoadingScreenProps)
     useEffect(() => {
         const startTime = Date.now();
 
-        // Выбираем случайного персонажа при старте
         const randomChar = characters[Math.floor(Math.random() * characters.length)];
         setCurrentChar(randomChar);
 
@@ -134,7 +78,6 @@ export default function LoadingScreen({ onLoadingComplete }: LoadingScreenProps)
             });
         }, 50);
 
-        // Меняем персонажа каждые 4 секунды
         const charInterval = setInterval(() => {
             const randomChar = characters[Math.floor(Math.random() * characters.length)];
             setCurrentChar(randomChar);
@@ -160,11 +103,14 @@ export default function LoadingScreen({ onLoadingComplete }: LoadingScreenProps)
         <div className="loading-screen">
             <div className="loading-background">
                 <div className="loading-glow"></div>
+                <div className="loading-crest">⚜️</div>
             </div>
 
             <div className="loading-content">
                 <div className="loading-header">
-                    <h1 className="loading-title">Genshin Community</h1>
+                    <div className="loading-crest-small">⚜️</div>
+                    <h1 className="loading-title">Genshin Pool</h1>
+                    <p className="loading-subtitle">Мондштадт · Город Свободы</p>
                 </div>
 
                 <div className="loading-center">
@@ -192,14 +138,13 @@ export default function LoadingScreen({ onLoadingComplete }: LoadingScreenProps)
                         <span className="loading-percent">{Math.round(progress)}%</span>
                     </div>
 
-                    {/* ФРАЗА ПЕРСОНАЖА */}
                     <div className="loading-quote">
                         <p className="quote-text">{currentChar.quote}</p>
                     </div>
                 </div>
 
                 <div className="loading-footer">
-                    <p className="loading-version">v1.0.0</p>
+                    <p className="loading-version">⚜️ v1.0.0 · Мондштадт</p>
                 </div>
             </div>
         </div>

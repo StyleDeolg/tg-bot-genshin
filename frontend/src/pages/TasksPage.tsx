@@ -39,7 +39,7 @@ export default function TasksPage() {
         loadData();
     }, [user]);
 
-    // ===== ОБНОВЛЕНИЕ ТАЙМЕРОВ (БЕЗ ЛОГОВ) =====
+    // ===== ОБНОВЛЕНИЕ ТАЙМЕРОВ =====
     useEffect(() => {
         const updateTimers = () => {
             const now = Date.now();
@@ -61,12 +61,10 @@ export default function TasksPage() {
                         newTimeLeft[task.id] = '✅ Готово!';
                     }
                 } else if (task.task_type === 'daily' && !task.last_claimed_at) {
-                    // Если нет last_claimed_at — задание можно забрать
                     newTimeLeft[task.id] = '🎁 Забрать!';
                 }
             });
 
-            // Обновляем состояние ТОЛЬКО если есть изменения
             const currentStr = JSON.stringify(newTimeLeft);
             const prevStr = JSON.stringify(prevTimeLeftRef.current);
             if (currentStr !== prevStr) {
@@ -75,10 +73,7 @@ export default function TasksPage() {
             }
         };
 
-        // Первое обновление
         updateTimers();
-
-        // Обновление раз в секунду
         const interval = setInterval(updateTimers, 1000);
 
         return () => {
@@ -187,16 +182,17 @@ export default function TasksPage() {
                             fontWeight: '600',
                             color: '#d4af37',
                             letterSpacing: '0.5px',
+                            fontFamily: "'Cinzel', serif",
                         }}>
                             🤝 Спонсоры
                         </span>
                         <span style={{
                             fontSize: '12px',
-                            color: 'rgba(240,236,229,0.2)',
-                            background: 'rgba(212,175,55,0.06)',
+                            color: 'rgba(232,224,212,0.2)',
+                            background: 'rgba(212,175,55,0.04)',
                             padding: '2px 10px',
                             borderRadius: '12px',
-                            border: '1px solid rgba(212,175,55,0.06)',
+                            border: '1px solid rgba(212,175,55,0.04)',
                         }}>
                             {sponsorTasks.filter(t => t.completed).length}/{sponsorTasks.length}
                         </span>
@@ -215,8 +211,8 @@ export default function TasksPage() {
                                 padding: '18px 20px',
                                 marginBottom: '12px',
                                 border: isCompleted
-                                    ? '1px solid rgba(90, 143, 106, 0.2)'
-                                    : '1px solid rgba(255,255,255,0.04)',
+                                    ? '1px solid rgba(90, 143, 106, 0.12)'
+                                    : '1px solid rgba(255,255,255,0.03)',
                                 transition: 'all 0.3s ease',
                                 position: 'relative',
                                 overflow: 'hidden',
@@ -226,12 +222,13 @@ export default function TasksPage() {
                                         position: 'absolute',
                                         top: 0,
                                         right: 0,
-                                        background: 'rgba(90, 143, 106, 0.08)',
+                                        background: 'rgba(90, 143, 106, 0.06)',
                                         padding: '4px 14px',
                                         borderRadius: '0 14px 0 12px',
                                         fontSize: '11px',
                                         fontWeight: '600',
                                         color: '#5a8f6a',
+                                        fontFamily: "'Cinzel', serif",
                                     }}>
                                         ✅ Выполнено
                                     </div>
@@ -241,7 +238,8 @@ export default function TasksPage() {
                                     <span style={{
                                         fontSize: '15px',
                                         fontWeight: '600',
-                                        color: '#f0ece5',
+                                        color: '#e8e0d4',
+                                        fontFamily: "'Cinzel', serif",
                                     }}>
                                         {task.title}
                                     </span>
@@ -249,7 +247,7 @@ export default function TasksPage() {
 
                                 <p style={{
                                     fontSize: '13px',
-                                    color: 'rgba(240,236,229,0.4)',
+                                    color: 'rgba(232,224,212,0.35)',
                                     marginBottom: '14px',
                                     lineHeight: 1.5,
                                 }}>
@@ -267,22 +265,23 @@ export default function TasksPage() {
                                                 alignItems: 'center',
                                                 gap: '8px',
                                                 padding: '8px 18px',
-                                                background: 'rgba(212, 175, 55, 0.06)',
+                                                background: 'rgba(212, 175, 55, 0.04)',
                                                 color: '#d4af37',
                                                 borderRadius: '8px',
                                                 fontSize: '13px',
                                                 fontWeight: '500',
                                                 textDecoration: 'none',
-                                                border: '1px solid rgba(212, 175, 55, 0.06)',
+                                                border: '1px solid rgba(212, 175, 55, 0.04)',
                                                 transition: 'all 0.3s ease',
+                                                fontFamily: "'Cinzel', serif",
                                             }}
                                             onMouseEnter={(e) => {
-                                                e.currentTarget.style.background = 'rgba(212, 175, 55, 0.12)';
-                                                e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.15)';
+                                                e.currentTarget.style.background = 'rgba(212, 175, 55, 0.08)';
+                                                e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.08)';
                                             }}
                                             onMouseLeave={(e) => {
-                                                e.currentTarget.style.background = 'rgba(212, 175, 55, 0.06)';
-                                                e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.06)';
+                                                e.currentTarget.style.background = 'rgba(212, 175, 55, 0.04)';
+                                                e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.04)';
                                             }}
                                         >
                                             <span style={{ fontSize: '16px' }}>🔗</span>
@@ -296,9 +295,10 @@ export default function TasksPage() {
                                         <div style={{
                                             padding: '10px 0',
                                             textAlign: 'center',
-                                            color: 'rgba(90, 143, 106, 0.6)',
+                                            color: 'rgba(90, 143, 106, 0.4)',
                                             fontSize: '13px',
                                             fontWeight: '500',
+                                            fontFamily: "'Cinzel', serif",
                                         }}>
                                             🎉 Награда получена!
                                         </div>
@@ -329,18 +329,19 @@ export default function TasksPage() {
                         <span style={{
                             fontSize: '20px',
                             fontWeight: '600',
-                            color: '#f0ece5',
+                            color: '#e8e0d4',
                             letterSpacing: '0.5px',
+                            fontFamily: "'Cinzel', serif",
                         }}>
                             📋 Другие задания
                         </span>
                         <span style={{
                             fontSize: '12px',
-                            color: 'rgba(240,236,229,0.2)',
-                            background: 'rgba(255,255,255,0.03)',
+                            color: 'rgba(232,224,212,0.15)',
+                            background: 'rgba(255,255,255,0.02)',
                             padding: '2px 10px',
                             borderRadius: '12px',
-                            border: '1px solid rgba(255,255,255,0.04)',
+                            border: '1px solid rgba(255,255,255,0.02)',
                         }}>
                             {regularTasks.filter(t => t.completed).length}/{regularTasks.length}
                         </span>
@@ -407,8 +408,8 @@ export default function TasksPage() {
                                 padding: '18px 20px',
                                 marginBottom: '12px',
                                 border: isTaskCompleted
-                                    ? '1px solid rgba(90, 143, 106, 0.12)'
-                                    : '1px solid rgba(255,255,255,0.04)',
+                                    ? '1px solid rgba(90, 143, 106, 0.06)'
+                                    : '1px solid rgba(255,255,255,0.03)',
                                 transition: 'all 0.3s ease',
                             }}>
                                 <div style={{
@@ -420,23 +421,25 @@ export default function TasksPage() {
                                     <span style={{
                                         fontSize: '15px',
                                         fontWeight: '600',
-                                        color: '#f0ece5',
+                                        color: '#e8e0d4',
+                                        fontFamily: "'Cinzel', serif",
                                     }}>
                                         {task.title}
                                     </span>
                                     <span style={{
                                         fontSize: '11px',
                                         fontWeight: '500',
-                                        color: isTaskCompleted ? '#5a8f6a' : 'rgba(240,236,229,0.2)',
+                                        color: isTaskCompleted ? '#5a8f6a' : 'rgba(232,224,212,0.15)',
                                         background: isTaskCompleted
-                                            ? 'rgba(90, 143, 106, 0.08)'
-                                            : 'rgba(255,255,255,0.03)',
+                                            ? 'rgba(90, 143, 106, 0.06)'
+                                            : 'rgba(255,255,255,0.02)',
                                         padding: '2px 12px',
                                         borderRadius: '12px',
                                         border: isTaskCompleted
-                                            ? '1px solid rgba(90, 143, 106, 0.1)'
-                                            : '1px solid rgba(255,255,255,0.04)',
+                                            ? '1px solid rgba(90, 143, 106, 0.06)'
+                                            : '1px solid rgba(255,255,255,0.02)',
                                         whiteSpace: 'nowrap',
+                                        fontFamily: "'Cinzel', serif",
                                     }}>
                                         {isTaskCompleted ? '✅ Готово' : '⏳ В процессе'}
                                     </span>
@@ -444,7 +447,7 @@ export default function TasksPage() {
 
                                 <p style={{
                                     fontSize: '13px',
-                                    color: 'rgba(240,236,229,0.4)',
+                                    color: 'rgba(232,224,212,0.35)',
                                     marginBottom: '12px',
                                     lineHeight: 1.5,
                                 }}>
@@ -461,7 +464,7 @@ export default function TasksPage() {
                                         <div style={{
                                             flex: 1,
                                             height: '4px',
-                                            background: 'rgba(255,255,255,0.06)',
+                                            background: 'rgba(255,255,255,0.04)',
                                             borderRadius: '4px',
                                             overflow: 'hidden',
                                         }}>
@@ -470,7 +473,7 @@ export default function TasksPage() {
                                                 height: '100%',
                                                 background: progress >= required
                                                     ? 'linear-gradient(90deg, #5a8f6a, #7aaf8a)'
-                                                    : 'linear-gradient(90deg, #d4af37, #f0d060)',
+                                                    : 'linear-gradient(90deg, #b8962e, #d4af37)',
                                                 borderRadius: '4px',
                                                 transition: 'width 0.5s ease',
                                             }} />
@@ -478,10 +481,11 @@ export default function TasksPage() {
                                         <span style={{
                                             fontSize: '12px',
                                             fontWeight: '500',
-                                            color: progress >= required ? '#5a8f6a' : 'rgba(240,236,229,0.3)',
+                                            color: progress >= required ? '#5a8f6a' : 'rgba(232,224,212,0.25)',
                                             minWidth: '45px',
                                             textAlign: 'right',
                                             fontVariantNumeric: 'tabular-nums',
+                                            fontFamily: "'Cinzel', serif",
                                         }}>
                                             {progress}/{required}
                                         </span>
@@ -496,10 +500,10 @@ export default function TasksPage() {
                                             justifyContent: 'center',
                                             gap: '8px',
                                             padding: '12px 20px',
-                                            background: 'rgba(255,255,255,0.03)',
+                                            background: 'rgba(255,255,255,0.02)',
                                             borderRadius: '10px',
-                                            border: '1px solid rgba(255,255,255,0.04)',
-                                            color: 'rgba(240,236,229,0.2)',
+                                            border: '1px solid rgba(255,255,255,0.02)',
+                                            color: 'rgba(232,224,212,0.15)',
                                             fontSize: '14px',
                                             fontWeight: '500',
                                             fontFamily: 'monospace',
@@ -527,11 +531,11 @@ export default function TasksPage() {
                 <div style={{
                     textAlign: 'center',
                     padding: '60px 20px',
-                    color: 'rgba(240,236,229,0.2)',
+                    color: 'rgba(232,224,212,0.1)',
                 }}>
                     <div style={{ fontSize: '48px', marginBottom: '16px' }}>📭</div>
-                    <p style={{ fontSize: '16px' }}>Заданий пока нет</p>
-                    <p style={{ fontSize: '13px', marginTop: '4px', color: 'rgba(240,236,229,0.1)' }}>
+                    <p style={{ fontSize: '16px', fontFamily: "'Cinzel', serif" }}>Заданий пока нет</p>
+                    <p style={{ fontSize: '13px', marginTop: '4px', color: 'rgba(232,224,212,0.06)' }}>
                         Загляни позже, они скоро появятся!
                     </p>
                 </div>

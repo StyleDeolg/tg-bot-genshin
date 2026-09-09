@@ -43,7 +43,9 @@ export default function FriendsPage() {
             <p className="page-subtitle">Приглашай друзей и получай бонусы!</p>
 
             <div className="invite-card">
-                <p>Твоя реферальная ссылка:</p>
+                <p style={{ fontFamily: "'Cinzel', serif", color: 'rgba(232,224,212,0.5)', fontSize: '13px', marginBottom: '8px' }}>
+                    Твоя реферальная ссылка:
+                </p>
                 <div className="invite-link-wrapper">
                     <span className="invite-link" onClick={() => handleCopy(data?.link || '')}>
                         {data?.link}

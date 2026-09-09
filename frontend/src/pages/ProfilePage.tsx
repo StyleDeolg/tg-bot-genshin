@@ -47,11 +47,11 @@ export default function ProfilePage() {
                     {avatarUrl ? (
                         <img src={avatarUrl} alt={profile?.first_name || 'User'} className="profile-avatar-image" onError={() => setAvatarUrl(null)} />
                     ) : (
-                        <span className="profile-avatar-fallback">{profile?.first_name?.[0] || '👤'}</span>
+                        <span className="profile-avatar-fallback">{profile?.first_name?.[0] || '⚜️'}</span>
                     )}
                 </div>
                 <h2>{profile?.first_name} {profile?.last_name}</h2>
-                <p>@{profile?.username || 'user'}</p>
+                <p>@{profile?.username || 'Искатель приключений'}</p>
             </div>
 
             <div className="profile-card">
