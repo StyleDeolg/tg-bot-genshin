@@ -35,7 +35,7 @@ async def ping():
 
 # ========== WEBHOOK ==========
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ConversationHandler
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ConversationHandler, ContextTypes
 from app.handlers import (
     start_command, help_command, profile_command,
     bind_uid_start, unbind_uid, app_command, donate_command, error_handler
@@ -72,8 +72,19 @@ async def get_bot_app():
         )
         _bot_app.add_handler(conv_handler)
         
-        # ===== ОБРАБОТЧИК КНОПОК =====
-        _bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons))
+        # ===== ФИЛЬТР ДЛЯ КНОПОК =====
+        async def button_handler_filtered(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            if context.user_data.get('conversation') == 'bind_uid':
+                print("🔍 [button_handler_filtered] Пропускаем, т.к. мы в диалоге bind_uid")
+                return
+            await handle_buttons(update, context)
+        
+        _bot_app.add_handler(
+            MessageHandler(
+                filters.TEXT & ~filters.COMMAND,
+                button_handler_filtered
+            )
+        )
         _bot_app.add_error_handler(error_handler)
         
         await _bot_app.initialize()
