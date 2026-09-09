@@ -3,7 +3,6 @@ import './LoadingScreen.css';
 
 const characters = [
     { name: 'Венти', image: '/characters/Venti.png', quote: 'Ветер свободы всегда ведёт нас вперёд.' },
-    { name: 'Джинн', image: '/characters/Jean.png', quote: 'Я клянусь защищать Мондштадт до последнего вздоха.' },
     { name: 'Дилюк', image: '/characters/Diluc.png', quote: 'Тьма не может скрыть правду, как и свет — ложь.' },
     { name: 'Кэйа', image: '/characters/Kaeya.png', quote: 'Лёд и пламя — две стороны одной медали.' },
     { name: 'Лиза', image: '/characters/Lisa.png', quote: 'Знания — это сила, но не всегда безопасная.' },
