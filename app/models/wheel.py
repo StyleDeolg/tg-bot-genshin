@@ -24,6 +24,7 @@ class WheelConfig(Base):
     chance = Column(Integer, nullable=False)
     emoji = Column(String, nullable=True)
     is_active = Column(String, default="true")
-    prize_type = Column(String, nullable=False, unique=True)  # ← УНИКАЛЬНЫЙ!
+    prize_type = Column(String, nullable=False, unique=True)
+    order = Column(Integer, nullable=False, default=0)  # 👈 ДОБАВЛЯЕМ
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
