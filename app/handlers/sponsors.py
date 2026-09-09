@@ -179,11 +179,11 @@ async def add_sponsor_channel_id(update: Update, context: ContextTypes.DEFAULT_T
         db.add(sponsor)
         db.flush()
         
-        # Создаём задание для подписки
+        # 🔥 ИСПРАВЛЕНО: reward=3 → reward=1
         task = Task(
             title=f"Подпишись на {name}",
-            description=f"Подпишись на канал {name} и получи 3 билетика!",
-            reward=3,
+            description=f"Подпишись на канал {name} и получи 1 билетик!",
+            reward=1,
             task_type="sponsor",
             required_count=1,
             is_active=True,

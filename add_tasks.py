@@ -20,7 +20,7 @@ def add_tasks():
             "is_repeatable": True,
             "sponsor_id": None
         },
-        # 2. ЗАДАНИЕ НА СПИНЫ (цикличное)
+        # 2. ЗАДАНИЕ НА СПИНЫ (цикличное) — 5 спинов
         {
             "title": "🎡 Сделать 5 спинов",
             "description": "Прокрути колесо фортуны 5 раз",
@@ -31,7 +31,7 @@ def add_tasks():
             "is_repeatable": True,
             "sponsor_id": None
         },
-        # 3. СОЦИАЛЬНОЕ ЗАДАНИЕ (рефералы, цикличное)
+        # 3. СОЦИАЛЬНОЕ ЗАДАНИЕ (рефералы, цикличное) — 3 друга
         {
             "title": "👥 Пригласить 3 друзей",
             "description": "Пригласи 3 друзей в бота",
@@ -61,6 +61,14 @@ def add_tasks():
     db.commit()
     db.close()
     print("✅ Задания добавлены!")
+    print("")
+    print("📋 Список заданий:")
+    for task_data in tasks:
+        print(f"   • {task_data['title']} — {task_data['reward']} билетов")
+    print("")
+    print("🔄 Цикличные задания:")
+    print("   • Спины — сбрасываются после получения награды")
+    print("   • Друзья — сбрасываются после получения награды")
 
 if __name__ == "__main__":
     add_tasks()

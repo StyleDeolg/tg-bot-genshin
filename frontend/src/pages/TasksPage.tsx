@@ -137,7 +137,7 @@ export default function TasksPage() {
             await updateProfile();
 
             if (result.success) {
-                alert('Подписка подтверждена! Ты получил 3 билетика!');
+                alert('✅ Подписка подтверждена! Ты получил 1 билетик!');
             } else {
                 alert('❌ ' + (result.message || 'Ты ещё не подписался на канал. Подпишись и попробуй снова!'));
             }

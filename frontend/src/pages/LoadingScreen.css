@@ -19,8 +19,8 @@
     width: 200%;
     height: 200%;
     background:
-        radial-gradient(ellipse at 30% 30%, rgba(212, 175, 55, 0.04) 0%, transparent 50%),
-        radial-gradient(ellipse at 70% 70%, rgba(11, 14, 26, 0.6) 0%, transparent 40%),
+        radial-gradient(ellipse at 30% 30%, rgba(212, 175, 55, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 70%, rgba(11, 14, 26, 0.8) 0%, transparent 40%),
         #0b0e1a;
     animation: loadingBg 6s ease-in-out infinite alternate;
 }
@@ -56,7 +56,7 @@
 
 .loading-crest {
     font-size: 32px;
-    color: rgba(212, 175, 55, 0.06);
+    color: rgba(212, 175, 55, 0.08);
     display: block;
     margin-bottom: 6px;
 }
@@ -66,12 +66,12 @@
     font-weight: 700;
     color: #d4af37;
     letter-spacing: 4px;
-    text-shadow: 0 0 40px rgba(212, 175, 55, 0.02);
+    text-shadow: 0 0 40px rgba(212, 175, 55, 0.05);
 }
 
 .loading-sub {
     font-size: 12px;
-    color: rgba(232, 224, 212, 0.06);
+    color: rgba(232, 224, 212, 0.15);
     letter-spacing: 3px;
     margin-top: 2px;
     font-weight: 300;
@@ -93,13 +93,13 @@
     height: 120px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(212, 175, 55, 0.02);
+    border: 1px solid rgba(212, 175, 55, 0.04);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     padding: 12px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
 }
 
 .character-image {
@@ -125,7 +125,7 @@
 
 .character-name {
     font-size: 14px;
-    color: rgba(232, 224, 212, 0.06);
+    color: rgba(232, 224, 212, 0.15);
     letter-spacing: 4px;
     margin-top: 6px;
     font-weight: 300;
@@ -142,17 +142,18 @@
 .loading-bar-track {
     flex: 1;
     height: 4px;
-    background: rgba(212, 175, 55, 0.02);
+    background: rgba(212, 175, 55, 0.04);
     border-radius: 4px;
     overflow: hidden;
 }
 
 .loading-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #d4af37, #b8962e);
+    background: linear-gradient(90deg, #d4af37, #f0d060);
     border-radius: 4px;
     transition: width 0.3s ease;
     position: relative;
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.05);
 }
 
 .loading-bar-shimmer {
@@ -161,7 +162,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
     animation: shimmer 1.2s infinite;
 }
 
@@ -178,7 +179,7 @@
 .loading-percent {
     font-size: 14px;
     font-weight: 600;
-    color: rgba(232, 224, 212, 0.06);
+    color: rgba(232, 224, 212, 0.12);
     min-width: 40px;
     text-align: right;
 }
@@ -194,7 +195,7 @@
 .quote-text {
     font-size: 14px;
     font-style: italic;
-    color: rgba(232, 224, 212, 0.06);
+    color: rgba(232, 224, 212, 0.12);
     line-height: 1.4;
     font-weight: 300;
 }
@@ -207,7 +208,7 @@
 
 .loading-version {
     font-size: 10px;
-    color: rgba(232, 224, 212, 0.01);
+    color: rgba(232, 224, 212, 0.02);
     letter-spacing: 2px;
 }
 

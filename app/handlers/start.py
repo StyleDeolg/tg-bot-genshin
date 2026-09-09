@@ -45,13 +45,14 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         reward_claimed=False
                     )
                     db.add(referral)
-                    referrer.tickets += 3
+                    # 🔥 ИСПРАВЛЕНО: 3 → 1
+                    referrer.tickets += 1
                     new_user.tickets += 1
                     db.commit()
                     try:
                         await context.bot.send_message(
                             chat_id=int(referrer.telegram_id),
-                            text=f"🎉 Новый реферал! {new_user.first_name} присоединился по твоей ссылке!\n📊 Ты получил 3 🎟️ билетика!"
+                            text=f"🎉 Новый реферал! {new_user.first_name} присоединился по твоей ссылке!\n📊 Ты получил 1 🎟️ билетик!"
                         )
                     except Exception as e:
                         print(f"Не удалось отправить уведомление: {e}")
