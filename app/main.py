@@ -54,14 +54,14 @@ async def get_bot_app():
     if _bot_app is None:
         _bot_app = Application.builder().token(TOKEN).build()
         
-        # Команды
+        # ===== КОМАНДЫ =====
         _bot_app.add_handler(CommandHandler("start", start_command))
         _bot_app.add_handler(CommandHandler("help", help_command))
         _bot_app.add_handler(CommandHandler("profile", profile_command))
         _bot_app.add_handler(CommandHandler("unbind_uid", unbind_uid))
         _bot_app.add_handler(CommandHandler("app", app_command))
         
-        # ===== CONVERSATION HANDLER =====
+        # ===== CONVERSATION HANDLER (ПЕРВЫЙ ОБРАБАТЫВАЕТ ТЕКСТ) =====
         conv_handler = ConversationHandler(
             entry_points=[CommandHandler("bind_uid", bind_uid_start)],
             states={
@@ -72,19 +72,9 @@ async def get_bot_app():
         )
         _bot_app.add_handler(conv_handler)
         
-        # ===== ФИЛЬТР ДЛЯ КНОПОК =====
-        async def button_handler_filtered(update: Update, context: ContextTypes.DEFAULT_TYPE):
-            if context.user_data.get('conversation') == 'bind_uid':
-                print("🔍 [button_handler_filtered] Пропускаем, т.к. мы в диалоге bind_uid")
-                return
-            await handle_buttons(update, context)
-        
-        _bot_app.add_handler(
-            MessageHandler(
-                filters.TEXT & ~filters.COMMAND,
-                button_handler_filtered
-            )
-        )
+        # ===== ОБРАБОТЧИК КНОПОК (ВТОРЫМ) =====
+        # Он будет обрабатывать только то, что не перехватил ConversationHandler
+        _bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons))
         _bot_app.add_error_handler(error_handler)
         
         await _bot_app.initialize()
