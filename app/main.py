@@ -23,6 +23,7 @@ app.include_router(referral.router)
 app.include_router(tasks.router)
 app.include_router(sponsors.router)
 
+
 @app.get("/ping")
 async def ping():
     return {
@@ -33,8 +34,9 @@ async def ping():
         "donators": config.DONATOR_CHAT_IDS
     }
 
+
 # ========== WEBHOOK ==========
-from telegram import Update, Bot
+from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
 from app.handlers import (
     start_command, help_command, profile_command,
@@ -59,6 +61,7 @@ bot_app.add_handler(CommandHandler("bind_uid", bind_uid_start))
 bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons))
 bot_app.add_error_handler(error_handler)
 
+
 @app.post(WEBHOOK_PATH)
 async def webhook_endpoint(request: Request):
     if SECRET_TOKEN:
@@ -66,10 +69,6 @@ async def webhook_endpoint(request: Request):
         if secret != SECRET_TOKEN:
             return Response(status_code=403)
     try:
-        # 👇 ИНИЦИАЛИЗАЦИЯ (исправляет ошибку)
-        if not bot_app.initialized:
-            await bot_app.initialize()
-        
         json_data = await request.json()
         update = Update.de_json(json_data, bot_app.bot)
         await bot_app.process_update(update)
@@ -78,17 +77,18 @@ async def webhook_endpoint(request: Request):
         print(f"❌ Webhook error: {e}")
         return Response(status_code=500)
 
+
 @app.get("/webhook-info")
 async def webhook_info():
-    # 👇 ТОЖЕ ДОБАВЛЯЕМ ИНИЦИАЛИЗАЦИЮ
-    if not bot_app.initialized:
-        await bot_app.initialize()
-    
-    info = await bot_app.bot.get_webhook_info()
-    return {
-        "url": info.url,
-        "pending_update_count": info.pending_update_count,
-        "last_error_message": info.last_error_message,
-    }
+    try:
+        info = await bot_app.bot.get_webhook_info()
+        return {
+            "url": info.url,
+            "pending_update_count": info.pending_update_count,
+            "last_error_message": info.last_error_message,
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
 
 print("🚀 Бот запущен!")
