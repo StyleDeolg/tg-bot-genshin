@@ -35,7 +35,7 @@ export default function FriendsPage() {
         }
     };
 
-    if (loading) return <div className="loading-text text-light opacity-25 text-center py-5">Загрузка...</div>;
+    if (loading) return <div className="loading-text text-center py-5" style={{ color: 'rgba(232,224,212,0.15)' }}>Загрузка...</div>;
 
     return (
         <div className="page friends-page">
@@ -47,7 +47,7 @@ export default function FriendsPage() {
                 </div>
 
                 <div className="glass-card">
-                    <p className="text-light opacity-25" style={{ fontSize: '13px', marginBottom: '8px' }}>
+                    <p style={{ color: 'rgba(232,224,212,0.35)', fontSize: '13px', marginBottom: '8px' }}>
                         Твоя реферальная ссылка:
                     </p>
                     <div className="invite-link-wrapper">
@@ -61,7 +61,7 @@ export default function FriendsPage() {
                 <div className="referral-stats">
                     <div className="stat-card">
                         <span className="stat-number">{data?.count || 0}</span>
-                        <span className="stat-label text-light opacity-25">Приглашено</span>
+                        <span className="stat-label" style={{ color: 'rgba(232,224,212,0.25)' }}>Приглашено</span>
                     </div>
                 </div>
 

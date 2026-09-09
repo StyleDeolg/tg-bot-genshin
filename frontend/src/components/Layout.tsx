@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 import Header from './Header';
 import BottomNav from './BottomNav';
-import MondstadtBg from './MondstadtBg';
+import GenshinBg from './GenshinBg';
 
 interface LayoutProps {
     children: ReactNode;
@@ -10,7 +10,7 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
     return (
         <div className="layout">
-            <MondstadtBg />
+            <GenshinBg />
             <Header />
             <main className="main-content">{children}</main>
             <BottomNav />

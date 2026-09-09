@@ -4,6 +4,7 @@ import { getTasks, claimTask, checkTasks } from '../api/tasks';
 import { getSponsors, checkSponsorSubscription } from '../api/sponsors';
 import type { Sponsor } from '../api/sponsors';
 import TicketIcon from '../components/TicketIcon';
+import ButtonGenshin from '../components/ButtonGenshin';
 
 export default function TasksPage() {
     const { user, updateProfile } = useAuthStore();
@@ -149,7 +150,7 @@ export default function TasksPage() {
         }
     };
 
-    if (loading) return <div className="loading-text text-light opacity-25 text-center py-5">Загрузка заданий...</div>;
+    if (loading) return <div className="loading-text text-center py-5" style={{ color: 'rgba(232,224,212,0.15)' }}>Загрузка заданий...</div>;
 
     const sponsorTasks = tasks.filter(task => task.task_type === 'sponsor');
     const regularTasks = tasks.filter(task => task.task_type !== 'sponsor');
@@ -195,15 +196,20 @@ export default function TasksPage() {
                                             href={sponsor.link}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-decoration-none d-inline-flex align-items-center gap-2 px-3 py-2 rounded-1"
                                             style={{
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                gap: '8px',
+                                                padding: '8px 18px',
                                                 background: 'rgba(212, 175, 55, 0.02)',
                                                 color: '#d4af37',
-                                                border: '1px solid rgba(212, 175, 55, 0.02)',
+                                                borderRadius: '8px',
                                                 fontSize: '13px',
                                                 fontWeight: '500',
-                                                width: 'fit-content',
+                                                textDecoration: 'none',
+                                                border: '1px solid rgba(212, 175, 55, 0.02)',
                                                 transition: 'all 0.3s ease',
+                                                width: 'fit-content',
                                             }}
                                             onMouseEnter={(e) => {
                                                 e.currentTarget.style.background = 'rgba(212, 175, 55, 0.04)';
@@ -218,18 +224,16 @@ export default function TasksPage() {
 
                                     <div className="task-actions">
                                         {isCompleted ? (
-                                            <div className="text-center py-2" style={{ color: 'rgba(90, 143, 106, 0.3)', fontSize: '13px', fontWeight: '500' }}>
+                                            <div style={{ padding: '10px 0', textAlign: 'center', color: 'rgba(90, 143, 106, 0.3)', fontSize: '13px', fontWeight: '500' }}>
                                                 Награда получена
                                             </div>
                                         ) : (
-                                            <button
-                                                className="btn-mond"
+                                            <ButtonGenshin
+                                                text={isChecking ? 'Проверяю...' : 'Проверить подписку'}
                                                 onClick={() => handleCheckSponsor(sponsor.id)}
                                                 disabled={isChecking}
-                                            >
-                                                {isChecking ? 'Проверяю...' : 'Проверить подписку'}
-                                                <TicketIcon size={16} className="btn-mond-icon" />
-                                            </button>
+                                                icon={<TicketIcon size={16} />}
+                                            />
                                         )}
                                     </div>
                                 </div>
@@ -325,10 +329,16 @@ export default function TasksPage() {
 
                                     <div className="task-actions">
                                         {buttonDisabled && !buttonText.includes('Награда получена') ? (
-                                            <div className="d-flex align-items-center justify-content-center gap-2 py-3 px-4 rounded-1" style={{
-                                                background: 'rgba(212, 175, 55, 0.01)',
-                                                border: '1px solid rgba(212, 175, 55, 0.01)',
-                                                color: 'rgba(232, 224, 212, 0.08)',
+                                            <div style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: '8px',
+                                                padding: '12px 20px',
+                                                background: 'rgba(255,255,255,0.02)',
+                                                borderRadius: '8px',
+                                                border: '1px solid rgba(212, 175, 55, 0.02)',
+                                                color: 'rgba(232,224,212,0.15)',
                                                 fontSize: '14px',
                                                 fontWeight: '500',
                                                 fontFamily: 'monospace',
@@ -338,14 +348,12 @@ export default function TasksPage() {
                                                 {buttonText}
                                             </div>
                                         ) : (
-                                            <button
-                                                className="btn-mond"
+                                            <ButtonGenshin
+                                                text={buttonText}
                                                 onClick={buttonOnClick}
                                                 disabled={buttonDisabled}
-                                            >
-                                                {buttonText}
-                                                {!buttonDisabled && !buttonText.includes('Награда получена') && <TicketIcon size={16} className="btn-mond-icon" />}
-                                            </button>
+                                                icon={!buttonDisabled && !buttonText.includes('Награда получена') ? <TicketIcon size={16} /> : undefined}
+                                            />
                                         )}
                                     </div>
                                 </div>
@@ -355,10 +363,14 @@ export default function TasksPage() {
                 )}
 
                 {tasks.length === 0 && (
-                    <div className="text-center py-5" style={{ color: 'rgba(232, 224, 212, 0.04)' }}>
+                    <div style={{
+                        textAlign: 'center',
+                        padding: '60px 20px',
+                        color: 'rgba(232,224,212,0.04)',
+                    }}>
                         <div style={{ fontSize: '48px', marginBottom: '16px' }}>📭</div>
                         <p style={{ fontSize: '16px' }}>Заданий пока нет</p>
-                        <p style={{ fontSize: '13px', marginTop: '4px', opacity: 0.5 }}>
+                        <p style={{ fontSize: '13px', marginTop: '4px', color: 'rgba(232,224,212,0.04)' }}>
                             Загляни позже, они скоро появятся!
                         </p>
                     </div>

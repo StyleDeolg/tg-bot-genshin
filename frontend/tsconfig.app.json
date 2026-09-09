@@ -27,7 +27,7 @@
   },
   "include": [
     "src",
-    "src/components/MondstadtBg.tsx",
-    "src/components/MondstadtBg.tsx"
+    "src/components/GenshinBg.tsx",
+    "src/components/GenshinBg.tsx"
   ]
 }

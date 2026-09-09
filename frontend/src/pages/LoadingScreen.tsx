@@ -54,7 +54,7 @@ export default function LoadingScreen({ onLoadingComplete }: { onLoadingComplete
             <div className="loading-bg"></div>
             <div className="loading-content">
                 <div className="loading-header">
-                    <span className="loading-crest">⚜</span>
+                    <span className="loading-crest">✦</span>
                     <h1 className="loading-title">Genshin Pool</h1>
                     <p className="loading-sub">Мондштадт · Город Свободы</p>
                 </div>
@@ -82,7 +82,7 @@ export default function LoadingScreen({ onLoadingComplete }: { onLoadingComplete
                 </div>
 
                 <div className="loading-footer">
-                    <p className="loading-version">⚜ v1.0.0 · Мондштадт</p>
+                    <p className="loading-version">✦ v1.0.0 · Мондштадт</p>
                 </div>
             </div>
         </div>

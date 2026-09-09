@@ -7,7 +7,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #0d1520;
+    background: #0b0e1a;
     z-index: 9999;
     overflow: hidden;
 }
@@ -20,8 +20,8 @@
     height: 200%;
     background:
         radial-gradient(ellipse at 30% 30%, rgba(212, 175, 55, 0.04) 0%, transparent 50%),
-        radial-gradient(ellipse at 70% 70%, rgba(26, 42, 58, 0.6) 0%, transparent 40%),
-        #0d1520;
+        radial-gradient(ellipse at 70% 70%, rgba(11, 14, 26, 0.6) 0%, transparent 40%),
+        #0b0e1a;
     animation: loadingBg 6s ease-in-out infinite alternate;
 }
 
@@ -59,11 +59,9 @@
     color: rgba(212, 175, 55, 0.06);
     display: block;
     margin-bottom: 6px;
-    font-family: 'Cinzel', serif;
 }
 
 .loading-title {
-    font-family: 'Cinzel', serif;
     font-size: 36px;
     font-weight: 700;
     color: #d4af37;
@@ -72,7 +70,6 @@
 }
 
 .loading-sub {
-    font-family: 'Inter', sans-serif;
     font-size: 12px;
     color: rgba(232, 224, 212, 0.06);
     letter-spacing: 3px;
@@ -127,11 +124,11 @@
 }
 
 .character-name {
-    font-family: 'Cinzel', serif;
     font-size: 14px;
     color: rgba(232, 224, 212, 0.06);
     letter-spacing: 4px;
     margin-top: 6px;
+    font-weight: 300;
 }
 
 .loading-bar-wrapper {
@@ -179,7 +176,6 @@
 }
 
 .loading-percent {
-    font-family: 'Cinzel', serif;
     font-size: 14px;
     font-weight: 600;
     color: rgba(232, 224, 212, 0.06);
@@ -196,7 +192,6 @@
 }
 
 .quote-text {
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-style: italic;
     color: rgba(232, 224, 212, 0.06);
@@ -211,7 +206,6 @@
 }
 
 .loading-version {
-    font-family: 'Cinzel', serif;
     font-size: 10px;
     color: rgba(232, 224, 212, 0.01);
     letter-spacing: 2px;

@@ -1,6 +1,6 @@
 import React from 'react';
 
-interface LiyueButtonProps {
+interface ButtonGenshinProps {
     text: string;
     onClick: () => void;
     outline?: boolean;
@@ -10,7 +10,7 @@ interface LiyueButtonProps {
     style?: React.CSSProperties;
 }
 
-export default function LiyueButton({
+export default function ButtonGenshin({
     text,
     onClick,
     outline = false,
@@ -18,16 +18,16 @@ export default function LiyueButton({
     icon,
     className = '',
     style = {},
-}: LiyueButtonProps) {
+}: ButtonGenshinProps) {
     return (
         <button
-            className={`liyue-button ${outline ? 'outline' : ''} ${className}`}
+            className={`btn-genshin ${outline ? 'btn-genshin-outline' : ''} ${className}`}
             onClick={onClick}
             disabled={disabled}
             style={style}
         >
-            {icon && <span className="liyue-button-icon">{icon}</span>}
-            <span className="liyue-button-text">{text}</span>
+            {icon && <span className="btn-genshin-icon">{icon}</span>}
+            <span className="btn-genshin-text">{text}</span>
         </button>
     );
 }

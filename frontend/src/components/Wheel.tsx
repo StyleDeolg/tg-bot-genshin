@@ -69,7 +69,7 @@ export default function Wheel({
 
     if (segments.length === 0) {
         return (
-            <div className="wheel-container-mond">
+            <div className="wheel-container-genshin">
                 <div style={{ textAlign: 'center', padding: '40px', color: 'rgba(232,224,212,0.05)' }}>
                     Загрузка...
                 </div>
@@ -83,27 +83,28 @@ export default function Wheel({
     const angle = (2 * Math.PI) / segments.length;
 
     return (
-        <div className="wheel-container-mond">
+        <div className="wheel-container-genshin">
+            <div className="wheel-glow-genshin"></div>
             <div className="wheel-wrapper">
-                <div className="wheel-arrow-mond">
+                <div className="wheel-arrow-genshin">
                     <svg width="40" height="52" viewBox="0 0 40 52" fill="none">
                         <defs>
-                            <linearGradient id="arrowMond" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <linearGradient id="arrowGenshin" x1="0%" y1="0%" x2="0%" y2="100%">
                                 <stop offset="0%" stopColor="#d4af37" />
                                 <stop offset="100%" stopColor="#b8962e" />
                             </linearGradient>
-                            <filter id="arrowShadowMond">
+                            <filter id="arrowShadowGenshin">
                                 <feDropShadow dx="0" dy="6" stdDeviation="16" floodColor="#d4af37" floodOpacity="0.02" />
                             </filter>
                         </defs>
                         <path
                             d="M20 0 L6 40 L20 32 L34 40 L20 0Z"
-                            fill="url(#arrowMond)"
-                            filter="url(#arrowShadowMond)"
+                            fill="url(#arrowGenshin)"
+                            filter="url(#arrowShadowGenshin)"
                         />
                         <circle cx="20" cy="40" r="8" fill="#d4af37" opacity="0.02" />
                         <circle cx="20" cy="40" r="4" fill="#d4af37" />
-                        <circle cx="20" cy="40" r="1.5" fill="#1a2a3a" />
+                        <circle cx="20" cy="40" r="1.5" fill="#0b0e1a" />
                     </svg>
                 </div>
 
@@ -118,29 +119,6 @@ export default function Wheel({
                             : 'none',
                     }}
                 >
-                    <defs>
-                        <linearGradient id="glowMond" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#d4af37" stopOpacity="0.02" />
-                            <stop offset="50%" stopColor="#d4af37" stopOpacity="0.005" />
-                            <stop offset="100%" stopColor="#d4af37" stopOpacity="0.02" />
-                        </linearGradient>
-                    </defs>
-
-                    {/* Внешняя рамка в виде восьмиугольника */}
-                    <polygon
-                        points={
-                            Array.from({ length: 8 }, (_, i) => {
-                                const a = (i / 8) * 2 * Math.PI - Math.PI / 8;
-                                const r = radius + 8;
-                                return `${center + r * Math.cos(a)},${center + r * Math.sin(a)}`;
-                            }).join(' ')
-                        }
-                        fill="none"
-                        stroke="rgba(212,175,55,0.02)"
-                        strokeWidth="1"
-                    />
-
-                    {/* Сектора */}
                     {segments.map((seg, i) => {
                         const startAngle = i * angle - Math.PI / 2;
                         const endAngle = startAngle + angle;
@@ -168,16 +146,15 @@ export default function Wheel({
                             <g key={`segment-${i}-${seg.prize_type}`}>
                                 <path
                                     d={`M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 0 1 ${x2} ${y2} Z`}
-                                    fill={isGold ? 'rgba(212,175,55,0.06)' : 'rgba(26,42,58,0.6)'}
-                                    stroke="rgba(212,175,55,0.01)"
+                                    fill={isGold ? 'rgba(212, 175, 55, 0.04)' : 'rgba(11, 14, 26, 0.6)'}
+                                    stroke="rgba(212, 175, 55, 0.01)"
                                     strokeWidth="0.5"
                                     opacity={isGold ? 0.9 : 0.8}
                                 />
 
-                                {/* Декоративная линия */}
                                 <path
                                     d={`M ${center + radius * 0.2 * Math.cos(midAngle)} ${center + radius * 0.2 * Math.sin(midAngle)} L ${center + radius * 0.9 * Math.cos(midAngle)} ${center + radius * 0.9 * Math.sin(midAngle)}`}
-                                    stroke="rgba(212,175,55,0.005)"
+                                    stroke="rgba(212, 175, 55, 0.005)"
                                     strokeWidth="0.5"
                                     strokeDasharray="2 2"
                                 />
@@ -243,12 +220,11 @@ export default function Wheel({
                                     <text
                                         x={labelX}
                                         y={labelY + 5}
-                                        fill="rgba(255,255,255,0.08)"
+                                        fill="rgba(232, 224, 212, 0.15)"
                                         fontSize={13}
                                         fontWeight="700"
                                         textAnchor="middle"
                                         transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${labelX}, ${labelY})`}
-                                        fontFamily="'Inter', sans-serif"
                                     >
                                         {seg.value}
                                     </text>
@@ -258,12 +234,11 @@ export default function Wheel({
                                     <text
                                         x={labelX}
                                         y={labelY + 5}
-                                        fill="rgba(212,175,55,0.08)"
+                                        fill="rgba(212, 175, 55, 0.15)"
                                         fontSize={10}
                                         fontWeight="700"
                                         textAnchor="middle"
                                         transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${labelX}, ${labelY})`}
-                                        fontFamily="'Cinzel', serif"
                                         letterSpacing="1"
                                     >
                                         ЛУНА
@@ -274,12 +249,11 @@ export default function Wheel({
                                     <text
                                         x={labelX}
                                         y={labelY + 5}
-                                        fill="rgba(255,255,255,0.02)"
+                                        fill="rgba(232, 224, 212, 0.05)"
                                         fontSize={9}
                                         fontWeight="600"
                                         textAnchor="middle"
                                         transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${labelX}, ${labelY})`}
-                                        fontFamily="'Inter', sans-serif"
                                         letterSpacing="0.3"
                                     >
                                         ОСКОЛОК
@@ -289,20 +263,17 @@ export default function Wheel({
                         );
                     })}
 
-                    {/* Центр */}
-                    <circle cx={center} cy={center} r={26} fill="#0d1520" stroke="rgba(212,175,55,0.01)" strokeWidth="1" />
+                    <circle cx={center} cy={center} r={26} fill="#0b0e1a" stroke="rgba(212,175,55,0.01)" strokeWidth="1" />
                     <circle cx={center} cy={center} r={20} fill="rgba(212,175,55,0.01)" />
 
-                    {/* Герб Мондштадта */}
                     <text
                         x={center}
                         y={center + 6}
                         textAnchor="middle"
-                        fontSize="16"
-                        fill="rgba(212,175,55,0.02)"
-                        fontFamily="'Cinzel', serif"
+                        fontSize="18"
+                        fill="rgba(212,175,55,0.03)"
                     >
-                        ⚜
+                        ✦
                     </text>
 
                     <circle cx={center} cy={center} r={4} fill="rgba(212,175,55,0.01)" />

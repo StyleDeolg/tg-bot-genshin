@@ -5,6 +5,8 @@ import { checkTasks } from '../api/tasks';
 import Wheel from '../components/Wheel';
 import TicketIcon from '../components/TicketIcon';
 import ShardIcon from '../components/ShardIcon';
+import ButtonGenshin from '../components/ButtonGenshin';
+import GlassCard from '../components/GlassCard';
 
 export default function HomePage() {
     const { user, updateProfile } = useAuthStore();
@@ -98,24 +100,22 @@ export default function HomePage() {
                     <p className="page-subtitle">Крути и выигрывай призы</p>
                 </div>
 
-                <div className="glass-card">
+                <GlassCard>
                     <Wheel
                         isSpinning={isSpinning}
                         resultSegmentIndex={result?.visual_index ?? null}
                         onSpinComplete={handleSpinComplete}
                     />
-                </div>
+                </GlassCard>
 
                 {debugInfo && <div className="debug-info">{debugInfo}</div>}
 
-                <button
-                    className="btn-mond"
+                <ButtonGenshin
+                    text={isSpinning ? 'Вращается...' : 'Вращать'}
                     onClick={handleSpin}
                     disabled={isSpinning || (user?.tickets ?? 0) < 1}
-                >
-                    {isSpinning ? 'Вращается...' : 'Вращать'}
-                    {!isSpinning && <TicketIcon size={18} className="btn-mond-icon" />}
-                </button>
+                    icon={!isSpinning ? <TicketIcon size={18} /> : undefined}
+                />
 
                 {showResult && resultDisplay && (
                     <div className="spin-result">
