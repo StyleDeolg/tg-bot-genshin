@@ -3,7 +3,7 @@ from telegram.ext import ContextTypes
 from app.keyboards import get_keyboard_for_user
 from app.handlers.start import start_command
 from app.handlers.profile import profile_command
-from app.handlers.bind_uid import bind_uid_start
+from app.handlers.bind_uid import bind_uid_start, bind_uid_input
 from app.handlers.unbind_uid import unbind_uid
 from app.handlers.help import help_command
 from app.handlers.admin import (
@@ -29,14 +29,15 @@ from app.config import config
 
 
 async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """
-    Обработчик кнопок.
-    Этот обработчик НЕ получает сообщения, когда активен диалог bind_uid,
-    потому что мы добавили фильтр в main.py
-    """
+    """Обработчик кнопок и текстовых сообщений"""
     
     text = update.message.text
     user_id = update.effective_user.id
+    
+    # ===== ПРОВЕРКА: МЫ В ДИАЛОГЕ ПРИВЯЗКИ UID? =====
+    if context.user_data.get('waiting_for_uid'):
+        await bind_uid_input(update, context)
+        return
     
     # ===== АКТИВНЫЕ ДЕЙСТВИЯ АДМИНКИ =====
     action = context.user_data.get('admin_action')

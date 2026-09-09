@@ -35,19 +35,12 @@ async def ping():
 
 # ========== WEBHOOK ==========
 from telegram import Update
-from telegram.ext import (
-    Application, CommandHandler, MessageHandler, 
-    filters, ConversationHandler, ContextTypes
-)
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from app.handlers import (
     start_command, help_command, profile_command,
     bind_uid_start, unbind_uid, app_command, donate_command, error_handler
 )
 from app.handlers.buttons import handle_buttons
-from app.handlers.bind_uid import (
-    bind_uid_input, bind_uid_server, 
-    WAITING_UID, WAITING_SERVER
-)
 
 TOKEN = config.BOT_TOKEN
 WEBHOOK_PATH = "/webhook"
@@ -60,40 +53,16 @@ async def get_bot_app():
     if _bot_app is None:
         _bot_app = Application.builder().token(TOKEN).build()
         
-        # ===== 1. КОМАНДЫ =====
+        # Команды
         _bot_app.add_handler(CommandHandler("start", start_command))
         _bot_app.add_handler(CommandHandler("help", help_command))
         _bot_app.add_handler(CommandHandler("profile", profile_command))
         _bot_app.add_handler(CommandHandler("unbind_uid", unbind_uid))
         _bot_app.add_handler(CommandHandler("app", app_command))
+        _bot_app.add_handler(CommandHandler("bind_uid", bind_uid_start))
         
-        # ===== 2. CONVERSATION HANDLER =====
-        conv_handler = ConversationHandler(
-            entry_points=[CommandHandler("bind_uid", bind_uid_start)],
-            states={
-                WAITING_UID: [MessageHandler(filters.TEXT & ~filters.COMMAND, bind_uid_input)],
-                WAITING_SERVER: [MessageHandler(filters.TEXT & ~filters.COMMAND, bind_uid_server)],
-            },
-            fallbacks=[CommandHandler("start", start_command)],
-            allow_reentry=True,
-        )
-        _bot_app.add_handler(conv_handler)
-        
-        # ===== 3. ОБРАБОТЧИК КНОПОК (НО С ФИЛЬТРОМ) =====
-        # Он НЕ будет обрабатывать сообщения, если активен диалог bind_uid
-        async def button_handler_filtered(update: Update, context: ContextTypes.DEFAULT_TYPE):
-            if context.user_data.get('conversation') == 'bind_uid':
-                # Если мы в диалоге — просто выходим, ничего не делаем
-                return
-            await handle_buttons(update, context)
-        
-        _bot_app.add_handler(
-            MessageHandler(
-                filters.TEXT & ~filters.COMMAND,
-                button_handler_filtered
-            )
-        )
-        
+        # Обработчик всех текстовых сообщений (кнопки и ввод UID)
+        _bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons))
         _bot_app.add_error_handler(error_handler)
         
         await _bot_app.initialize()
