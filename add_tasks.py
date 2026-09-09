@@ -9,6 +9,18 @@ def add_tasks():
     db.query(Task).delete()
     
     tasks = [
+        # 1. ЕЖЕДНЕВНОЕ (цикличное)
+        {
+            "title": "📅 Ежедневный бонус",
+            "description": "Заходи в бота каждый день и забирай награду!",
+            "reward": 1,
+            "task_type": "daily",
+            "required_count": 1,
+            "is_active": True,
+            "is_repeatable": True,
+            "sponsor_id": None
+        },
+        # 2. ЗАДАНИЕ НА СПИНЫ (цикличное)
         {
             "title": "🎡 Сделать 5 спинов",
             "description": "Прокрути колесо фортуны 5 раз",
@@ -16,8 +28,10 @@ def add_tasks():
             "task_type": "spin",
             "required_count": 5,
             "is_active": True,
-            "is_repeatable": True
+            "is_repeatable": True,
+            "sponsor_id": None
         },
+        # 3. СОЦИАЛЬНОЕ ЗАДАНИЕ (рефералы, цикличное)
         {
             "title": "👥 Пригласить 3 друзей",
             "description": "Пригласи 3 друзей в бота",
@@ -25,30 +39,22 @@ def add_tasks():
             "task_type": "social",
             "required_count": 3,
             "is_active": True,
-            "is_repeatable": True
-        },
-        {
-            "title": "📅 Ежедневный бонус",
-            "description": "Заходи в бота каждый день и забирай награду",
-            "reward": 1,
-            "task_type": "daily",
-            "required_count": 1,
-            "is_active": True,
-            "is_repeatable": True
+            "is_repeatable": True,
+            "sponsor_id": None
         },
     ]
     
-    for task in tasks:
+    for task_data in tasks:
         new_task = Task(
             id=uuid.uuid4(),
-            title=task["title"],
-            description=task["description"],
-            reward=task["reward"],
-            task_type=task["task_type"],
-            required_count=task["required_count"],
-            is_active=task["is_active"],
-            is_repeatable=task["is_repeatable"],
-            sponsor_id=None
+            title=task_data["title"],
+            description=task_data["description"],
+            reward=task_data["reward"],
+            task_type=task_data["task_type"],
+            required_count=task_data["required_count"],
+            is_active=task_data["is_active"],
+            is_repeatable=task_data["is_repeatable"],
+            sponsor_id=task_data["sponsor_id"]
         )
         db.add(new_task)
     
