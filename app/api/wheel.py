@@ -50,7 +50,6 @@ async def spin(request: SpinRequest):
             if p.prize_type == "shard":
                 # Базовый шанс 50% (5000)
                 # Уменьшаем в зависимости от количества осколков
-                # 0 осколков = 50%, 5 осколков = 0%
                 shard_factor = max(0, 1 - (user.moon_shards / 6))
                 chance = int(5000 * shard_factor)
                 
@@ -169,7 +168,7 @@ async def get_prizes():
         if not prizes:
             return [
                 {"name": "Пусто", "value": 0, "emoji": "💨", "prize_type": "empty_1", "color": "#d4af37"},
-                {"name": "Осколок", "value": 0, "emoji": "🔮", "prize_type": "shard", "color": "#1a1a2e"},
+                {"name": "Осколок луны", "value": 0, "emoji": "🔮", "prize_type": "shard", "color": "#1a1a2e"},
                 {"name": "Пусто", "value": 0, "emoji": "💨", "prize_type": "empty_2", "color": "#d4af37"},
                 {"name": "60 💎", "value": 60, "emoji": "💎", "prize_type": "crystals_60", "color": "#1a1a2e"},
                 {"name": "Пусто", "value": 0, "emoji": "💨", "prize_type": "empty_3", "color": "#d4af37"},

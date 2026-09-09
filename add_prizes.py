@@ -8,20 +8,23 @@ def add_prizes():
     # Очищаем старые призы
     db.query(WheelConfig).delete()
     
-    # Новые призы — ОДНА ячейка осколка
+    # ПРАВИЛЬНЫЙ ПОРЯДОК (как на колесе):
+    # 0: Пусто (золотой)
+    # 1: Осколок луны (тёмный)
+    # 2: Пусто (золотой)
+    # 3: 60 кристаллов (тёмный)
+    # 4: Пусто (золотой)
+    # 5: Луна Genshin (тёмный)
+    # 6: Пусто (золотой)
+    # 7: 330 кристаллов (тёмный)
     prizes = [
-        # Пусто
         {"name": "Пусто", "value": 0, "chance": 1200, "emoji": "💨", "prize_type": "empty_1"},
-        {"name": "Пусто", "value": 0, "chance": 1200, "emoji": "💨", "prize_type": "empty_2"},
-        {"name": "Пусто", "value": 0, "chance": 1200, "emoji": "💨", "prize_type": "empty_3"},
-        {"name": "Пусто", "value": 0, "chance": 1200, "emoji": "💨", "prize_type": "empty_4"},
-        
-        # ОДНА ячейка осколка (базовый шанс 50%)
         {"name": "Осколок луны", "value": 0, "chance": 5000, "emoji": "🔮", "prize_type": "shard"},
-        
-        # Ценные призы
+        {"name": "Пусто", "value": 0, "chance": 1200, "emoji": "💨", "prize_type": "empty_2"},
         {"name": "60 кристаллов", "value": 60, "chance": 100, "emoji": "💎", "prize_type": "crystals_60"},
+        {"name": "Пусто", "value": 0, "chance": 1200, "emoji": "💨", "prize_type": "empty_3"},
         {"name": "Луна Genshin", "value": 0, "chance": 20, "emoji": "🌙", "prize_type": "moon"},
+        {"name": "Пусто", "value": 0, "chance": 1200, "emoji": "💨", "prize_type": "empty_4"},
         {"name": "330 кристаллов", "value": 330, "chance": 10, "emoji": "💎", "prize_type": "crystals_330"},
     ]
     
@@ -39,7 +42,18 @@ def add_prizes():
     
     db.commit()
     db.close()
-    print("✅ Призы обновлены (одна ячейка осколка)")
+    print("✅ Призы обновлены в правильном порядке!")
+    print("")
+    print("🎡 Порядок на колесе:")
+    print("   0: Пусто (золотой)")
+    print("   1: Осколок луны (тёмный)")
+    print("   2: Пусто (золотой)")
+    print("   3: 60 кристаллов (тёмный)")
+    print("   4: Пусто (золотой)")
+    print("   5: Луна Genshin (тёмный)")
+    print("   6: Пусто (золотой)")
+    print("   7: 330 кристаллов (тёмный)")
+    print("")
     print("🎯 Шансы:")
     print("   • Осколок: 50% (прогрессивно уменьшается)")
     print("   • 60 кристаллов: 1%")
