@@ -4,7 +4,7 @@ from app.database import SessionLocal
 from app.models.user import User
 from app.keyboards import get_keyboard_for_user
 
-# Состояния (ОБЯЗАТЕЛЬНО ДЛЯ ConversationHandler)
+# Состояния
 WAITING_UID, WAITING_SERVER = range(2)
 
 server_keyboard = ReplyKeyboardMarkup([
@@ -16,12 +16,14 @@ cancel_keyboard = ReplyKeyboardMarkup([["❌ Отмена"]], resize_keyboard=Tr
 
 
 async def bind_uid_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Начинает процесс привязки UID"""
     if not update.effective_user or not update.message:
         return ConversationHandler.END
 
     user = update.effective_user
+    user_id = user.id
     db = SessionLocal()
-    db_user = db.query(User).filter_by(telegram_id=str(user.id)).first()
+    db_user = db.query(User).filter_by(telegram_id=str(user_id)).first()
 
     if not db_user:
         await update.message.reply_text("❌ Используйте /start")
@@ -29,7 +31,7 @@ async def bind_uid_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return ConversationHandler.END
 
     if db_user.genshin_uid:
-        keyboard = get_keyboard_for_user(user.id)
+        keyboard = get_keyboard_for_user(user_id)
         server_map = {"asia": "🌏 Азия", "us": "🌎 США", "eu": "🌍 Европа"}
         server_display = server_map.get(db_user.genshin_server, db_user.genshin_server)
         await update.message.reply_text(
@@ -43,7 +45,7 @@ async def bind_uid_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     db.close()
     
-    # 👇 УСТАНАВЛИВАЕМ ФЛАГ ДЛЯ buttons.py
+    # 👇 УСТАНАВЛИВАЕМ ФЛАГ
     context.user_data['conversation'] = 'bind_uid'
     
     await update.message.reply_text(
@@ -57,6 +59,7 @@ async def bind_uid_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def bind_uid_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Обрабатывает ввод UID"""
     if not update.message:
         return WAITING_UID
 
@@ -71,6 +74,7 @@ async def bind_uid_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return ConversationHandler.END
 
+    # Проверяем, что это UID
     if not text.isdigit() or len(text) not in (9, 10):
         await update.message.reply_text(
             "❌ Неверный формат. Введите 9-10 цифр:",
@@ -79,6 +83,7 @@ async def bind_uid_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return WAITING_UID
 
     context.user_data['uid'] = text
+    
     await update.message.reply_text(
         f"✅ Принято: `{text}`\n\n"
         "Теперь выберите регион вашего аккаунта:",
@@ -89,6 +94,7 @@ async def bind_uid_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def bind_uid_server(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Обрабатывает выбор региона"""
     if not update.message:
         return WAITING_SERVER
 
@@ -123,8 +129,9 @@ async def bind_uid_server(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return ConversationHandler.END
 
     user = update.effective_user
+    user_id = user.id
     db = SessionLocal()
-    db_user = db.query(User).filter_by(telegram_id=str(user.id)).first()
+    db_user = db.query(User).filter_by(telegram_id=str(user_id)).first()
 
     if not db_user:
         await update.message.reply_text("❌ Пользователь не найден")
@@ -145,11 +152,11 @@ async def bind_uid_server(update: Update, context: ContextTypes.DEFAULT_TYPE):
     db.commit()
     db.close()
 
-    # 👇 ОЧИЩАЕМ ФЛАГ
+    # Очищаем состояние
     context.user_data.pop('conversation', None)
     context.user_data.pop('uid', None)
     
-    keyboard = get_keyboard_for_user(user.id)
+    keyboard = get_keyboard_for_user(user_id)
 
     server_display = {
         "asia": "🌏 Азия",
