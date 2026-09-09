@@ -27,7 +27,6 @@ async def profile_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"👤 Имя: {db_user.first_name or 'Не указано'}\n"
         f"🔑 Публичный ID: `{db_user.public_id}`\n"
         f"🎟️ Билетики: {db_user.tickets}\n"
-        f"💎 Примогемы: {db_user.primogems}\n"
     )
 
     # Genshin UID теперь хранится прямо в User
