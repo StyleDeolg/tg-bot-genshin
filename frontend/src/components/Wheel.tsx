@@ -18,7 +18,7 @@ export default function Wheel({
     const [isAnimating, setIsAnimating] = useState(false);
 
     const spinRef = useRef<number | null>(null);
-    const OFFSET = 2;
+    const OFFSET = 0;
 
     useEffect(() => {
         getPrizes().then(data => {
