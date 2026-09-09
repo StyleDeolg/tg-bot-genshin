@@ -45,7 +45,8 @@ export default function Wheel({
         while (targetAngle < 0) targetAngle += 360;
         while (targetAngle >= 360) targetAngle -= 360;
 
-        const extraSpins = 6 + Math.floor(Math.random() * 3);
+        // БОЛЬШЕ ОБОРОТОВ И МЕДЛЕННЕЕ
+        const extraSpins = 8 + Math.floor(Math.random() * 4);
         const totalRotation = extraSpins * 360 + targetAngle;
 
         console.log(`🎯 Индекс БД: ${index} → скорректированный: ${adjustedIndex} → ${segments[adjustedIndex]?.name || '???'} → угол ${Math.round(targetAngle)}°`);
@@ -58,7 +59,7 @@ export default function Wheel({
         spinRef.current = window.setTimeout(() => {
             setIsAnimating(false);
             if (onSpinComplete) onSpinComplete();
-        }, 5500);
+        }, 6500); // ДОЛЬШЕ
     };
 
     useEffect(() => {
@@ -84,27 +85,29 @@ export default function Wheel({
 
     return (
         <div className="wheel-container-genshin">
-            <div className="wheel-glow-genshin"></div>
+            <div className={`wheel-glow-genshin ${isAnimating ? 'spinning' : ''}`}></div>
             <div className="wheel-wrapper">
                 <div className="wheel-arrow-genshin">
-                    <svg width="40" height="52" viewBox="0 0 40 52" fill="none">
+                    <svg width="44" height="56" viewBox="0 0 44 56" fill="none">
                         <defs>
                             <linearGradient id="arrowGenshin" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" stopColor="#d4af37" />
+                                <stop offset="0%" stopColor="#f0d060" />
                                 <stop offset="100%" stopColor="#b8962e" />
                             </linearGradient>
                             <filter id="arrowShadowGenshin">
-                                <feDropShadow dx="0" dy="6" stdDeviation="16" floodColor="#d4af37" floodOpacity="0.02" />
+                                <feDropShadow dx="0" dy="6" stdDeviation="16" floodColor="#d4af37" floodOpacity="0.15" />
                             </filter>
                         </defs>
                         <path
-                            d="M20 0 L6 40 L20 32 L34 40 L20 0Z"
+                            d="M22 0 L6 44 L22 34 L38 44 L22 0Z"
                             fill="url(#arrowGenshin)"
                             filter="url(#arrowShadowGenshin)"
+                            stroke="#d4af37"
+                            strokeWidth="1"
                         />
-                        <circle cx="20" cy="40" r="8" fill="#d4af37" opacity="0.02" />
-                        <circle cx="20" cy="40" r="4" fill="#d4af37" />
-                        <circle cx="20" cy="40" r="1.5" fill="#0b0e1a" />
+                        <circle cx="22" cy="42" r="10" fill="#d4af37" opacity="0.04" />
+                        <circle cx="22" cy="42" r="5" fill="#d4af37" />
+                        <circle cx="22" cy="42" r="2" fill="#0b0e1a" />
                     </svg>
                 </div>
 
@@ -115,10 +118,47 @@ export default function Wheel({
                     style={{
                         transform: `rotate(${rotation}deg)`,
                         transition: isAnimating
-                            ? 'transform 5.5s cubic-bezier(0.08, 0.75, 0.12, 0.98)'
+                            ? 'transform 6.5s cubic-bezier(0.08, 0.82, 0.12, 1.0)'
                             : 'none',
+                        filter: isAnimating ? 'drop-shadow(0 0 60px rgba(212,175,55,0.06))' : 'none',
                     }}
                 >
+                    {/* Внешняя обводка колеса */}
+                    <circle
+                        cx={center}
+                        cy={center}
+                        r={radius + 6}
+                        fill="none"
+                        stroke="url(#goldBorder)"
+                        strokeWidth="3"
+                        opacity="0.4"
+                    />
+                    <circle
+                        cx={center}
+                        cy={center}
+                        r={radius + 2}
+                        fill="none"
+                        stroke="#d4af37"
+                        strokeWidth="1.5"
+                        opacity="0.15"
+                    />
+                    <circle
+                        cx={center}
+                        cy={center}
+                        r={radius - 2}
+                        fill="none"
+                        stroke="rgba(212,175,55,0.04)"
+                        strokeWidth="0.5"
+                    />
+
+                    <defs>
+                        <linearGradient id="goldBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#f0d060" />
+                            <stop offset="50%" stopColor="#d4af37" />
+                            <stop offset="100%" stopColor="#b8962e" />
+                        </linearGradient>
+                    </defs>
+
                     {segments.map((seg, i) => {
                         const startAngle = i * angle - Math.PI / 2;
                         const endAngle = startAngle + angle;
@@ -146,17 +186,10 @@ export default function Wheel({
                             <g key={`segment-${i}-${seg.prize_type}`}>
                                 <path
                                     d={`M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 0 1 ${x2} ${y2} Z`}
-                                    fill={isGold ? 'rgba(212, 175, 55, 0.04)' : 'rgba(11, 14, 26, 0.6)'}
-                                    stroke="rgba(212, 175, 55, 0.01)"
+                                    fill={isGold ? 'rgba(212, 175, 55, 0.05)' : 'rgba(11, 14, 26, 0.7)'}
+                                    stroke="rgba(212, 175, 55, 0.02)"
                                     strokeWidth="0.5"
-                                    opacity={isGold ? 0.9 : 0.8}
-                                />
-
-                                <path
-                                    d={`M ${center + radius * 0.2 * Math.cos(midAngle)} ${center + radius * 0.2 * Math.sin(midAngle)} L ${center + radius * 0.9 * Math.cos(midAngle)} ${center + radius * 0.9 * Math.sin(midAngle)}`}
-                                    stroke="rgba(212, 175, 55, 0.005)"
-                                    strokeWidth="0.5"
-                                    strokeDasharray="2 2"
+                                    opacity={isGold ? 0.95 : 0.9}
                                 />
 
                                 {isMoon && (
@@ -220,7 +253,7 @@ export default function Wheel({
                                     <text
                                         x={labelX}
                                         y={labelY + 5}
-                                        fill="rgba(232, 224, 212, 0.15)"
+                                        fill="rgba(232, 224, 212, 0.25)"
                                         fontSize={13}
                                         fontWeight="700"
                                         textAnchor="middle"
@@ -234,7 +267,7 @@ export default function Wheel({
                                     <text
                                         x={labelX}
                                         y={labelY + 5}
-                                        fill="rgba(212, 175, 55, 0.15)"
+                                        fill="rgba(212, 175, 55, 0.2)"
                                         fontSize={10}
                                         fontWeight="700"
                                         textAnchor="middle"
@@ -249,7 +282,7 @@ export default function Wheel({
                                     <text
                                         x={labelX}
                                         y={labelY + 5}
-                                        fill="rgba(232, 224, 212, 0.05)"
+                                        fill="rgba(232, 224, 212, 0.08)"
                                         fontSize={9}
                                         fontWeight="600"
                                         textAnchor="middle"
@@ -263,7 +296,18 @@ export default function Wheel({
                         );
                     })}
 
-                    <circle cx={center} cy={center} r={26} fill="#0b0e1a" stroke="rgba(212,175,55,0.01)" strokeWidth="1" />
+                    {/* Декоративные точки по кругу */}
+                    {[0, 45, 90, 135, 180, 225, 270, 315].map((deg, idx) => (
+                        <circle
+                            key={`dot-${idx}`}
+                            cx={center + (radius + 4) * Math.cos(deg * Math.PI / 180)}
+                            cy={center + (radius + 4) * Math.sin(deg * Math.PI / 180)}
+                            r={2}
+                            fill="rgba(212, 175, 55, 0.04)"
+                        />
+                    ))}
+
+                    <circle cx={center} cy={center} r={26} fill="#0b0e1a" stroke="rgba(212,175,55,0.02)" strokeWidth="1" />
                     <circle cx={center} cy={center} r={20} fill="rgba(212,175,55,0.01)" />
 
                     <text
