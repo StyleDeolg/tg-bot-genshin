@@ -1006,3 +1006,89 @@ body {
 .home-content .btn-genshin {
     margin: 0 auto;
 }
+
+/* ===== РЕФЕРАЛЬНЫЕ НАГРАДЫ ===== */
+.referral-rewards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 12px;
+    width: 100%;
+    margin-top: 8px;
+}
+
+.referral-reward-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 12px 8px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    position: relative;
+    min-height: 80px;
+}
+
+.referral-reward-card.completed {
+    background: rgba(90, 143, 106, 0.04);
+    border-color: rgba(90, 143, 106, 0.2);
+    box-shadow: 0 0 30px rgba(90, 143, 106, 0.02);
+}
+
+.referral-reward-card.completed .referral-reward-level {
+    color: #5a8f6a;
+}
+
+.referral-reward-card.completed .referral-reward-amount {
+    color: #5a8f6a;
+}
+
+.referral-reward-level {
+    font-size: 18px;
+    font-weight: 700;
+    color: rgba(232, 224, 212, 0.15);
+    font-family: 'Cinzel', serif;
+}
+
+.referral-reward-card.completed .referral-reward-level {
+    color: #5a8f6a;
+}
+
+.referral-reward-amount {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(232, 224, 212, 0.08);
+}
+
+.referral-reward-card.completed .referral-reward-amount {
+    color: #5a8f6a;
+}
+
+.referral-reward-check {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    font-size: 12px;
+}
+
+.referral-reward-card:not(.completed) .referral-reward-check {
+    display: none;
+}
+
+@media (max-width: 480px) {
+    .referral-rewards-grid {
+        grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+        gap: 8px;
+    }
+
+    .referral-reward-card {
+        padding: 8px 4px;
+        min-height: 60px;
+    }
+
+    .referral-reward-level {
+        font-size: 16px;
+    }
+}

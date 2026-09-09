@@ -65,30 +65,25 @@ export default function FriendsPage() {
                 </div>
 
                 <div className="w-100 text-center mt-3">
-                    <span className="list-title">Прогресс наград</span>
+                    <span className="list-title">🎁 Прогресс наград</span>
                 </div>
 
-                <div className="referral-progress-wrapper">
-                    {data?.rewards?.map((r: any, index: number) => {
+                {/* 🔥 НОВЫЙ ДИЗАЙН — ПЛАШКИ С ЗЕЛЁНОЙ ПОДСВЕТКОЙ */}
+                <div className="referral-rewards-grid">
+                    {data?.rewards?.map((r: any) => {
                         const isCompleted = (data?.count || 0) >= r.level;
-                        const isLast = index === data?.rewards?.length - 1;
-                        const progress = Math.min((data?.count || 0) / r.level * 100, 100);
-
                         return (
-                            <div key={r.level} className="referral-progress-item">
-                                <div className={`referral-progress-dot ${isCompleted ? 'completed' : ''}`}>
-                                    <span className="referral-progress-level">{r.level}</span>
+                            <div
+                                key={r.level}
+                                className={`referral-reward-card ${isCompleted ? 'completed' : ''}`}
+                            >
+                                <div className="referral-reward-level">{r.level}</div>
+                                <div className="referral-reward-icon">
+                                    <TicketIcon size={20} />
                                 </div>
-                                {!isLast && (
-                                    <div className="referral-progress-line">
-                                        <div
-                                            className="referral-progress-line-fill"
-                                            style={{ width: `${isCompleted ? 100 : progress}%` }}
-                                        />
-                                    </div>
-                                )}
-                                <div className="referral-progress-reward">
-                                    <TicketIcon size={14} /> {r.reward}
+                                <div className="referral-reward-amount">+{r.reward}</div>
+                                <div className="referral-reward-check">
+                                    {isCompleted && <span>✅</span>}
                                 </div>
                             </div>
                         );
