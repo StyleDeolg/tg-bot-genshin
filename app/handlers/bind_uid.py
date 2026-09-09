@@ -4,7 +4,7 @@ from app.database import SessionLocal
 from app.models.user import User
 from app.keyboards import get_keyboard_for_user
 
-# Состояния
+# Состояния (ОБЯЗАТЕЛЬНО ДЛЯ ConversationHandler)
 WAITING_UID, WAITING_SERVER = range(2)
 
 server_keyboard = ReplyKeyboardMarkup([
@@ -43,7 +43,7 @@ async def bind_uid_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     db.close()
     
-    # 👇 УСТАНАВЛИВАЕМ ФЛАГ, ЧТО МЫ В ДИАЛОГЕ ПРИВЯЗКИ
+    # 👇 УСТАНАВЛИВАЕМ ФЛАГ ДЛЯ buttons.py
     context.user_data['conversation'] = 'bind_uid'
     
     await update.message.reply_text(
@@ -71,7 +71,6 @@ async def bind_uid_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return ConversationHandler.END
 
-    # Проверяем, что это UID (9-10 цифр)
     if not text.isdigit() or len(text) not in (9, 10):
         await update.message.reply_text(
             "❌ Неверный формат. Введите 9-10 цифр:",
