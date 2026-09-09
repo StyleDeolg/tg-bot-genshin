@@ -1,10 +1,9 @@
-from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import ContextTypes, ConversationHandler
 from app.database import SessionLocal
 from app.models.user import User
 from app.keyboards import get_keyboard_for_user
 
-# Состояния
 WAITING_UID, WAITING_SERVER = range(2)
 
 server_keyboard = ReplyKeyboardMarkup([
@@ -16,7 +15,6 @@ cancel_keyboard = ReplyKeyboardMarkup([["❌ Отмена"]], resize_keyboard=Tr
 
 
 async def bind_uid_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Начинает процесс привязки UID"""
     if not update.effective_user or not update.message:
         return ConversationHandler.END
 
@@ -45,7 +43,6 @@ async def bind_uid_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     db.close()
     
-    # 👇 УСТАНАВЛИВАЕМ ФЛАГ
     context.user_data['conversation'] = 'bind_uid'
     
     await update.message.reply_text(
@@ -59,7 +56,6 @@ async def bind_uid_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def bind_uid_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Обрабатывает ввод UID"""
     if not update.message:
         return WAITING_UID
 
@@ -74,7 +70,6 @@ async def bind_uid_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return ConversationHandler.END
 
-    # Проверяем, что это UID
     if not text.isdigit() or len(text) not in (9, 10):
         await update.message.reply_text(
             "❌ Неверный формат. Введите 9-10 цифр:",
@@ -94,7 +89,6 @@ async def bind_uid_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def bind_uid_server(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Обрабатывает выбор региона"""
     if not update.message:
         return WAITING_SERVER
 
@@ -138,7 +132,6 @@ async def bind_uid_server(update: Update, context: ContextTypes.DEFAULT_TYPE):
         db.close()
         return ConversationHandler.END
 
-    # Проверяем, не занят ли UID
     existing = db.query(User).filter_by(genshin_uid=uid).first()
     if existing and existing.id != db_user.id:
         await update.message.reply_text(
@@ -152,7 +145,6 @@ async def bind_uid_server(update: Update, context: ContextTypes.DEFAULT_TYPE):
     db.commit()
     db.close()
 
-    # Очищаем состояние
     context.user_data.pop('conversation', None)
     context.user_data.pop('uid', None)
     

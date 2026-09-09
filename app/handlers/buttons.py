@@ -29,13 +29,14 @@ from app.config import config
 
 
 async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Обработчик кнопок и текстовых сообщений"""
+    """
+    Обработчик кнопок и текстовых сообщений.
+    ВАЖНО: Этот обработчик НЕ ПОЛУЧАЕТ сообщения, когда активен ConversationHandler.
+    Все сообщения в диалоге bind_uid перехватываются ConversationHandler.
+    """
     
     text = update.message.text
     user_id = update.effective_user.id
-    
-    # ===== УБИРАЕМ ПРОВЕРКУ НА ДИАЛОГ! =====
-    # ConversationHandler в группе 0 перехватывает сообщения ДО нас
     
     # ===== АКТИВНЫЕ ДЕЙСТВИЯ АДМИНКИ =====
     action = context.user_data.get('admin_action')

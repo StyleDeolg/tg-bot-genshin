@@ -4,10 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api import auth, wheel, profile, referral, tasks, sponsors
 from app.config import config
 
-# ========== СОЗДАЁМ ПРИЛОЖЕНИЕ ==========
 app = FastAPI(title="Genshin Bot API", version="0.1.0")
 
-# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -16,7 +14,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Роутеры
 app.include_router(auth.router)
 app.include_router(wheel.router)
 app.include_router(profile.router)
@@ -38,13 +35,19 @@ async def ping():
 
 # ========== WEBHOOK ==========
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ConversationHandler, ContextTypes
+from telegram.ext import (
+    Application, CommandHandler, MessageHandler, 
+    filters, ConversationHandler, ContextTypes
+)
 from app.handlers import (
     start_command, help_command, profile_command,
     bind_uid_start, unbind_uid, app_command, donate_command, error_handler
 )
 from app.handlers.buttons import handle_buttons
-from app.handlers.bind_uid import bind_uid_input, bind_uid_server, WAITING_UID, WAITING_SERVER
+from app.handlers.bind_uid import (
+    bind_uid_input, bind_uid_server, 
+    WAITING_UID, WAITING_SERVER
+)
 
 TOKEN = config.BOT_TOKEN
 WEBHOOK_PATH = "/webhook"
@@ -57,30 +60,31 @@ async def get_bot_app():
     if _bot_app is None:
         _bot_app = Application.builder().token(TOKEN).build()
         
-        # Команды
+        # ===== 1. КОМАНДЫ =====
         _bot_app.add_handler(CommandHandler("start", start_command))
         _bot_app.add_handler(CommandHandler("help", help_command))
         _bot_app.add_handler(CommandHandler("profile", profile_command))
         _bot_app.add_handler(CommandHandler("unbind_uid", unbind_uid))
         _bot_app.add_handler(CommandHandler("app", app_command))
         
-        # ConversationHandler
+        # ===== 2. CONVERSATION HANDLER =====
+        # ВАЖНО: ConversationHandler перехватывает ВСЕ текстовые сообщения,
+        # когда активен диалог. fallback срабатывает, если сообщение НЕ подошло под states.
         conv_handler = ConversationHandler(
             entry_points=[CommandHandler("bind_uid", bind_uid_start)],
             states={
                 WAITING_UID: [MessageHandler(filters.TEXT & ~filters.COMMAND, bind_uid_input)],
                 WAITING_SERVER: [MessageHandler(filters.TEXT & ~filters.COMMAND, bind_uid_server)],
             },
-            fallbacks=[CommandHandler("start", start_command)],
+            fallbacks=[
+                CommandHandler("start", start_command),
+                # 👇 СЮДА ПОПАДАЮТ СООБЩЕНИЯ, КОТОРЫЕ НЕ ПОДОШЛИ ПОД STATES
+                MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons)
+            ],
             allow_reentry=True,
         )
-        _bot_app.add_handler(conv_handler, group=0)
+        _bot_app.add_handler(conv_handler)
         
-        # Обработчик кнопок
-        _bot_app.add_handler(
-            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons),
-            group=1
-        )
         _bot_app.add_error_handler(error_handler)
         
         await _bot_app.initialize()
