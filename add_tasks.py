@@ -20,22 +20,22 @@ def add_tasks():
             "is_repeatable": True,
             "sponsor_id": None
         },
-        # 2. ЗАДАНИЕ НА СПИНЫ (цикличное) — 5 спинов
+        # 2. ЗАДАНИЕ НА СПИНЫ (цикличное) — 5 спинов = 1 билетик
         {
             "title": "🎡 Сделать 5 спинов",
             "description": "Прокрути колесо фортуны 5 раз",
-            "reward": 3,
+            "reward": 1,  # 🔥 ИСПРАВЛЕНО: 3 → 1
             "task_type": "spin",
             "required_count": 5,
             "is_active": True,
             "is_repeatable": True,
             "sponsor_id": None
         },
-        # 3. СОЦИАЛЬНОЕ ЗАДАНИЕ (рефералы, цикличное) — 3 друга
+        # 3. СОЦИАЛЬНОЕ ЗАДАНИЕ (рефералы, цикличное) — 3 друга = 1 билетик
         {
             "title": "👥 Пригласить 3 друзей",
             "description": "Пригласи 3 друзей в бота",
-            "reward": 5,
+            "reward": 1,  # 🔥 ИСПРАВЛЕНО: 3 → 1
             "task_type": "social",
             "required_count": 3,
             "is_active": True,

@@ -159,7 +159,6 @@ async def claim_task(telegram_id: str, task_id: str):
             user.spins_count = 0
             user_task.claimed_at = datetime.now()
             user_task.completed_at = datetime.now()
-            # НЕ сбрасываем completed_at, чтобы задание считалось выполненным
         
         # ===== СПОНСОР (НЕ ЦИКЛИЧНОЕ) =====
         elif task.task_type == "sponsor":
@@ -186,7 +185,6 @@ async def claim_task(telegram_id: str, task_id: str):
             # 🔥 СБРАСЫВАЕМ ПРОГРЕСС И ОТМЕЧАЕМ, ЧТО НАГРАДА ПОЛУЧЕНА
             user_task.claimed_at = datetime.now()
             user_task.completed_at = datetime.now()
-            # Сбрасываем прогресс для следующего цикла
             user_task.progress = 0
         
         # Начисляем награду
