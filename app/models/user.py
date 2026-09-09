@@ -13,8 +13,7 @@ class User(Base):
     last_name = Column(String, nullable=True)
     public_id = Column(UUID(as_uuid=True), unique=True, default=uuid.uuid4)
     tickets = Column(Integer, default=2)
-    primogems = Column(Integer, default=0)
-    spins_count = Column(Integer, default=0)  # ← ДЛЯ ЗАДАНИЙ
+    spins_count = Column(Integer, default=0)
     
     # Донат-система
     moon_shards = Column(Integer, default=0)
@@ -24,8 +23,9 @@ class User(Base):
     crystals_60_boosted = Column(Boolean, default=True)
     is_donator = Column(Boolean, default=False)
     
+    # Genshin UID и регион
     genshin_uid = Column(String, nullable=True)
-    genshin_server = Column(String, nullable=True)
+    genshin_server = Column(String, nullable=True)  # asia, us, eu
     
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())

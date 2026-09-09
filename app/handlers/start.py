@@ -29,8 +29,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             first_name=user.first_name,
             last_name=user.last_name,
             public_id=uuid.uuid4(),
-            tickets=2,  # 👈 СТАРТОВЫЕ 2 БИЛЕТИКА
-            primogems=0,
+            tickets=2,
         )
         db.add(new_user)
         db.flush()
@@ -65,7 +64,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"👋 Привет, {user.first_name or 'пользователь'}!\n\n"
             f"Добро пожаловать в Genshin Impact Community Bot!\n"
             f"🎁 Ты получил 2 бонусных билетика за регистрацию!\n"
-            f"🎡 Крути колесо, получай примогемы и выполняй задания!\n\n"
+            f"🎡 Крути колесо и выполняй задания!\n\n"
             f"📖 Используй кнопки внизу для навигации.",
             reply_markup=keyboard
         )

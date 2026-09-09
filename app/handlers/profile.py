@@ -21,22 +21,21 @@ async def profile_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     keyboard = get_keyboard_for_user(user.id)
 
+    server_map = {"asia": "🌏 Азия", "us": "🌎 США", "eu": "🌍 Европа"}
+    server_display = server_map.get(db_user.genshin_server, db_user.genshin_server)
+
     text = (
         f"👤 *Профиль пользователя*\n\n"
         f"🆔 Telegram ID: `{db_user.telegram_id}`\n"
         f"👤 Имя: {db_user.first_name or 'Не указано'}\n"
-        f"🔑 Публичный ID: `{db_user.public_id}`\n"
         f"🎟️ Билетики: {db_user.tickets}\n"
     )
 
-    # Genshin UID теперь хранится прямо в User
     if db_user.genshin_uid:
-        server_map = {"asia": "🌏 Азия", "us": "🌎 США", "eu": "🌍 Европа"}
-        server = server_map.get(db_user.genshin_server, db_user.genshin_server)
         text += (
             f"\n🎮 *Genshin Impact*\n"
             f"🆔 UID: `{db_user.genshin_uid}`\n"
-            f"🌍 Регион: {server}\n"
+            f"🌍 Регион: {server_display or 'Не указан'}\n"
         )
     else:
         text += f"\n🎮 Genshin UID: *не привязан*\n"

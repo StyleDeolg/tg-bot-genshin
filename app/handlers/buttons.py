@@ -31,7 +31,21 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
     user_id = update.effective_user.id
     
-    # ===== СНАЧАЛА ПРОВЕРЯЕМ АКТИВНЫЕ ДЕЙСТВИЯ =====
+    # ===== ПРОВЕРЯЕМ, НЕ НАХОДИМСЯ ЛИ МЫ В ДИАЛОГЕ ПРИВЯЗКИ UID =====
+    # Если пользователь ввёл UID (9-10 цифр) — пропускаем, ConversationHandler сам обработает
+    if text and text.isdigit() and len(text) in (9, 10):
+        # Проверяем, есть ли активный диалог привязки
+        if context.user_data.get('conversation') == 'bind_uid':
+            return  # Пропускаем, обработка в bind_uid_input
+        
+        # Если пользователь ввёл UID не в диалоге — показываем сообщение
+        if 'uid' not in context.user_data:
+            await update.message.reply_text(
+                "❌ Используй /bind_uid для привязки UID"
+            )
+            return
+    
+    # ===== АКТИВНЫЕ ДЕЙСТВИЯ АДМИНКИ =====
     action = context.user_data.get('admin_action')
     
     if action == 'give_tickets':
@@ -67,7 +81,6 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             await update.message.reply_text("⛔ У вас нет доступа к админ-панели")
     
-    # ===== КНОПКИ АДМИН-ПАНЕЛИ =====
     elif text == "📊 Статистика":
         if user_id in config.ADMIN_IDS:
             await admin_stats(update, context)

@@ -28,7 +28,7 @@ async def get_profile(telegram_id: str):
             "first_name": user.first_name,
             "last_name": user.last_name,
             "tickets": user.tickets,
-            "moon_shards": user.moon_shards,  # ← ТОЛЬКО осколки
+            "moon_shards": user.moon_shards,
             "is_donator": user.is_donator,
             "genshin_uid": user.genshin_uid,
             "genshin_server": user.genshin_server,
