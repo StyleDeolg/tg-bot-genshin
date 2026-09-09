@@ -48,11 +48,11 @@ TOKEN = config.BOT_TOKEN
 WEBHOOK_PATH = "/webhook"
 SECRET_TOKEN = config.WEBHOOK_SECRET_TOKEN
 
-# Создаём глобальный объект бота
+# Глобальная переменная для бота
 _bot_app = None
 
-def get_bot_app():
-    """Ленивая инициализация бота"""
+async def get_bot_app():
+    """Инициализирует и возвращает приложение бота"""
     global _bot_app
     if _bot_app is None:
         _bot_app = Application.builder().token(TOKEN).build()
@@ -64,6 +64,10 @@ def get_bot_app():
         _bot_app.add_handler(CommandHandler("bind_uid", bind_uid_start))
         _bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons))
         _bot_app.add_error_handler(error_handler)
+        
+        # 👇 ЯВНАЯ ИНИЦИАЛИЗАЦИЯ (ОБЯЗАТЕЛЬНО!)
+        await _bot_app.initialize()
+        print("✅ Бот инициализирован")
     return _bot_app
 
 
@@ -74,7 +78,7 @@ async def webhook_endpoint(request: Request):
         if secret != SECRET_TOKEN:
             return Response(status_code=403)
     try:
-        bot_app = get_bot_app()
+        bot_app = await get_bot_app()
         json_data = await request.json()
         update = Update.de_json(json_data, bot_app.bot)
         await bot_app.process_update(update)
@@ -87,7 +91,7 @@ async def webhook_endpoint(request: Request):
 @app.get("/webhook-info")
 async def webhook_info():
     try:
-        bot_app = get_bot_app()
+        bot_app = await get_bot_app()
         info = await bot_app.bot.get_webhook_info()
         return {
             "url": info.url,
