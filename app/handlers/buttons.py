@@ -31,16 +31,13 @@ from app.config import config
 async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработчик кнопок и текстовых сообщений"""
     
+    # ===== ЕСЛИ МЫ В ДИАЛОГЕ ПРИВЯЗКИ UID — ВЫХОДИМ =====
+    # ConversationHandler сам обработает сообщение
+    if context.user_data.get('conversation') == 'bind_uid':
+        return  # 👈 НИЧЕГО НЕ ДЕЛАЕМ
+    
     text = update.message.text
     user_id = update.effective_user.id
-    
-    # ===== ПРОВЕРКА: МЫ В ДИАЛОГЕ ПРИВЯЗКИ UID? =====
-    # Если пользователь ввёл 9-10 цифр ИЛИ нажал "Отмена" — передаём в ConversationHandler
-    if text and (text.isdigit() and len(text) in (9, 10)) or text == "❌ Отмена":
-        # Проверяем, есть ли активный диалог привязки
-        if context.user_data.get('conversation') == 'bind_uid':
-            # 👇 ПРОСТО ВЫХОДИМ, ЧТОБЫ НЕ ПЕРЕХВАТЫВАТЬ
-            return
     
     # ===== АКТИВНЫЕ ДЕЙСТВИЯ АДМИНКИ =====
     action = context.user_data.get('admin_action')
@@ -139,7 +136,6 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("⛔ Нет доступа")
     
     else:
-        # Если пользователь ввёл что-то неизвестное — показываем меню
         await update.message.reply_text(
             "❌ Неизвестная команда. Используйте кнопки меню.",
             reply_markup=get_keyboard_for_user(user_id)
