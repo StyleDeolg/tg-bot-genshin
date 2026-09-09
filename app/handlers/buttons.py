@@ -104,6 +104,13 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             await update.message.reply_text("⛔ Нет доступа")
     
+    elif text == "➕ Добавить спонсора":
+        if user_id in config.ADMIN_IDS:
+            from app.handlers.sponsors import add_sponsor_start
+            await add_sponsor_start(update, context)
+        else:
+            await update.message.reply_text("⛔ Нет доступа")
+    
     elif text == "🗑 Удалить спонсора":
         if user_id in config.ADMIN_IDS:
             await delete_sponsor_start(update, context)
@@ -123,6 +130,7 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("⛔ Нет доступа")
     
     else:
+        # Если пользователь ввёл что-то неизвестное — показываем меню
         await update.message.reply_text(
             "❌ Неизвестная команда. Используйте кнопки меню.",
             reply_markup=get_keyboard_for_user(user_id)

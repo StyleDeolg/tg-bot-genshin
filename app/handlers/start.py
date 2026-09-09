@@ -4,7 +4,7 @@ from app.database import SessionLocal
 from app.models.user import User
 from app.models.referral import Referral
 from app.keyboards import get_keyboard_for_user
-from app.config import config  # 👈 ИМПОРТИРУЕМ config
+from app.config import config
 import uuid
 
 
@@ -29,7 +29,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             first_name=user.first_name,
             last_name=user.last_name,
             public_id=uuid.uuid4(),
-            tickets=4,
+            tickets=2,  # 👈 СТАРТОВЫЕ 2 БИЛЕТИКА
             primogems=0,
         )
         db.add(new_user)

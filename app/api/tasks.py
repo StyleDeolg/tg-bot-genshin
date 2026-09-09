@@ -232,6 +232,32 @@ async def check_tasks(telegram_id: str):
             if user_task.progress >= task.required_count:
                 user_task.completed_at = datetime.now()
     
+    # ===== DAILY =====
+    daily_tasks = db.query(Task).filter_by(task_type="daily", is_active=True).all()
+    for task in daily_tasks:
+        user_task = db.query(UserTask).filter_by(
+            user_id=user.id,
+            task_id=task.id
+        ).first()
+        
+        if not user_task:
+            user_task = UserTask(
+                user_id=user.id,
+                task_id=task.id,
+                progress=0
+            )
+            db.add(user_task)
+            db.flush()
+        
+        # Проверяем, не прошло ли 24 часа
+        if user_task.completed_at:
+            time_diff = datetime.now() - user_task.completed_at
+            if time_diff >= timedelta(hours=24):
+                # Сбрасываем задание
+                user_task.completed_at = None
+                user_task.progress = 0
+                user_task.last_claimed_at = None
+    
     db.commit()
     db.close()
     

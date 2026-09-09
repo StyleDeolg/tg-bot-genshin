@@ -36,9 +36,9 @@ export default function TasksPage() {
         loadData();
     }, [user]);
 
-    // Таймер для ежедневных заданий
+    // ===== ТАЙМЕР БЕЗ НАГРУЗКИ (обновление раз в минуту) =====
     useEffect(() => {
-        const interval = setInterval(() => {
+        const updateTimers = () => {
             const newTimeLeft: { [key: string]: string } = {};
             const now = new Date();
 
@@ -56,12 +56,19 @@ export default function TasksPage() {
                         newTimeLeft[task.id] = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
                     } else {
                         newTimeLeft[task.id] = '✅ Готово!';
+                        // 👇 ОБНОВЛЯЕМ ЗАДАНИЯ, КОГДА ТАЙМЕР ЗАКОНЧИЛСЯ
+                        if (!task.completed) {
+                            loadData();
+                        }
                     }
                 }
             });
 
             setTimeLeft(newTimeLeft);
-        }, 1000);
+        };
+
+        updateTimers();
+        const interval = setInterval(updateTimers, 60000);
 
         return () => clearInterval(interval);
     }, [tasks]);
