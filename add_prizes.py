@@ -5,10 +5,10 @@ import uuid
 def add_prizes():
     db = SessionLocal()
     
-    # Очищаем старые призы
+    # Полностью очищаем таблицу призов
     db.query(WheelConfig).delete()
     
-    # ПРАВИЛЬНЫЙ ПОРЯДОК (индексы 0-7)
+    # ПРАВИЛЬНЫЙ ПОРЯДОК — ПУСТОТЫ ЧЕРЕЗ ОДНУ
     prizes = [
         {"name": "Пусто", "value": 0, "chance": 1200, "emoji": "💨", "prize_type": "empty_1"},
         {"name": "Осколок луны", "value": 0, "chance": 5000, "emoji": "🔮", "prize_type": "shard"},
@@ -34,7 +34,16 @@ def add_prizes():
     
     db.commit()
     db.close()
-    print("✅ Призы обновлены в правильном порядке!")
+    print("✅ Призы обновлены!")
+    print("🎡 Порядок:")
+    for i, p in enumerate(prizes):
+        print(f"   {i}: {p['name']}")
+    print("")
+    print("🎯 Шансы:")
+    print("   • Осколок: 50% (ступенчато)")
+    print("   • 60 кристаллов: 1%")
+    print("   • Луна: 0.2%")
+    print("   • 330 кристаллов: 0.1%")
 
 if __name__ == "__main__":
     add_prizes()
