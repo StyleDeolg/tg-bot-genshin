@@ -62,6 +62,7 @@ async def bind_uid_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     text = update.message.text.strip()
     
+    # Проверяем отмену
     if text == "❌ Отмена":
         context.user_data.pop('conversation', None)
         user_id = update.effective_user.id
@@ -71,6 +72,7 @@ async def bind_uid_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return ConversationHandler.END
 
+    # Проверяем, что это UID (9-10 цифр)
     if not text.isdigit() or len(text) not in (9, 10):
         await update.message.reply_text(
             "❌ Неверный формат. Введите 9-10 цифр:",
@@ -151,7 +153,6 @@ async def bind_uid_server(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     keyboard = get_keyboard_for_user(user.id)
 
-    # Отображаем название региона
     server_display = {
         "asia": "🌏 Азия",
         "us": "🌎 США",

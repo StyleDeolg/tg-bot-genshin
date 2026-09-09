@@ -57,14 +57,14 @@ async def get_bot_app():
     if _bot_app is None:
         _bot_app = Application.builder().token(TOKEN).build()
         
-        # Команды
+        # ===== КОМАНДЫ =====
         _bot_app.add_handler(CommandHandler("start", start_command))
         _bot_app.add_handler(CommandHandler("help", help_command))
         _bot_app.add_handler(CommandHandler("profile", profile_command))
         _bot_app.add_handler(CommandHandler("unbind_uid", unbind_uid))
         _bot_app.add_handler(CommandHandler("app", app_command))
         
-        # ConversationHandler для привязки UID
+        # ===== CONVERSATION HANDLER (ДОЛЖЕН БЫТЬ ВЫШЕ MessageHandler) =====
         conv_handler = ConversationHandler(
             entry_points=[CommandHandler("bind_uid", bind_uid_start)],
             states={
@@ -75,11 +75,10 @@ async def get_bot_app():
         )
         _bot_app.add_handler(conv_handler)
         
-        # Обработчик кнопок
+        # ===== ОБРАБОТЧИК КНОПОК (ДОЛЖЕН БЫТЬ НИЖЕ ConversationHandler) =====
         _bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons))
         _bot_app.add_error_handler(error_handler)
         
-        # 👇 ЯВНАЯ ИНИЦИАЛИЗАЦИЯ
         await _bot_app.initialize()
         print("✅ Бот инициализирован")
     return _bot_app
