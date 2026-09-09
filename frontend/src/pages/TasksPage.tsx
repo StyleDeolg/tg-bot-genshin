@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { getTasks, claimTask, checkTasks } from '../api/tasks';
 import { getSponsors, checkSponsorSubscription } from '../api/sponsors';
@@ -10,10 +10,12 @@ export default function TasksPage() {
     const { user, updateProfile } = useAuthStore();
     const [tasks, setTasks] = useState<any[]>([]);
     const [sponsors, setSponsors] = useState<Sponsor[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState<boolean>(true);
     const [claiming, setClaiming] = useState<string | null>(null);
     const [checking, setChecking] = useState<string | null>(null);
     const [timeLeft, setTimeLeft] = useState<{ [key: string]: string }>({});
+
+    const animationRef = useRef<number | undefined>(undefined);
 
     const loadData = async () => {
         if (!user) return;
@@ -36,17 +38,17 @@ export default function TasksPage() {
         loadData();
     }, [user]);
 
-    // ===== ТАЙМЕР БЕЗ НАГРУЗКИ (обновление раз в минуту) =====
+    // ===== ОБНОВЛЕНИЕ ТАЙМЕРОВ В РЕАЛЬНОМ ВРЕМЕНИ =====
     useEffect(() => {
         const updateTimers = () => {
+            const now = Date.now();
             const newTimeLeft: { [key: string]: string } = {};
-            const now = new Date();
 
             tasks.forEach((task) => {
                 if (task.task_type === 'daily' && task.last_claimed_at) {
-                    const lastClaimed = new Date(task.last_claimed_at);
-                    const nextAvailable = new Date(lastClaimed.getTime() + 24 * 60 * 60 * 1000);
-                    const diff = nextAvailable.getTime() - now.getTime();
+                    const lastClaimed = new Date(task.last_claimed_at).getTime();
+                    const nextAvailable = lastClaimed + 24 * 60 * 60 * 1000;
+                    const diff = nextAvailable - now;
 
                     if (diff > 0) {
                         const totalSeconds = Math.floor(diff / 1000);
@@ -56,10 +58,6 @@ export default function TasksPage() {
                         newTimeLeft[task.id] = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
                     } else {
                         newTimeLeft[task.id] = '✅ Готово!';
-                        // 👇 ОБНОВЛЯЕМ ЗАДАНИЯ, КОГДА ТАЙМЕР ЗАКОНЧИЛСЯ
-                        if (!task.completed) {
-                            loadData();
-                        }
                     }
                 }
             });
@@ -67,10 +65,28 @@ export default function TasksPage() {
             setTimeLeft(newTimeLeft);
         };
 
+        // Первое обновление
         updateTimers();
-        const interval = setInterval(updateTimers, 60000);
 
-        return () => clearInterval(interval);
+        // Используем requestAnimationFrame для плавного обновления
+        let lastUpdate = Date.now();
+
+        const animate = () => {
+            const now = Date.now();
+            if (now - lastUpdate >= 1000) {
+                updateTimers();
+                lastUpdate = now;
+            }
+            animationRef.current = requestAnimationFrame(animate);
+        };
+
+        animationRef.current = requestAnimationFrame(animate);
+
+        return () => {
+            if (animationRef.current) {
+                cancelAnimationFrame(animationRef.current);
+            }
+        };
     }, [tasks]);
 
     const handleClaim = async (taskId: string) => {
@@ -145,10 +161,10 @@ export default function TasksPage() {
     const sponsorTasks = tasks.filter(task => task.task_type === 'sponsor');
     const regularTasks = tasks.filter(task => task.task_type !== 'sponsor');
 
-    const sponsorsMap = sponsors.reduce((acc, s) => {
+    const sponsorsMap = sponsors.reduce<Record<string, Sponsor>>((acc, s) => {
         acc[s.id] = s;
         return acc;
-    }, {} as Record<string, Sponsor>);
+    }, {});
 
     return (
         <div className="page tasks-page">
