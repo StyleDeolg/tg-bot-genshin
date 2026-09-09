@@ -1,27 +1,25 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Layout from './components/Layout';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import WebAppAuth from './pages/WebAppAuth';
+import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
-import FriendsPage from './pages/FriendsPage';
 import TasksPage from './pages/TasksPage';
-import './styles/global.css';
+import FriendsPage from './pages/FriendsPage';
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <WebAppAuth>
         <Layout>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/friends" element={<FriendsPage />} />
             <Route path="/tasks" element={<TasksPage />} />
-            <Route path="*" element={<Navigate to="/" />} />
+            <Route path="/friends" element={<FriendsPage />} />
           </Routes>
         </Layout>
       </WebAppAuth>
-    </Router>
+    </BrowserRouter>
   );
 }
 

@@ -5,6 +5,7 @@ import { getSponsors, checkSponsorSubscription } from '../api/sponsors';
 import type { Sponsor } from '../api/sponsors';
 import GoldButton from '../components/GoldButton';
 import TicketIcon from '../components/TicketIcon';
+import PageOrnament from '../components/PageOrnament';
 
 export default function TasksPage() {
     const { user, updateProfile } = useAuthStore();
@@ -164,6 +165,7 @@ export default function TasksPage() {
     return (
         <div className="page tasks-page">
             <div style={{ marginBottom: '28px' }}>
+                <PageOrnament />
                 <h1 className="page-title">📋 Задания</h1>
                 <p className="page-subtitle">Выполняй задания и получай награды!</p>
             </div>
@@ -182,7 +184,7 @@ export default function TasksPage() {
                             fontWeight: '600',
                             color: '#d4af37',
                             letterSpacing: '0.5px',
-                            fontFamily: "'Cinzel', serif",
+                            fontFamily: "'Cormorant Garamond', serif",
                         }}>
                             🤝 Спонсоры
                         </span>
@@ -204,19 +206,18 @@ export default function TasksPage() {
                         const isChecking = checking === task.id;
 
                         return (
-                            <div key={task.id} style={{
-                                background: 'rgba(255,255,255,0.02)',
-                                backdropFilter: 'blur(20px)',
-                                borderRadius: '14px',
-                                padding: '18px 20px',
-                                marginBottom: '12px',
+                            <div key={task.id} className="task-card" style={{
                                 border: isCompleted
                                     ? '1px solid rgba(90, 143, 106, 0.12)'
                                     : '1px solid rgba(255,255,255,0.03)',
-                                transition: 'all 0.3s ease',
                                 position: 'relative',
                                 overflow: 'hidden',
                             }}>
+                                <div className="corner-decor tl"></div>
+                                <div className="corner-decor tr"></div>
+                                <div className="corner-decor bl"></div>
+                                <div className="corner-decor br"></div>
+
                                 {isCompleted && (
                                     <div style={{
                                         position: 'absolute',
@@ -228,7 +229,7 @@ export default function TasksPage() {
                                         fontSize: '11px',
                                         fontWeight: '600',
                                         color: '#5a8f6a',
-                                        fontFamily: "'Cinzel', serif",
+                                        fontFamily: "'Cormorant Garamond', serif",
                                     }}>
                                         ✅ Выполнено
                                     </div>
@@ -239,7 +240,6 @@ export default function TasksPage() {
                                         fontSize: '15px',
                                         fontWeight: '600',
                                         color: '#e8e0d4',
-                                        fontFamily: "'Cinzel', serif",
                                     }}>
                                         {task.title}
                                     </span>
@@ -273,7 +273,7 @@ export default function TasksPage() {
                                                 textDecoration: 'none',
                                                 border: '1px solid rgba(212, 175, 55, 0.04)',
                                                 transition: 'all 0.3s ease',
-                                                fontFamily: "'Cinzel', serif",
+                                                fontFamily: "'Cormorant Garamond', serif",
                                             }}
                                             onMouseEnter={(e) => {
                                                 e.currentTarget.style.background = 'rgba(212, 175, 55, 0.08)';
@@ -298,7 +298,6 @@ export default function TasksPage() {
                                             color: 'rgba(90, 143, 106, 0.4)',
                                             fontSize: '13px',
                                             fontWeight: '500',
-                                            fontFamily: "'Cinzel', serif",
                                         }}>
                                             🎉 Награда получена!
                                         </div>
@@ -331,7 +330,7 @@ export default function TasksPage() {
                             fontWeight: '600',
                             color: '#e8e0d4',
                             letterSpacing: '0.5px',
-                            fontFamily: "'Cinzel', serif",
+                            fontFamily: "'Cormorant Garamond', serif",
                         }}>
                             📋 Другие задания
                         </span>
@@ -401,17 +400,16 @@ export default function TasksPage() {
                         }
 
                         return (
-                            <div key={task.id} style={{
-                                background: 'rgba(255,255,255,0.02)',
-                                backdropFilter: 'blur(20px)',
-                                borderRadius: '14px',
-                                padding: '18px 20px',
-                                marginBottom: '12px',
+                            <div key={task.id} className="task-card" style={{
                                 border: isTaskCompleted
                                     ? '1px solid rgba(90, 143, 106, 0.06)'
                                     : '1px solid rgba(255,255,255,0.03)',
-                                transition: 'all 0.3s ease',
                             }}>
+                                <div className="corner-decor tl"></div>
+                                <div className="corner-decor tr"></div>
+                                <div className="corner-decor bl"></div>
+                                <div className="corner-decor br"></div>
+
                                 <div style={{
                                     display: 'flex',
                                     justifyContent: 'space-between',
@@ -422,7 +420,6 @@ export default function TasksPage() {
                                         fontSize: '15px',
                                         fontWeight: '600',
                                         color: '#e8e0d4',
-                                        fontFamily: "'Cinzel', serif",
                                     }}>
                                         {task.title}
                                     </span>
@@ -439,7 +436,6 @@ export default function TasksPage() {
                                             ? '1px solid rgba(90, 143, 106, 0.06)'
                                             : '1px solid rgba(255,255,255,0.02)',
                                         whiteSpace: 'nowrap',
-                                        fontFamily: "'Cinzel', serif",
                                     }}>
                                         {isTaskCompleted ? '✅ Готово' : '⏳ В процессе'}
                                     </span>
@@ -485,7 +481,6 @@ export default function TasksPage() {
                                             minWidth: '45px',
                                             textAlign: 'right',
                                             fontVariantNumeric: 'tabular-nums',
-                                            fontFamily: "'Cinzel', serif",
                                         }}>
                                             {progress}/{required}
                                         </span>
@@ -534,7 +529,7 @@ export default function TasksPage() {
                     color: 'rgba(232,224,212,0.1)',
                 }}>
                     <div style={{ fontSize: '48px', marginBottom: '16px' }}>📭</div>
-                    <p style={{ fontSize: '16px', fontFamily: "'Cinzel', serif" }}>Заданий пока нет</p>
+                    <p style={{ fontSize: '16px' }}>Заданий пока нет</p>
                     <p style={{ fontSize: '13px', marginTop: '4px', color: 'rgba(232,224,212,0.06)' }}>
                         Загляни позже, они скоро появятся!
                     </p>

@@ -7,6 +7,7 @@ import GoldButton from '../components/GoldButton';
 import GlassCard from '../components/GlassCard';
 import TicketIcon from '../components/TicketIcon';
 import ShardIcon from '../components/ShardIcon';
+import PageOrnament from '../components/PageOrnament';
 
 export default function HomePage() {
     const { user, updateProfile } = useAuthStore();
@@ -16,9 +17,6 @@ export default function HomePage() {
     const [showResult, setShowResult] = useState(false);
     const [debugInfo, setDebugInfo] = useState<string>('');
 
-    // 👇 СДВИГ ИНДЕКСА (попробуй 0, 2, 4, 6, -2)
-    // Если осколок показывает 60 кристаллов → попробуй OFFSET = 2
-    // Если 60 кристаллов показывает луну → попробуй OFFSET = 4
     const OFFSET = -2;
 
     const handleSpin = async () => {
@@ -36,8 +34,6 @@ export default function HomePage() {
 
         try {
             const data = await spinWheel(user.telegram_id);
-
-            // 👇 ПРИМЕНЯЕМ СДВИГ
             const visualIndex = (data.segment_index + OFFSET) % 8;
 
             setDebugInfo(`🎯 ${data.prize} (индекс БД: ${data.segment_index} → визуальный: ${visualIndex})`);
@@ -99,6 +95,7 @@ export default function HomePage() {
     return (
         <div className="page home-page">
             <div className="home-content">
+                <PageOrnament />
                 <h1 className="page-title">🎡 Колесо фортуны</h1>
                 <p className="page-subtitle">Крути и выигрывай призы!</p>
 
@@ -111,17 +108,7 @@ export default function HomePage() {
                 </GlassCard>
 
                 {debugInfo && (
-                    <div style={{
-                        marginTop: '8px',
-                        padding: '6px 12px',
-                        background: 'rgba(0,0,0,0.3)',
-                        borderRadius: '8px',
-                        fontSize: '12px',
-                        color: 'rgba(240,236,229,0.5)',
-                        fontFamily: 'monospace',
-                        width: '100%',
-                        textAlign: 'center',
-                    }}>
+                    <div className="debug-info">
                         {debugInfo}
                     </div>
                 )}

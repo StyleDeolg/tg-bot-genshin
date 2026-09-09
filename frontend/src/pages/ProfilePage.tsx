@@ -4,6 +4,7 @@ import { getProfile } from '../api/profile';
 import { getAvatar } from '../api/auth';
 import TicketIcon from '../components/TicketIcon';
 import ShardIcon from '../components/ShardIcon';
+import PageOrnament from '../components/PageOrnament';
 
 export default function ProfilePage() {
     const { user } = useAuthStore();
@@ -43,11 +44,12 @@ export default function ProfilePage() {
     return (
         <div className="page profile-page">
             <div className="profile-header">
+                <PageOrnament />
                 <div className="profile-avatar">
                     {avatarUrl ? (
                         <img src={avatarUrl} alt={profile?.first_name || 'User'} className="profile-avatar-image" onError={() => setAvatarUrl(null)} />
                     ) : (
-                        <span className="profile-avatar-fallback">{profile?.first_name?.[0] || '⚜️'}</span>
+                        <span className="profile-avatar-fallback">{profile?.first_name?.[0] || '⚜'}</span>
                     )}
                 </div>
                 <h2>{profile?.first_name} {profile?.last_name}</h2>
@@ -55,6 +57,11 @@ export default function ProfilePage() {
             </div>
 
             <div className="profile-card">
+                <div className="corner-decor tl"></div>
+                <div className="corner-decor tr"></div>
+                <div className="corner-decor bl"></div>
+                <div className="corner-decor br"></div>
+
                 <div className="info-row">
                     <span className="info-label"><TicketIcon size={16} style={{ marginRight: 6 }} /> Билетики</span>
                     <span className="info-value">{profile?.tickets ?? 0}</span>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { getReferral } from '../api/referral';
 import TicketIcon from '../components/TicketIcon';
+import PageOrnament from '../components/PageOrnament';
 
 export default function FriendsPage() {
     const { user } = useAuthStore();
@@ -39,11 +40,21 @@ export default function FriendsPage() {
 
     return (
         <div className="page friends-page">
+            <PageOrnament />
             <h1 className="page-title">👥 Друзья</h1>
             <p className="page-subtitle">Приглашай друзей и получай бонусы!</p>
 
             <div className="invite-card">
-                <p style={{ fontFamily: "'Cinzel', serif", color: 'rgba(232,224,212,0.5)', fontSize: '13px', marginBottom: '8px' }}>
+                <div className="corner-decor tl"></div>
+                <div className="corner-decor tr"></div>
+                <div className="corner-decor bl"></div>
+                <div className="corner-decor br"></div>
+                <p style={{
+                    fontFamily: "'Cormorant Garamond', serif",
+                    color: 'rgba(232,224,212,0.5)',
+                    fontSize: '13px',
+                    marginBottom: '8px'
+                }}>
                     Твоя реферальная ссылка:
                 </p>
                 <div className="invite-link-wrapper">
