@@ -1,13 +1,12 @@
 from telegram import Bot
 from app.config import config
-import os
 
 BOT_TOKEN = config.BOT_TOKEN
 bot = Bot(token=BOT_TOKEN)
 
-DONATOR_CHAT_IDS = [
-    int(id.strip()) for id in os.getenv("DONATOR_CHAT_IDS", "5646848256").split(",")
-]
+# Используем config.DONATOR_CHAT_IDS
+DONATOR_CHAT_IDS = config.DONATOR_CHAT_IDS
+
 
 async def notify_donator(winner_telegram_id: int, prize: str, uid: str, server: str, username: str, first_name: str = None):
     """Отправляет уведомление донатору о выигрыше"""
@@ -32,6 +31,10 @@ async def notify_donator(winner_telegram_id: int, prize: str, uid: str, server: 
         f"🏆 Выигрыш: {prize_display}\n\n"
         f"📌 Свяжитесь с победителем и совершите донат!"
     )
+    
+    if not DONATOR_CHAT_IDS:
+        print("⚠️ Список донаторов пуст! Уведомления не отправлены.")
+        return
     
     success_count = 0
     for chat_id in DONATOR_CHAT_IDS:

@@ -5,15 +5,16 @@ from app.database import SessionLocal
 from app.models.sponsor import Sponsor
 from app.models.task import Task
 from app.keyboards import get_admin_panel_keyboard
+from app.config import config
+
 
 # Состояния для ConversationHandler
 ADD_SPONSOR_NAME, ADD_SPONSOR_LINK, ADD_SPONSOR_CHANNEL_ID = 1, 2, 3
 
 
 def is_admin(update: Update) -> bool:
-    from app.config import ADMIN_IDS
     user_id = update.effective_user.id
-    return user_id in ADMIN_IDS
+    return user_id in config.ADMIN_IDS
 
 
 # ============ ДОБАВЛЕНИЕ СПОНСОРА ============

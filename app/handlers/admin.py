@@ -7,12 +7,12 @@ from app.models.user import User
 from app.models.wheel import WheelSpin, WheelConfig
 from app.models.task import Task
 from app.keyboards import get_admin_panel_keyboard, get_keyboard_for_user
+from app.config import config
 
-ADMIN_IDS = [int(os.getenv("ADMIN_ID", "123456789"))]
 
 def is_admin(update: Update) -> bool:
     user_id = update.effective_user.id
-    return user_id in ADMIN_IDS
+    return user_id in config.ADMIN_IDS
 
 
 # ============ СТАРЫЕ АДМИН-КОМАНДЫ ============

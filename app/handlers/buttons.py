@@ -24,7 +24,8 @@ from app.handlers.sponsors import (
     delete_sponsor_confirm,
     list_sponsors_admin,
 )
-from app.config import ADMIN_IDS
+from app.config import config
+
 
 async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
@@ -61,62 +62,62 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     # ===== АДМИН-КНОПКИ =====
     elif text == "👑 Админ-панель":
-        if user_id in ADMIN_IDS:
+        if user_id in config.ADMIN_IDS:
             await admin_panel(update, context)
         else:
             await update.message.reply_text("⛔ У вас нет доступа к админ-панели")
     
     # ===== КНОПКИ АДМИН-ПАНЕЛИ =====
     elif text == "📊 Статистика":
-        if user_id in ADMIN_IDS:
+        if user_id in config.ADMIN_IDS:
             await admin_stats(update, context)
         else:
             await update.message.reply_text("⛔ Нет доступа")
     
     elif text == "🎡 Призы":
-        if user_id in ADMIN_IDS:
+        if user_id in config.ADMIN_IDS:
             await admin_prizes(update, context)
         else:
             await update.message.reply_text("⛔ Нет доступа")
     
     elif text == "📋 Задания":
-        if user_id in ADMIN_IDS:
+        if user_id in config.ADMIN_IDS:
             await admin_tasks(update, context)
         else:
             await update.message.reply_text("⛔ Нет доступа")
     
     elif text == "🎫 Выдать билеты":
-        if user_id in ADMIN_IDS:
+        if user_id in config.ADMIN_IDS:
             await admin_give_tickets_start(update, context)
         else:
             await update.message.reply_text("⛔ Нет доступа")
     
     elif text == "📢 Рассылка":
-        if user_id in ADMIN_IDS:
+        if user_id in config.ADMIN_IDS:
             await admin_broadcast_start(update, context)
         else:
             await update.message.reply_text("⛔ Нет доступа")
     
     elif text == "🌙 Выдать луну":
-        if user_id in ADMIN_IDS:
+        if user_id in config.ADMIN_IDS:
             await admin_give_moon(update, context)
         else:
             await update.message.reply_text("⛔ Нет доступа")
     
     elif text == "🗑 Удалить спонсора":
-        if user_id in ADMIN_IDS:
+        if user_id in config.ADMIN_IDS:
             await delete_sponsor_start(update, context)
         else:
             await update.message.reply_text("⛔ Нет доступа")
     
     elif text == "📋 Список спонсоров":
-        if user_id in ADMIN_IDS:
+        if user_id in config.ADMIN_IDS:
             await list_sponsors_admin(update, context)
         else:
             await update.message.reply_text("⛔ Нет доступа")
     
     elif text == "🔙 Выйти из админки":
-        if user_id in ADMIN_IDS:
+        if user_id in config.ADMIN_IDS:
             await admin_exit(update, context)
         else:
             await update.message.reply_text("⛔ Нет доступа")

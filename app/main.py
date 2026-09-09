@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse
 from telegram import Update, Bot
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
 from app.api import auth, wheel, profile, referral, tasks, sponsors
-from app.config import config  # 👈 ИСПОЛЬЗУЕМ config
+from app.config import config
 from app.handlers import (
     start_command, help_command, profile_command,
     bind_uid_start, bind_uid_input, unbind_uid,
@@ -19,7 +19,11 @@ from app.handlers.buttons import handle_buttons
 # ========== LIFESPAN ==========
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """Выполняется при старте и остановке приложения"""
+    # === СТАРТ ===
     print("🚀 Запуск приложения...")
+    print(f"👥 Админы: {config.ADMIN_IDS}")
+    print(f"💎 Донаторы: {config.DONATOR_CHAT_IDS}")
     
     if config.BOT_MODE != "polling":
         await set_webhook()
@@ -27,8 +31,9 @@ async def lifespan(app: FastAPI):
     print(f"✅ Бот запущен! Режим: {config.BOT_MODE}")
     print(f"📡 Webhook URL: {config.WEBHOOK_URL}")
     
-    yield
+    yield  # Приложение работает
     
+    # === ОСТАНОВКА ===
     print("🛑 Остановка приложения...")
 
 
@@ -100,7 +105,13 @@ if os.path.exists(FRONTEND_DIR):
 # ========== ПРОВЕРКА РАБОТЫ ==========
 @app.get("/ping")
 async def ping():
-    return {"status": "ok", "message": "Backend is running!", "mode": config.BOT_MODE}
+    return {
+        "status": "ok",
+        "message": "Backend is running!",
+        "mode": config.BOT_MODE,
+        "admins": config.ADMIN_IDS,
+        "donators": config.DONATOR_CHAT_IDS
+    }
 
 
 # ========== WEBHOOK ==========

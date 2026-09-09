@@ -1,8 +1,8 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 from app.keyboards import get_main_keyboard, get_admin_keyboard
+from app.config import config
 
-ADMIN_IDS = [5646848256]
 
 async def donate_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработчик кнопки Донаты"""
@@ -10,7 +10,7 @@ async def donate_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     
     user = update.effective_user
-    is_admin = user.id in ADMIN_IDS if user else False
+    is_admin = user.id in config.ADMIN_IDS if user else False
     keyboard = get_admin_keyboard() if is_admin else get_main_keyboard()
     
     donate_text = (
