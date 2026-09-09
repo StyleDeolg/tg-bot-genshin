@@ -61,7 +61,7 @@ async def get_bot_app():
         _bot_app.add_handler(CommandHandler("unbind_uid", unbind_uid))
         _bot_app.add_handler(CommandHandler("app", app_command))
         
-        # ===== CONVERSATION HANDLER (ДОЛЖЕН БЫТЬ ВЫШЕ MessageHandler) =====
+        # ===== CONVERSATION HANDLER =====
         conv_handler = ConversationHandler(
             entry_points=[CommandHandler("bind_uid", bind_uid_start)],
             states={
@@ -72,7 +72,7 @@ async def get_bot_app():
         )
         _bot_app.add_handler(conv_handler)
         
-        # ===== ОБРАБОТЧИК КНОПОК (ДОЛЖЕН БЫТЬ НИЖЕ) =====
+        # ===== ОБРАБОТЧИК КНОПОК =====
         _bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons))
         _bot_app.add_error_handler(error_handler)
         
@@ -88,10 +88,13 @@ async def webhook_endpoint(request: Request):
         if secret != SECRET_TOKEN:
             return Response(status_code=403)
     try:
+        print("🔍 [webhook] Получен запрос")
         bot_app = await get_bot_app()
         json_data = await request.json()
+        print(f"🔍 [webhook] Данные: {str(json_data)[:200]}...")
         update = Update.de_json(json_data, bot_app.bot)
         await bot_app.process_update(update)
+        print("🔍 [webhook] Обработка завершена")
         return Response(status_code=200)
     except Exception as e:
         print(f"❌ Webhook error: {e}")

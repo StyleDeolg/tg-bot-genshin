@@ -31,13 +31,16 @@ from app.config import config
 async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработчик кнопок и текстовых сообщений"""
     
-    # ===== ЕСЛИ МЫ В ДИАЛОГЕ ПРИВЯЗКИ UID — ВЫХОДИМ =====
-    # ConversationHandler сам обработает сообщение
-    if context.user_data.get('conversation') == 'bind_uid':
-        return  # 👈 НИЧЕГО НЕ ДЕЛАЕМ
-    
-    text = update.message.text
+    # ===== ЛОГИРУЕМ ВСЕ СООБЩЕНИЯ =====
     user_id = update.effective_user.id
+    text = update.message.text if update.message else "НЕТ ТЕКСТА"
+    print(f"🔍 [handle_buttons] Получено сообщение от {user_id}: '{text}'")
+    print(f"🔍 [handle_buttons] context.user_data: {context.user_data}")
+    
+    # ===== ЕСЛИ МЫ В ДИАЛОГЕ ПРИВЯЗКИ UID — ВЫХОДИМ =====
+    if context.user_data.get('conversation') == 'bind_uid':
+        print("🔍 [handle_buttons] Мы в диалоге bind_uid, выходим")
+        return
     
     # ===== АКТИВНЫЕ ДЕЙСТВИЯ АДМИНКИ =====
     action = context.user_data.get('admin_action')
