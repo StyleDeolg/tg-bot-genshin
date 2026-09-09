@@ -1,4 +1,4 @@
-from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import ContextTypes
 from app.database import SessionLocal
 from app.models.user import User
@@ -55,7 +55,7 @@ async def bind_uid_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def bind_uid_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Обрабатывает ввод UID"""
+    """Обрабатывает ввод UID и региона"""
     if not update.message:
         return
     
@@ -82,7 +82,6 @@ async def bind_uid_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             return
         
-        # Сохраняем UID и переходим к выбору региона
         context.user_data['uid'] = text
         context.user_data['uid_step'] = 'waiting_server'
         
@@ -140,7 +139,6 @@ async def bind_uid_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
         db.commit()
         db.close()
         
-        # Очищаем состояние
         context.user_data.clear()
         
         server_display = {

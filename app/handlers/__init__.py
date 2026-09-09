@@ -1,7 +1,7 @@
 from app.handlers.start import start_command
 from app.handlers.help import help_command
 from app.handlers.profile import profile_command
-from app.handlers.bind_uid import bind_uid_start, bind_uid_input, bind_uid_server
+from app.handlers.bind_uid import bind_uid_start, bind_uid_input  # 👈 УБИРАЕМ bind_uid_server
 from app.handlers.unbind_uid import unbind_uid
 from app.handlers.app import app_command
 from app.handlers.donate import donate_command
@@ -13,7 +13,7 @@ from app.handlers.admin import (
     admin_prizes,
     admin_tasks,
     admin_give_tickets_start,
-    admin_give_tickets_process,  # ← ИСПРАВЛЕНО (было admin_give_tickets_user)
+    admin_give_tickets_process,
     admin_broadcast_start,
     admin_broadcast_process,
     admin_give_moon,
@@ -29,8 +29,7 @@ __all__ = [
     "help_command",
     "profile_command",
     "bind_uid_start",
-    "bind_uid_input",
-    "bind_uid_server",
+    "bind_uid_input",  # 👈 УБИРАЕМ bind_uid_server
     "unbind_uid",
     "app_command",
     "admin_panel",
