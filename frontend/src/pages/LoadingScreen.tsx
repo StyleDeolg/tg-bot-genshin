@@ -2,18 +2,109 @@ import { useState, useEffect } from 'react';
 import './LoadingScreen.css';
 
 const characters = [
-    { name: 'Венти', image: '/characters/Venti.png', quote: 'Ветер свободы всегда ведёт нас вперёд.' },
-    { name: 'Дилюк', image: '/characters/Diluc.png', quote: 'Тьма не может скрыть правду, как и свет — ложь.' },
-    { name: 'Кэйа', image: '/characters/Kaeya.png', quote: 'Лёд и пламя — две стороны одной медали.' },
-    { name: 'Лиза', image: '/characters/Lisa.png', quote: 'Знания — это сила, но не всегда безопасная.' },
-    { name: 'Беннет', image: '/characters/Bennett.png', quote: 'Не сдавайся! Даже если всё идёт не по плану!' },
-    { name: 'Фишль', image: '/characters/Fischl.png', quote: 'Я, Фишль, приветствую тебя в моём мире!' },
-    { name: 'Ноэль', image: '/characters/Noel.png', quote: 'Я защищу вас, чего бы это ни стоило!' },
-    { name: 'Сахароза', image: '/characters/Sucrose.png', quote: 'Я... Я просто хочу помочь тебе в твоих исследованиях.' },
-    { name: 'Альбедо', image: '/characters/Albedo.png', quote: 'Мои исследования — это не просто работа, это моя страсть.' },
+    {
+        name: 'Альбедо',
+        image: '/characters/Albedo.png',
+        quote: 'Мои исследования — это не просто работа, это моя страсть.'
+    },
+    {
+        name: 'Беннет',
+        image: '/characters/Bennett.png',
+        quote: 'Не сдавайся! Даже если всё идёт не по плану!'
+    },
+    {
+        name: 'Дилюк',
+        image: '/characters/Diluc.png',
+        quote: 'Тьма не может скрыть правду, как и свет — ложь.'
+    },
+    {
+        name: 'Фишль',
+        image: '/characters/Fischl.png',
+        quote: 'Я, Фишль, приветствую тебя в моём мире!'
+    },
+    {
+        name: 'Гань Юй',
+        image: '/characters/Ganyu.png',
+        quote: 'Я всегда рада помочь, даже если это значит работать сверхурочно.'
+    },
+    {
+        name: 'Ху Тао',
+        image: '/characters/Hutao.png',
+        quote: 'Жизнь коротка, так что давай веселиться!'
+    },
+    {
+        name: 'Кадзуха',
+        image: '/characters/Kazuha.png',
+        quote: 'Ветер помнит тех, кто ушёл, но не тех, кто остался.'
+    },
+    {
+        name: 'Кэ Цин',
+        image: '/characters/Keqing.png',
+        quote: 'Я, Кэ Цин, не привыкла ждать чуда. Я сама творю свою судьбу.'
+    },
+    {
+        name: 'Кокоми',
+        image: '/characters/Kokomi.png',
+        quote: 'Стратегия — это искусство, и я его мастер.'
+    },
+    {
+        name: 'Мона',
+        image: '/characters/Mona.png',
+        quote: 'Звёзды говорят мне, что нас ждёт великое приключение.'
+    },
+    {
+        name: 'Нахида',
+        image: '/characters/Nahida.png',
+        quote: 'Знание — это свет, который ведёт нас сквозь тьму.'
+    },
+    {
+        name: 'Ноэль',
+        image: '/characters/Noel.png',
+        quote: 'Я защищу вас, чего бы это ни стоило!'
+    },
+    {
+        name: 'Рэйзор',
+        image: '/characters/Razor.png',
+        quote: 'Я — волк. Волк — это я. Мы вместе.'
+    },
+    {
+        name: 'Розария',
+        image: '/characters/Rosaria.png',
+        quote: 'Я не люблю шумные компании, но ты — исключение.'
+    },
+    {
+        name: 'Райдэн Эи',
+        image: '/characters/Shougun.png',
+        quote: 'Вечность — это не просто слово, это мой путь.'
+    },
+    {
+        name: 'Сахароза',
+        image: '/characters/Sucrose.png',
+        quote: 'Я... Я просто хочу помочь тебе в твоих исследованиях.'
+    },
+    {
+        name: 'Тарталья',
+        image: '/characters/Tartaglia.png',
+        quote: 'Битва — это поэзия, и я её главный поэт.'
+    },
+    {
+        name: 'Венти',
+        image: '/characters/Venti.png',
+        quote: 'Ветер свободы всегда ведёт нас вперёд.'
+    },
+    {
+        name: 'Сяо',
+        image: '/characters/Xiao.png',
+        quote: 'Я страж, и мой долг — защищать этот мир.'
+    },
+    {
+        name: 'Чжун Ли',
+        image: '/characters/Zhongli.png',
+        quote: 'Контракты должны соблюдаться, даже если время идёт против нас.'
+    },
 ];
 
-const MIN_LOADING_TIME = 5000;
+const MIN_LOADING_TIME = 3000;
 
 export default function LoadingScreen({ onLoadingComplete }: { onLoadingComplete?: () => void }) {
     const [progress, setProgress] = useState(0);
@@ -32,7 +123,7 @@ export default function LoadingScreen({ onLoadingComplete }: { onLoadingComplete
         const charInterval = setInterval(() => {
             const randomChar = characters[Math.floor(Math.random() * characters.length)];
             setCurrentChar(randomChar);
-        }, 4000);
+        }, 3500);
 
         const timer = setTimeout(() => {
             clearInterval(progressInterval);
@@ -50,7 +141,6 @@ export default function LoadingScreen({ onLoadingComplete }: { onLoadingComplete
 
     return (
         <div className="loading-screen">
-            {/* 🔥 ФОН КАК В ПРИЛОЖЕНИИ */}
             <div className="loading-bg">
                 <img
                     src="/images/liyue/liyue-bg.jpg"
