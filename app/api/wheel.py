@@ -37,7 +37,6 @@ async def spin(request: SpinRequest):
             db.close()
             raise HTTPException(status_code=400, detail="Недостаточно билетиков")
         
-        # 👇 ИСПРАВЛЕНО: order_by(WheelConfig.id) для стабильного порядка
         prizes = db.query(WheelConfig).filter_by(is_active="true").order_by(WheelConfig.id).all()
         if not prizes:
             db.close()
@@ -47,19 +46,28 @@ async def spin(request: SpinRequest):
         for p in prizes:
             chance = p.chance
             
-            # ===== ПРОГРЕССИВНЫЙ ШАНС ДЛЯ ОДНОЙ ЯЧЕЙКИ ОСКОЛКА =====
+            # ===== СТУПЕНЧАТЫЙ ШАНС ДЛЯ ОСКОЛКА =====
             if p.prize_type == "shard":
-                # Базовый шанс 50% (5000)
-                # Уменьшаем в зависимости от количества осколков
-                # 0 осколков = 50%, 5 осколков = 0%
-                shard_factor = max(0, 1 - (user.moon_shards / 6))
-                chance = int(5000 * shard_factor)
+                shards = user.moon_shards
+                if shards == 0:
+                    chance = 5000   # 50%
+                elif shards == 1:
+                    chance = 1500   # 15%
+                elif shards == 2:
+                    chance = 500    # 5%
+                elif shards == 3:
+                    chance = 200    # 2%
+                elif shards == 4:
+                    chance = 200    # 2%
+                elif shards == 5:
+                    chance = 200    # 2%
+                else:
+                    chance = 0      # 0% (луна уже собрана)
                 
-                # Если шанс стал 0 — пропускаем приз
                 if chance <= 0:
                     continue
             
-            # Бонус для 60 кристаллов (если есть буст)
+            # Бонус для 60 кристаллов
             if p.prize_type == "crystals_60" and user.crystals_60_boosted:
                 chance = max(chance, 200)
             
@@ -71,7 +79,6 @@ async def spin(request: SpinRequest):
                 "prize_type": str(p.prize_type),
             })
         
-        # Если после фильтрации не осталось призов — добавляем пустышку
         if not prizes_data:
             prizes_data = [
                 {"name": "Пусто", "value": 0, "chance": 1000, "emoji": "💨", "prize_type": "empty_fallback"},
@@ -119,7 +126,6 @@ async def spin(request: SpinRequest):
             prize_value = 0
             prize_emoji = "💨"
         
-        # Сохраняем спин
         spin_record = WheelSpin(
             user_id=user.id,
             prize=prize_name,
@@ -129,7 +135,7 @@ async def spin(request: SpinRequest):
         db.add(spin_record)
         db.commit()
         
-        # ===== УВЕДОМЛЕНИЯ =====
+        # Уведомления
         await notify_user_win(int(user.telegram_id), prize_type, user.moon_shards)
         
         if prize_type in ["moon", "crystals_60", "crystals_330"]:
@@ -165,7 +171,6 @@ async def get_prizes():
     """Получить список активных призов для колеса"""
     db = SessionLocal()
     try:
-        # 👇 ИСПРАВЛЕНО: order_by(WheelConfig.id)
         prizes = db.query(WheelConfig).filter_by(is_active="true").order_by(WheelConfig.id).all()
         
         if not prizes:
