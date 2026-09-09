@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from app.database import SessionLocal
 from app.models.user import User
 from app.models.referral import Referral, ReferralReward
+from app.config import config  # 👈 ИМПОРТИРУЕМ КОНФИГ
 
 router = APIRouter(prefix="/api/referral", tags=["referral"])
 
@@ -28,7 +29,8 @@ async def get_referral(telegram_id: str):
     count = db.query(Referral).filter_by(referrer_id=user.id).count()
     rewards = db.query(ReferralReward).order_by(ReferralReward.level).all()
     
-    bot_username = "genshin_community_bot"  # Замени на своего бота
+    # 🔥 ИСПОЛЬЗУЕМ КОНФИГ
+    bot_username = config.BOT_USERNAME or "GenshinPool"
     link = f"https://t.me/{bot_username}?start=ref_{user.public_id}"
     
     db.close()
@@ -51,7 +53,8 @@ async def get_referral_link(telegram_id: str):
         db.close()
         raise HTTPException(status_code=404, detail="Пользователь не найден")
     
-    bot_username = "genshin_community_bot"  # Замени на своего бота
+    # 🔥 ИСПОЛЬЗУЕМ КОНФИГ
+    bot_username = config.BOT_USERNAME or "GenshinPool"
     link = f"https://t.me/{bot_username}?start=ref_{user.public_id}"
     
     db.close()
@@ -71,7 +74,6 @@ async def get_referral_stats(telegram_id: str):
     
     total = db.query(Referral).filter_by(referrer_id=user.id).count()
     
-    # Получить список последних 5 рефералов
     recent = db.query(Referral).filter_by(
         referrer_id=user.id
     ).order_by(Referral.created_at.desc()).limit(5).all()
@@ -90,5 +92,5 @@ async def get_referral_stats(telegram_id: str):
     return {
         "total": total,
         "recent": recent_list,
-        "next_reward": None  # TODO: вычислить следующую награду
+        "next_reward": None
     }

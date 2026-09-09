@@ -6,7 +6,7 @@ load_dotenv()
 class Config:
     # ===== БОТ =====
     BOT_TOKEN: str = os.getenv("BOT_TOKEN", "")
-    BOT_USERNAME: str = os.getenv("BOT_USERNAME", "genshin_community_bot")
+    BOT_USERNAME: str = os.getenv("BOT_USERNAME", "GenshinPool")  # 🔥 ИСПРАВЛЕНО
     BOT_MODE: str = os.getenv("BOT_MODE", "webhook")
     
     # ===== API =====
