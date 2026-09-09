@@ -46,15 +46,16 @@ async def spin(request: SpinRequest):
         for p in prizes:
             chance = p.chance
             
-            # ===== ПРОГРЕССИВНЫЙ ШАНС ДЛЯ ОСКОЛКОВ =====
-            if p.prize_type.startswith("shard"):
-                # Чем больше осколков у пользователя, тем меньше шанс
-                # 0 осколков = максимальный шанс, 5 осколков = минимальный
-                shard_factor = max(0.1, 1 - (user.moon_shards / 6))
-                chance = int(p.chance * shard_factor)
+            # ===== ПРОГРЕССИВНЫЙ ШАНС ДЛЯ ОДНОЙ ЯЧЕЙКИ ОСКОЛКА =====
+            if p.prize_type == "shard":
+                # Базовый шанс 50% (5000)
+                # Уменьшаем в зависимости от количества осколков
+                # 0 осколков = 50%, 5 осколков = 0%
+                shard_factor = max(0, 1 - (user.moon_shards / 6))
+                chance = int(5000 * shard_factor)
                 
-                # Если шанс стал слишком маленьким — пропускаем этот приз
-                if chance < 5:
+                # Если шанс стал 0 — пропускаем приз
+                if chance <= 0:
                     continue
             
             # Бонус для 60 кристаллов (если есть буст)
@@ -69,7 +70,7 @@ async def spin(request: SpinRequest):
                 "prize_type": str(p.prize_type),
             })
         
-        # Если после фильтрации не осталось призов — добавляем пустышки
+        # Если после фильтрации не осталось призов — добавляем пустышку
         if not prizes_data:
             prizes_data = [
                 {"name": "Пусто", "value": 0, "chance": 1000, "emoji": "💨", "prize_type": "empty_fallback"},
@@ -100,7 +101,7 @@ async def spin(request: SpinRequest):
         if prize_type == "moon":
             user.has_moon = True
             user.is_donator = True
-        elif prize_type.startswith("shard"):
+        elif prize_type == "shard":
             user.moon_shards += 1
             if user.moon_shards >= 6:
                 user.has_moon = True
