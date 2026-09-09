@@ -1,5 +1,5 @@
 /* ===== ШРИФТЫ ===== */
-@import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
 
 /* ===== RESET ===== */
 * {
@@ -10,14 +10,14 @@
 
 body {
     font-family: 'Inter', sans-serif;
-    background: #1a1410;
-    color: #e8ddd0;
+    background: #f5efe8;
+    color: #3d352e;
     min-height: 100vh;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
 }
 
-/* ===== ФОН ЛИ ЮЭ ===== */
+/* ===== ФОН ===== */
 .liyue-bg {
     position: fixed;
     top: 0;
@@ -27,7 +27,7 @@ body {
     pointer-events: none;
     z-index: 0;
     overflow: hidden;
-    background: #1a1410;
+    background: #f5efe8;
 }
 
 .liyue-bg-image {
@@ -39,8 +39,8 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.12;
-    filter: blur(3px) saturate(0.5);
+    opacity: 0.05;
+    filter: blur(2px) saturate(0.4);
 }
 
 .liyue-clouds-wrapper {
@@ -50,7 +50,7 @@ body {
     right: 0;
     bottom: 0;
     pointer-events: none;
-    opacity: 0.05;
+    opacity: 0.03;
 }
 
 .liyue-clouds-pattern {
@@ -74,40 +74,15 @@ body {
     position: absolute;
     bottom: 3%;
     right: 2%;
-    width: 100px;
-    height: 100px;
-    opacity: 0.04;
-    animation: dragonFloat 25s ease-in-out infinite;
-}
-
-@keyframes dragonFloat {
-
-    0%,
-    100% {
-        transform: translateY(0) rotate(0deg);
-    }
-
-    50% {
-        transform: translateY(-20px) rotate(3deg);
-    }
-}
-
-.liyue-pattern-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background:
-        radial-gradient(ellipse at 30% 20%, rgba(180, 60, 40, 0.08) 0%, transparent 60%),
-        radial-gradient(ellipse at 70% 80%, rgba(50, 130, 80, 0.04) 0%, transparent 50%);
-    pointer-events: none;
+    width: 80px;
+    height: 80px;
+    opacity: 0.03;
 }
 
 .liyue-ornament {
     position: absolute;
-    font-family: 'Ma Shan Zheng', cursive;
-    color: rgba(180, 60, 40, 0.02);
+    font-family: 'Noto Serif SC', serif;
+    color: rgba(180, 150, 120, 0.02);
     pointer-events: none;
 }
 
@@ -122,7 +97,7 @@ body {
 
 .main-content {
     flex: 1;
-    padding: 12px 16px 80px;
+    padding: 16px 16px 80px;
     max-width: 600px;
     margin: 0 auto;
     width: 100%;
@@ -136,9 +111,9 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 10px 16px;
-    background: rgba(26, 20, 16, 0.85);
+    background: rgba(245, 239, 232, 0.92);
     backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(180, 60, 40, 0.06);
+    border-bottom: 1px solid rgba(180, 150, 120, 0.06);
     position: sticky;
     top: 0;
     z-index: 10;
@@ -166,16 +141,16 @@ body {
     display: flex;
     align-items: center;
     gap: 4px;
-    background: rgba(180, 60, 40, 0.04);
+    background: rgba(180, 150, 120, 0.04);
     padding: 4px 10px;
-    border-radius: 4px;
-    border: 1px solid rgba(180, 60, 40, 0.04);
+    border-radius: 6px;
+    border: 1px solid rgba(180, 150, 120, 0.04);
 }
 
 .stat-value {
     font-size: 13px;
     font-weight: 700;
-    color: #e8ddd0;
+    color: #3d352e;
     min-width: 18px;
 }
 
@@ -184,14 +159,14 @@ body {
     width: 42px;
     height: 42px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #b83a2a, #8a2a1a);
+    background: linear-gradient(135deg, #c4a882, #b08a6a);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 16px;
     font-weight: 700;
-    color: #e8ddd0;
-    border: 1px solid rgba(180, 60, 40, 0.06);
+    color: #f5efe8;
+    border: 1px solid rgba(180, 150, 120, 0.06);
     overflow: hidden;
     flex-shrink: 0;
 }
@@ -206,18 +181,18 @@ body {
 .avatar-fallback {
     font-size: 16px;
     font-weight: 700;
-    color: #e8ddd0;
+    color: #f5efe8;
 }
 
 .user-name {
     font-size: 14px;
     font-weight: 700;
-    color: #e8ddd0;
+    color: #3d352e;
 }
 
 .user-username {
     font-size: 11px;
-    color: rgba(232, 221, 208, 0.2);
+    color: rgba(61, 53, 46, 0.2);
 }
 
 /* ===== BOTTOM NAV ===== */
@@ -226,9 +201,9 @@ body {
     justify-content: space-around;
     align-items: center;
     padding: 6px 0 10px;
-    background: rgba(26, 20, 16, 0.9);
+    background: rgba(245, 239, 232, 0.95);
     backdrop-filter: blur(24px);
-    border-top: 1px solid rgba(180, 60, 40, 0.04);
+    border-top: 1px solid rgba(180, 150, 120, 0.04);
     position: fixed;
     bottom: 0;
     left: 0;
@@ -241,7 +216,7 @@ body {
     flex-direction: column;
     align-items: center;
     text-decoration: none;
-    color: rgba(232, 221, 208, 0.1);
+    color: rgba(61, 53, 46, 0.1);
     font-size: 10px;
     gap: 2px;
     padding: 4px 12px;
@@ -252,11 +227,12 @@ body {
 }
 
 .nav-item.active {
-    color: #b83a2a;
+    color: #b08a6a;
 }
 
 .nav-icon {
     font-size: 20px;
+    line-height: 1;
 }
 
 .nav-label {
@@ -272,56 +248,66 @@ body {
     z-index: 1;
 }
 
+.page-header {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
 .page-title {
-    font-family: 'Ma Shan Zheng', cursive;
-    font-size: 32px;
-    font-weight: 400;
-    color: #b83a2a;
-    margin-bottom: 2px;
-    letter-spacing: 2px;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #3d352e;
+    letter-spacing: 1px;
+    margin: 0;
 }
 
 .page-title-chinese {
-    font-family: 'Ma Shan Zheng', cursive;
-    font-size: 14px;
-    color: rgba(180, 60, 40, 0.15);
-    margin-bottom: 4px;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    color: rgba(180, 150, 120, 0.15);
     letter-spacing: 4px;
+    margin-bottom: 2px;
 }
 
 .page-subtitle {
     font-size: 14px;
-    color: rgba(232, 221, 208, 0.15);
-    margin-bottom: 20px;
+    color: rgba(61, 53, 46, 0.15);
     font-weight: 300;
+    margin: 0;
 }
 
 /* ===== LIYUE CARDS ===== */
 .liyue-card {
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(255, 255, 255, 0.4);
     backdrop-filter: blur(16px);
-    border: 1px solid rgba(180, 60, 40, 0.04);
-    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
     padding: 20px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 30px rgba(180, 150, 120, 0.04);
     transition: all 0.3s ease;
     margin-bottom: 16px;
     position: relative;
     overflow: hidden;
 }
 
+.liyue-card:last-child {
+    margin-bottom: 0;
+}
+
 .liyue-card:hover {
-    border-color: rgba(180, 60, 40, 0.06);
+    border-color: rgba(180, 150, 120, 0.06);
 }
 
 /* ===== WHEEL ===== */
 .wheel-container-liyue {
-    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 16px 0;
     min-height: 360px;
+    position: relative;
 }
 
 .wheel-glow-liyue {
@@ -343,7 +329,7 @@ body {
     width: 320px;
     height: 320px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(180, 60, 40, 0.04) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(200, 170, 140, 0.04) 0%, transparent 70%);
     animation: glowLiyue 3s ease-in-out infinite alternate;
 }
 
@@ -355,7 +341,7 @@ body {
     width: 380px;
     height: 380px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(50, 130, 80, 0.02) 0%, transparent 80%);
+    background: radial-gradient(circle, rgba(160, 190, 140, 0.02) 0%, transparent 80%);
     animation: glowLiyue 4s ease-in-out infinite alternate-reverse;
 }
 
@@ -393,7 +379,6 @@ body {
     left: 50%;
     transform: translateX(-50%);
     z-index: 10;
-    filter: drop-shadow(0 4px 20px rgba(180, 60, 40, 0.05));
 }
 
 .wheel-arrow-liyue svg {
@@ -402,16 +387,20 @@ body {
     height: 44px;
 }
 
+.wheel-wrapper {
+    position: relative;
+    z-index: 2;
+}
+
 /* ===== LIYUE BUTTON ===== */
 .liyue-button {
     font-family: 'Inter', sans-serif;
-    position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
     padding: 14px 32px;
-    border-radius: 4px;
+    border-radius: 8px;
     font-size: 13px;
     font-weight: 700;
     text-transform: uppercase;
@@ -421,18 +410,19 @@ body {
     width: 100%;
     max-width: 300px;
     border: none;
-    background: rgba(180, 60, 40, 0.04);
-    color: #b83a2a;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    background: rgba(180, 150, 120, 0.04);
+    color: #3d352e;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    position: relative;
 }
 
 .liyue-button::before {
     content: '';
     position: absolute;
     inset: 0;
-    border-radius: 4px;
+    border-radius: 8px;
     padding: 1px;
-    background: linear-gradient(135deg, rgba(180, 60, 40, 0.08), rgba(180, 60, 40, 0.02));
+    background: linear-gradient(135deg, rgba(180, 150, 120, 0.08), rgba(180, 150, 120, 0.02));
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -442,8 +432,8 @@ body {
 
 .liyue-button:hover:not(:disabled) {
     transform: translateY(-3px);
-    background: rgba(180, 60, 40, 0.08);
-    box-shadow: 0 8px 40px rgba(180, 60, 40, 0.02);
+    background: rgba(180, 150, 120, 0.08);
+    box-shadow: 0 8px 40px rgba(180, 150, 120, 0.04);
 }
 
 .liyue-button:disabled {
@@ -452,14 +442,27 @@ body {
     transform: none !important;
 }
 
+.liyue-button-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.liyue-button-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 /* ===== SPIN RESULT ===== */
 .spin-result {
     margin-top: 16px;
     padding: 16px 24px;
-    background: rgba(180, 60, 40, 0.02);
+    background: rgba(200, 170, 140, 0.04);
     border-radius: 8px;
-    border: 1px solid rgba(180, 60, 40, 0.02);
+    border: 1px solid rgba(200, 170, 140, 0.04);
     animation: fadeInUp 0.5s ease;
+    width: 100%;
 }
 
 .spin-result-content {
@@ -471,12 +474,13 @@ body {
 
 .spin-result-emoji {
     font-size: 28px;
+    line-height: 1;
 }
 
 .spin-result p {
     font-size: 18px;
     font-weight: 700;
-    color: #e8ddd0;
+    color: #3d352e;
     margin: 0;
 }
 
@@ -498,35 +502,64 @@ body {
     background: rgba(200, 60, 40, 0.02);
     border-radius: 8px;
     border: 1px solid rgba(200, 60, 40, 0.02);
+    width: 100%;
 }
 
 .spin-error p {
     font-size: 18px;
     font-weight: 600;
-    color: #e8ddd0;
+    color: #3d352e;
     margin: 0;
+}
+
+.debug-info {
+    margin-top: 8px;
+    padding: 6px 12px;
+    background: rgba(180, 150, 120, 0.02);
+    border-radius: 4px;
+    font-size: 12px;
+    color: rgba(61, 53, 46, 0.3);
+    font-family: 'Inter', monospace;
+    width: 100%;
+    text-align: center;
+}
+
+/* ===== HOME ===== */
+.home-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+}
+
+.home-content .liyue-card {
+    width: 100%;
 }
 
 /* ===== PROFILE ===== */
 .profile-header {
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     padding: 16px 0 20px;
+    gap: 4px;
 }
 
 .profile-avatar {
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #b83a2a, #8a2a1a);
+    background: linear-gradient(135deg, #c4a882, #b08a6a);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 40px;
     font-weight: 700;
-    color: #e8ddd0;
-    margin: 0 auto 12px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(180, 60, 40, 0.04);
+    color: #f5efe8;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(180, 150, 120, 0.04);
     overflow: hidden;
 }
 
@@ -540,77 +573,98 @@ body {
 .profile-avatar-fallback {
     font-size: 40px;
     font-weight: 700;
-    color: #e8ddd0;
+    color: #f5efe8;
 }
 
 .profile-header h2 {
     font-size: 22px;
     font-weight: 700;
-    color: #e8ddd0;
-    margin-top: 4px;
+    color: #3d352e;
+    margin: 0;
 }
 
 .profile-header p {
-    color: rgba(232, 221, 208, 0.15);
+    color: rgba(61, 53, 46, 0.15);
     font-size: 14px;
+    margin: 0;
+}
+
+.profile-card {
+    width: 100%;
 }
 
 /* ===== INFO ROWS ===== */
 .info-row {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 10px 0;
-    border-bottom: 1px solid rgba(232, 221, 208, 0.02);
+    border-bottom: 1px solid rgba(61, 53, 46, 0.02);
 }
 
 .info-row:last-child {
     border-bottom: none;
+    padding-bottom: 0;
+}
+
+.info-row:first-child {
+    padding-top: 0;
 }
 
 .info-label {
-    color: rgba(232, 221, 208, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: rgba(61, 53, 46, 0.2);
     font-size: 14px;
     font-weight: 300;
 }
 
 .info-value {
-    color: #e8ddd0;
+    color: #3d352e;
     font-weight: 600;
     font-size: 14px;
 }
 
 .uid-inactive {
-    color: rgba(232, 221, 208, 0.05);
+    color: rgba(61, 53, 46, 0.05);
     font-style: italic;
 }
 
 /* ===== FRIENDS ===== */
-.invite-link {
-    display: block;
-    font-size: 14px;
-    font-weight: 600;
-    color: #b83a2a;
-    background: rgba(180, 60, 40, 0.02);
-    padding: 12px 16px;
-    border-radius: 8px;
-    border: 1px solid rgba(180, 60, 40, 0.02);
-    word-break: break-all;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: center;
-}
-
-.invite-link:hover {
-    background: rgba(180, 60, 40, 0.04);
-    border-color: rgba(180, 60, 40, 0.04);
-    transform: scale(1.01);
+.friends-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
 }
 
 .invite-link-wrapper {
     position: relative;
-    display: inline-block;
     width: 100%;
-    margin: 8px 0 0;
+    margin-top: 8px;
+}
+
+.invite-link {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #b08a6a;
+    background: rgba(180, 150, 120, 0.02);
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(180, 150, 120, 0.02);
+    word-break: break-all;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    width: 100%;
+}
+
+.invite-link:hover {
+    background: rgba(180, 150, 120, 0.04);
+    border-color: rgba(180, 150, 120, 0.04);
+    transform: scale(1.01);
 }
 
 .copy-tooltip {
@@ -618,17 +672,17 @@ body {
     top: -38px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(26, 20, 16, 0.9);
+    background: rgba(245, 239, 232, 0.95);
     backdrop-filter: blur(20px);
-    color: #b83a2a;
+    color: #b08a6a;
     padding: 6px 16px;
     border-radius: 4px;
     font-size: 13px;
     font-weight: 600;
-    border: 1px solid rgba(180, 60, 40, 0.02);
+    border: 1px solid rgba(180, 150, 120, 0.02);
     animation: tooltipFade 0.3s ease;
     white-space: nowrap;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.02);
     z-index: 10;
 }
 
@@ -647,49 +701,51 @@ body {
 .referral-stats {
     display: flex;
     gap: 12px;
-    margin-bottom: 16px;
+    width: 100%;
 }
 
 .stat-card {
     flex: 1;
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(255, 255, 255, 0.3);
     backdrop-filter: blur(20px);
     border-radius: 8px;
     padding: 16px;
     text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .stat-number {
-    font-family: 'Ma Shan Zheng', cursive;
-    font-weight: 400;
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 700;
     font-size: 32px;
-    color: #b83a2a;
+    color: #b08a6a;
     display: block;
 }
 
 .stat-label {
     font-size: 13px;
-    color: rgba(232, 221, 208, 0.15);
+    color: rgba(61, 53, 46, 0.15);
     font-weight: 300;
 }
 
 .list-title {
     font-size: 16px;
     font-weight: 700;
-    color: #b83a2a;
+    color: #b08a6a;
     margin: 20px 0 12px;
     letter-spacing: 0.3px;
+    width: 100%;
 }
 
 /* ===== REFERRAL PROGRESS ===== */
 .referral-progress-wrapper {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     padding: 20px 0;
     gap: 0;
     position: relative;
+    width: 100%;
 }
 
 .referral-progress-item {
@@ -704,21 +760,21 @@ body {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.02);
-    border: 2px solid rgba(255, 255, 255, 0.02);
+    background: rgba(180, 150, 120, 0.02);
+    border: 2px solid rgba(180, 150, 120, 0.02);
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.4s ease;
     font-size: 12px;
     font-weight: 700;
-    color: rgba(232, 221, 208, 0.05);
+    color: rgba(61, 53, 46, 0.05);
 }
 
 .referral-progress-dot.completed {
-    background: rgba(180, 60, 40, 0.02);
-    border-color: rgba(180, 60, 40, 0.04);
-    color: #b83a2a;
+    background: rgba(180, 150, 120, 0.04);
+    border-color: #b08a6a;
+    color: #b08a6a;
 }
 
 .referral-progress-line {
@@ -727,13 +783,13 @@ body {
     left: 50%;
     right: -50%;
     height: 2px;
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(180, 150, 120, 0.02);
     width: 100%;
 }
 
 .referral-progress-line-fill {
     height: 100%;
-    background: linear-gradient(90deg, #b83a2a, #8a2a1a);
+    background: linear-gradient(90deg, #c4a882, #b08a6a);
     transition: width 0.6s ease;
     border-radius: 2px;
 }
@@ -741,7 +797,7 @@ body {
 .referral-progress-reward {
     margin-top: 6px;
     font-size: 11px;
-    color: rgba(232, 221, 208, 0.08);
+    color: rgba(61, 53, 46, 0.08);
     display: flex;
     align-items: center;
     gap: 2px;
@@ -753,29 +809,115 @@ body {
 }
 
 /* ===== TASKS ===== */
+.tasks-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+}
+
+.tasks-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.tasks-section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+
+.tasks-section-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #3d352e;
+    letter-spacing: 0.5px;
+}
+
+.tasks-section-count {
+    font-size: 12px;
+    color: rgba(61, 53, 46, 0.15);
+    background: rgba(180, 150, 120, 0.02);
+    padding: 2px 10px;
+    border-radius: 4px;
+    border: 1px solid rgba(180, 150, 120, 0.02);
+}
+
+.task-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 18px 20px;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    box-shadow: 0 4px 30px rgba(180, 150, 120, 0.04);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.task-card:hover {
+    border-color: rgba(180, 150, 120, 0.06);
+}
+
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
 .task-title {
     font-size: 15px;
     font-weight: 600;
-    color: #e8ddd0;
+    color: #3d352e;
+}
+
+.task-status {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 12px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.task-status.done {
+    background: rgba(90, 143, 106, 0.04);
+    color: #5a8f6a;
+}
+
+.task-status.pending {
+    background: rgba(180, 150, 120, 0.02);
+    color: rgba(61, 53, 46, 0.15);
 }
 
 .task-desc {
     font-size: 13px;
-    color: rgba(232, 221, 208, 0.35);
-    margin-bottom: 12px;
+    color: rgba(61, 53, 46, 0.35);
     line-height: 1.5;
     font-weight: 300;
 }
 
+.task-progress-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 .task-progress-bar {
-    position: relative;
+    flex: 1;
     height: 24px;
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(180, 150, 120, 0.02);
     border-radius: 4px;
     overflow: hidden;
     display: flex;
     align-items: center;
     padding: 0 12px;
+    position: relative;
 }
 
 .task-progress-fill {
@@ -783,7 +925,7 @@ body {
     left: 0;
     top: 0;
     height: 100%;
-    background: linear-gradient(90deg, #b83a2a, #8a2a1a);
+    background: linear-gradient(90deg, #c4a882, #b08a6a);
     border-radius: 4px;
     transition: width 0.6s ease;
 }
@@ -793,14 +935,22 @@ body {
     z-index: 1;
     font-size: 12px;
     font-weight: 600;
-    color: rgba(232, 221, 208, 0.15);
+    color: rgba(61, 53, 46, 0.15);
     margin-left: auto;
+}
+
+.task-actions {
+    margin-top: 4px;
+}
+
+.task-actions .liyue-button {
+    max-width: 100%;
 }
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 480px) {
     .page-title {
-        font-size: 28px;
+        font-size: 24px;
     }
 
     .liyue-button {
@@ -822,11 +972,15 @@ body {
         height: 80px;
         font-size: 32px;
     }
+
+    .task-card {
+        padding: 16px;
+    }
 }
 
 @media (max-width: 380px) {
     .page-title {
-        font-size: 24px;
+        font-size: 20px;
     }
 
     .liyue-button {
@@ -853,16 +1007,4 @@ body {
     .spin-result p {
         font-size: 16px;
     }
-}
-
-.debug-info {
-    margin-top: 8px;
-    padding: 6px 12px;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 4px;
-    font-size: 12px;
-    color: rgba(232, 221, 208, 0.3);
-    font-family: 'Inter', monospace;
-    width: 100%;
-    text-align: center;
 }

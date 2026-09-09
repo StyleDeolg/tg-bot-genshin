@@ -5,12 +5,10 @@ export default function LiyueBg() {
         const container = document.querySelector('.liyue-bg');
         if (!container) return;
 
-        // Удаляем старые иероглифы
         const existing = container.querySelectorAll('.liyue-ornament');
         existing.forEach(el => el.remove());
 
-        // Добавляем новые
-        const ornaments = ['福', '寿', '喜', '财'];
+        const ornaments = ['岩', '璃', '月', '港'];
         for (let i = 0; i < 4; i++) {
             const el = document.createElement('div');
             el.className = 'liyue-ornament';
@@ -18,7 +16,7 @@ export default function LiyueBg() {
             el.style.top = (10 + Math.random() * 70) + '%';
             el.style.left = (5 + Math.random() * 85) + '%';
             el.style.fontSize = (50 + Math.random() * 80) + 'px';
-            el.style.opacity = String(0.015 + Math.random() * 0.02);
+            el.style.opacity = String(0.01 + Math.random() * 0.02);
             el.style.animation = `ornamentFloat ${25 + Math.random() * 20}s ease-in-out infinite`;
             el.style.animationDelay = Math.random() * 10 + 's';
             container.appendChild(el);

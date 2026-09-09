@@ -21,7 +21,7 @@ export default function BottomNav() {
                             <img
                                 src="/images/liyue/dragon.png"
                                 alt="Dragon"
-                                style={{ width: 22, height: 22, objectFit: 'contain', opacity: 0.8 }}
+                                style={{ width: 22, height: 22, objectFit: 'contain', opacity: 0.4 }}
                             />
                         ) : (
                             item.icon

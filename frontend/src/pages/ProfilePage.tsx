@@ -4,7 +4,6 @@ import { getProfile } from '../api/profile';
 import { getAvatar } from '../api/auth';
 import TicketIcon from '../components/TicketIcon';
 import ShardIcon from '../components/ShardIcon';
-import PageOrnament from '../components/PageOrnament';
 
 export default function ProfilePage() {
     const { user } = useAuthStore();
@@ -44,7 +43,7 @@ export default function ProfilePage() {
     return (
         <div className="page profile-page">
             <div className="profile-header">
-                <PageOrnament />
+                <span className="page-title-chinese">璃月</span>
                 <div className="profile-avatar">
                     {avatarUrl ? (
                         <img src={avatarUrl} alt={profile?.first_name || 'User'} className="profile-avatar-image" onError={() => setAvatarUrl(null)} />
@@ -56,27 +55,23 @@ export default function ProfilePage() {
                 <p>@{profile?.username || 'Путник'}</p>
             </div>
 
-            <div className="liyue-card">
+            <div className="liyue-card profile-card">
                 <div className="info-row">
                     <span className="info-label"><TicketIcon size={16} style={{ marginRight: 6 }} /> Билетики</span>
                     <span className="info-value">{profile?.tickets ?? 0}</span>
                 </div>
-                <hr />
                 <div className="info-row">
                     <span className="info-label"><ShardIcon size={16} style={{ marginRight: 6 }} /> Осколки луны</span>
                     <span className="info-value">{profile?.moon_shards ?? 0}/6</span>
                 </div>
-                <hr />
                 <div className="info-row">
                     <span className="info-label">Рефералы</span>
                     <span className="info-value">{profile?.referrals_count ?? 0}</span>
                 </div>
-                <hr />
                 <div className="info-row">
                     <span className="info-label">Заданий выполнено</span>
                     <span className="info-value">{profile?.tasks_completed ?? 0}</span>
                 </div>
-                <hr />
                 <div className="info-row">
                     <span className="info-label">Genshin UID</span>
                     <span className="info-value uid-inactive">{profile?.genshin_uid || 'Не привязан'}</span>

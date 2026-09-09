@@ -7,7 +7,6 @@ import LiyueButton from '../components/LiyueButton';
 import LiyueCard from '../components/LiyueCard';
 import TicketIcon from '../components/TicketIcon';
 import ShardIcon from '../components/ShardIcon';
-import PageOrnament from '../components/PageOrnament';
 
 export default function HomePage() {
     const { user, updateProfile } = useAuthStore();
@@ -95,9 +94,11 @@ export default function HomePage() {
     return (
         <div className="page home-page">
             <div className="home-content">
-                <PageOrnament />
-                <h1 className="page-title">乾坤轮</h1>
-                <p className="page-subtitle">Колесо Фортуны</p>
+                <div className="page-header">
+                    <span className="page-title-chinese">乾坤</span>
+                    <h1 className="page-title">Колесо Фортуны</h1>
+                    <p className="page-subtitle">Крути и выигрывай призы</p>
+                </div>
 
                 <LiyueCard>
                     <Wheel
@@ -107,11 +108,7 @@ export default function HomePage() {
                     />
                 </LiyueCard>
 
-                {debugInfo && (
-                    <div className="debug-info">
-                        {debugInfo}
-                    </div>
-                )}
+                {debugInfo && <div className="debug-info">{debugInfo}</div>}
 
                 <LiyueButton
                     text={isSpinning ? 'Вращается...' : 'Вращать'}
@@ -133,7 +130,11 @@ export default function HomePage() {
                     </div>
                 )}
 
-                {error && <div className="spin-error"><p>❌ {error}</p></div>}
+                {error && (
+                    <div className="spin-error">
+                        <p>❌ {error}</p>
+                    </div>
+                )}
             </div>
         </div>
     );

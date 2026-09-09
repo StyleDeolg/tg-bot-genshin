@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { getReferral } from '../api/referral';
 import TicketIcon from '../components/TicketIcon';
-import PageOrnament from '../components/PageOrnament';
 
 export default function FriendsPage() {
     const { user } = useAuthStore();
@@ -40,61 +39,65 @@ export default function FriendsPage() {
 
     return (
         <div className="page friends-page">
-            <PageOrnament />
-            <h1 className="page-title">四海之内皆兄弟</h1>
-            <p className="page-subtitle">Друзья</p>
-
-            <div className="liyue-card">
-                <p style={{
-                    fontFamily: "'Inter', sans-serif",
-                    color: 'rgba(232,221,208,0.3)',
-                    fontSize: '13px',
-                    marginBottom: '8px'
-                }}>
-                    Твоя реферальная ссылка:
-                </p>
-                <div className="invite-link-wrapper">
-                    <span className="invite-link" onClick={() => handleCopy(data?.link || '')}>
-                        {data?.link}
-                    </span>
-                    {copied && <span className="copy-tooltip">Скопировано!</span>}
+            <div className="friends-content">
+                <div className="page-header">
+                    <span className="page-title-chinese">四海之内皆兄弟</span>
+                    <h1 className="page-title">Друзья</h1>
+                    <p className="page-subtitle">Приглашай и получай бонусы</p>
                 </div>
-            </div>
 
-            <div className="referral-stats">
-                <div className="stat-card">
-                    <span className="stat-number">{data?.count || 0}</span>
-                    <span className="stat-label">Приглашено</span>
+                <div className="liyue-card">
+                    <p style={{
+                        fontFamily: "'Inter', sans-serif",
+                        color: 'rgba(61, 53, 46, 0.3)',
+                        fontSize: '13px',
+                        marginBottom: '8px'
+                    }}>
+                        Твоя реферальная ссылка:
+                    </p>
+                    <div className="invite-link-wrapper">
+                        <span className="invite-link" onClick={() => handleCopy(data?.link || '')}>
+                            {data?.link}
+                        </span>
+                        {copied && <span className="copy-tooltip">Скопировано!</span>}
+                    </div>
                 </div>
-            </div>
 
-            <h3 className="list-title">Прогресс наград</h3>
+                <div className="referral-stats">
+                    <div className="stat-card">
+                        <span className="stat-number">{data?.count || 0}</span>
+                        <span className="stat-label">Приглашено</span>
+                    </div>
+                </div>
 
-            <div className="referral-progress-wrapper">
-                {data?.rewards?.map((r: any, index: number) => {
-                    const isCompleted = (data?.count || 0) >= r.level;
-                    const isLast = index === data?.rewards?.length - 1;
-                    const progress = Math.min((data?.count || 0) / r.level * 100, 100);
+                <span className="list-title">Прогресс наград</span>
 
-                    return (
-                        <div key={r.level} className="referral-progress-item">
-                            <div className={`referral-progress-dot ${isCompleted ? 'completed' : ''}`}>
-                                <span className="referral-progress-level">{r.level}</span>
-                            </div>
-                            {!isLast && (
-                                <div className="referral-progress-line">
-                                    <div
-                                        className="referral-progress-line-fill"
-                                        style={{ width: `${isCompleted ? 100 : progress}%` }}
-                                    />
+                <div className="referral-progress-wrapper">
+                    {data?.rewards?.map((r: any, index: number) => {
+                        const isCompleted = (data?.count || 0) >= r.level;
+                        const isLast = index === data?.rewards?.length - 1;
+                        const progress = Math.min((data?.count || 0) / r.level * 100, 100);
+
+                        return (
+                            <div key={r.level} className="referral-progress-item">
+                                <div className={`referral-progress-dot ${isCompleted ? 'completed' : ''}`}>
+                                    <span className="referral-progress-level">{r.level}</span>
                                 </div>
-                            )}
-                            <div className="referral-progress-reward">
-                                <TicketIcon size={14} /> {r.reward}
+                                {!isLast && (
+                                    <div className="referral-progress-line">
+                                        <div
+                                            className="referral-progress-line-fill"
+                                            style={{ width: `${isCompleted ? 100 : progress}%` }}
+                                        />
+                                    </div>
+                                )}
+                                <div className="referral-progress-reward">
+                                    <TicketIcon size={14} /> {r.reward}
+                                </div>
                             </div>
-                        </div>
-                    );
-                })}
+                        );
+                    })}
+                </div>
             </div>
         </div>
     );
