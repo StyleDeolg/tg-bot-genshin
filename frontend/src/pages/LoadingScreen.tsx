@@ -50,7 +50,16 @@ export default function LoadingScreen({ onLoadingComplete }: { onLoadingComplete
 
     return (
         <div className="loading-screen">
-            <div className="loading-bg"></div>
+            {/* 🔥 ФОН КАК В ПРИЛОЖЕНИИ */}
+            <div className="loading-bg">
+                <img
+                    src="/images/liyue/liyue-bg.jpg"
+                    alt="Genshin Impact"
+                    className="loading-bg-image"
+                />
+                <div className="loading-glow"></div>
+            </div>
+
             <div className="loading-content">
                 <div className="loading-header">
                     <span className="loading-crest">✦</span>
