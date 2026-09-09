@@ -1,10 +1,12 @@
 import uuid
 from app.database import SessionLocal
-from app.models.task import Task
+from app.models.task import Task, UserTask
 
 def add_tasks():
     db = SessionLocal()
-    
+
+    print("🔄 Очищаем user_tasks...")
+    db.query(UserTask).delete()
     # Очищаем старые задания
     db.query(Task).delete()
     
