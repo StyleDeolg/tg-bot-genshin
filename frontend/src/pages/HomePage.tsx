@@ -3,8 +3,8 @@ import { useAuthStore } from '../store/authStore';
 import { spinWheel } from '../api/wheel';
 import { checkTasks } from '../api/tasks';
 import Wheel from '../components/Wheel';
-import GoldButton from '../components/GoldButton';
-import GlassCard from '../components/GlassCard';
+import LiyueButton from '../components/LiyueButton';
+import LiyueCard from '../components/LiyueCard';
 import TicketIcon from '../components/TicketIcon';
 import ShardIcon from '../components/ShardIcon';
 import PageOrnament from '../components/PageOrnament';
@@ -22,7 +22,7 @@ export default function HomePage() {
     const handleSpin = async () => {
         if (!user || isSpinning) return;
         if (user.tickets < 1) {
-            alert('❌ Недостаточно билетиков!');
+            alert('Недостаточно билетиков!');
             return;
         }
 
@@ -70,23 +70,23 @@ export default function HomePage() {
             return { emoji: '💨', text: 'Тебе ничего не выпало... Попробуй ещё раз!' };
         }
         if (result.prize_type === 'moon') {
-            return { emoji: '🌙', text: '🌙 Ты выиграл ЛУНУ! 🎉' };
+            return { emoji: '🌙', text: 'Ты выиграл ЛУНУ! 🎉' };
         }
         if (result.prize_type === 'shard') {
             return {
                 icon: <ShardIcon size={28} />,
-                text: `🔮 Ты выиграл осколок! (${result.shards}/6)`
+                text: `Ты выиграл осколок! (${result.shards}/6)`
             };
         }
         if (result.prize_type === 'crystals_60' || result.prize_type === 'crystals_330') {
             return {
                 emoji: '💎',
-                text: `💎 Ты выиграл ${result.prize_value} кристаллов!`
+                text: `Ты выиграл ${result.prize_value} кристаллов!`
             };
         }
         return {
             emoji: result.emoji || '🎁',
-            text: `🎁 Ты выиграл ${result.prize}!`
+            text: `Ты выиграл ${result.prize}!`
         };
     };
 
@@ -96,16 +96,16 @@ export default function HomePage() {
         <div className="page home-page">
             <div className="home-content">
                 <PageOrnament />
-                <h1 className="page-title">🎡 Колесо фортуны</h1>
-                <p className="page-subtitle">Крути и выигрывай призы!</p>
+                <h1 className="page-title">乾坤轮</h1>
+                <p className="page-subtitle">Колесо Фортуны</p>
 
-                <GlassCard>
+                <LiyueCard>
                     <Wheel
                         isSpinning={isSpinning}
                         resultSegmentIndex={result?.visual_index ?? null}
                         onSpinComplete={handleSpinComplete}
                     />
-                </GlassCard>
+                </LiyueCard>
 
                 {debugInfo && (
                     <div className="debug-info">
@@ -113,8 +113,8 @@ export default function HomePage() {
                     </div>
                 )}
 
-                <GoldButton
-                    text={isSpinning ? '🔄 Крутится...' : '🎡 Крутить'}
+                <LiyueButton
+                    text={isSpinning ? 'Вращается...' : 'Вращать'}
                     onClick={handleSpin}
                     disabled={isSpinning || (user?.tickets ?? 0) < 1}
                     icon={!isSpinning ? <TicketIcon size={18} /> : undefined}

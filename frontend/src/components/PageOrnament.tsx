@@ -1,7 +1,5 @@
 export default function PageOrnament() {
     return (
-        <div className="mondstadt-ornament">
-            ✧ ✦ ✧ ✦ ✧
-        </div>
+        <div className="page-title-chinese">璃月</div>
     );
 }

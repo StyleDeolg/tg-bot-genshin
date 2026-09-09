@@ -2,16 +2,11 @@ import { useState, useEffect } from 'react';
 import './LoadingScreen.css';
 
 const characters = [
-    { name: 'Венти', image: '/characters/Venti.png', quote: 'Ветер свободы всегда ведёт нас вперёд.' },
-    { name: 'Джинн', image: '/characters/Jean.png', quote: 'Я клянусь защищать Мондштадт до последнего вздоха.' },
-    { name: 'Дилюк', image: '/characters/Diluc.png', quote: 'Тьма не может скрыть правду, как и свет — ложь.' },
-    { name: 'Кэйа', image: '/characters/Kaeya.png', quote: 'Лёд и пламя — две стороны одной медали.' },
-    { name: 'Лиза', image: '/characters/Lisa.png', quote: 'Знания — это сила, но не всегда безопасная.' },
-    { name: 'Беннет', image: '/characters/Bennett.png', quote: 'Не сдавайся! Даже если всё идёт не по плану!' },
-    { name: 'Фишль', image: '/characters/Fischl.png', quote: 'Я, Фишль, приветствую тебя в моём мире!' },
-    { name: 'Ноэль', image: '/characters/Noel.png', quote: 'Я защищу вас, чего бы это ни стоило!' },
-    { name: 'Сахароза', image: '/characters/Sucrose.png', quote: 'Я... Я просто хочу помочь тебе в твоих исследованиях.' },
-    { name: 'Альбедо', image: '/characters/Albedo.png', quote: 'Мои исследования — это не просто работа, это моя страсть.' },
+    { name: 'Чжун Ли', image: '/characters/Zhongli.png', quote: 'Контракты должны соблюдаться, даже если время идёт против нас.' },
+    { name: 'Ху Тао', image: '/characters/Hutao.png', quote: 'Жизнь коротка, так что давай веселиться!' },
+    { name: 'Гань Юй', image: '/characters/Ganyu.png', quote: 'Я всегда рада помочь, даже если это значит работать сверхурочно.' },
+    { name: 'Сяо', image: '/characters/Xiao.png', quote: 'Я страж, и мой долг — защищать этот мир.' },
+    { name: 'Кэ Цин', image: '/characters/Keqing.png', quote: 'Я, Кэ Цин, не привыкла ждать чуда. Я сама творю свою судьбу.' },
 ];
 
 const MIN_LOADING_TIME = 5000;
@@ -54,9 +49,9 @@ export default function LoadingScreen({ onLoadingComplete }: { onLoadingComplete
             <div className="loading-bg"></div>
             <div className="loading-content">
                 <div className="loading-header">
-                    <span className="loading-crest">⚜</span>
+                    <span className="loading-crest">璃</span>
                     <h1 className="loading-title">Genshin Pool</h1>
-                    <p className="loading-sub">Мондштадт · Город Свободы</p>
+                    <p className="loading-sub">璃月 · 契约之城</p>
                 </div>
 
                 <div className="loading-center">
@@ -82,7 +77,7 @@ export default function LoadingScreen({ onLoadingComplete }: { onLoadingComplete
                 </div>
 
                 <div className="loading-footer">
-                    <p className="loading-version">⚜ v1.0.0 · Мондштадт</p>
+                    <p className="loading-version">璃月 · v1.0.0</p>
                 </div>
             </div>
         </div>

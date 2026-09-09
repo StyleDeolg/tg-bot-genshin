@@ -7,7 +7,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f0ede8;
+    background: #1a1410;
     z-index: 9999;
     overflow: hidden;
 }
@@ -19,9 +19,9 @@
     width: 200%;
     height: 200%;
     background:
-        radial-gradient(ellipse at 20% 20%, rgba(180, 210, 230, 0.2) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 80%, rgba(200, 220, 180, 0.1) 0%, transparent 40%),
-        #f0ede8;
+        radial-gradient(ellipse at 30% 30%, rgba(180, 60, 40, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 70%, rgba(50, 130, 80, 0.04) 0%, transparent 40%),
+        #1a1410;
     animation: loadingBg 6s ease-in-out infinite alternate;
 }
 
@@ -55,26 +55,26 @@
 }
 
 .loading-crest {
-    font-size: 28px;
-    color: rgba(180, 160, 130, 0.15);
+    font-size: 32px;
+    color: rgba(180, 60, 40, 0.08);
     display: block;
     margin-bottom: 6px;
+    font-family: 'Ma Shan Zheng', cursive;
 }
 
 .loading-title {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Ma Shan Zheng', cursive;
     font-size: 36px;
-    font-weight: 700;
-    color: #4a3f38;
-    letter-spacing: 2px;
-    font-style: italic;
+    font-weight: 400;
+    color: #b83a2a;
+    letter-spacing: 4px;
 }
 
 .loading-sub {
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 12px;
-    color: rgba(44, 42, 40, 0.15);
-    letter-spacing: 2px;
+    color: rgba(232, 221, 208, 0.08);
+    letter-spacing: 3px;
     margin-top: 2px;
     font-weight: 300;
 }
@@ -94,14 +94,14 @@
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    background: rgba(255, 250, 245, 0.3);
-    border: 1px solid rgba(180, 160, 130, 0.06);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(180, 60, 40, 0.04);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     padding: 12px;
-    box-shadow: 0 4px 30px rgba(180, 160, 130, 0.02);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
 .character-image {
@@ -126,11 +126,10 @@
 }
 
 .character-name {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Ma Shan Zheng', cursive;
     font-size: 16px;
-    color: rgba(44, 42, 40, 0.2);
-    letter-spacing: 3px;
-    font-weight: 400;
+    color: rgba(232, 221, 208, 0.1);
+    letter-spacing: 4px;
     margin-top: 6px;
 }
 
@@ -145,14 +144,14 @@
 .loading-bar-track {
     flex: 1;
     height: 4px;
-    background: rgba(180, 160, 130, 0.04);
+    background: rgba(180, 60, 40, 0.04);
     border-radius: 4px;
     overflow: hidden;
 }
 
 .loading-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #b8a088, #9a8a78);
+    background: linear-gradient(90deg, #b83a2a, #8a2a1a);
     border-radius: 4px;
     transition: width 0.3s ease;
     position: relative;
@@ -164,7 +163,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
     animation: shimmer 1.2s infinite;
 }
 
@@ -179,10 +178,10 @@
 }
 
 .loading-percent {
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 600;
-    color: rgba(44, 42, 40, 0.15);
+    color: rgba(232, 221, 208, 0.08);
     min-width: 40px;
     text-align: right;
 }
@@ -196,11 +195,12 @@
 }
 
 .quote-text {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
     font-style: italic;
-    color: rgba(44, 42, 40, 0.15);
+    color: rgba(232, 221, 208, 0.08);
     line-height: 1.4;
+    font-weight: 300;
 }
 
 .loading-footer {
@@ -210,9 +210,9 @@
 }
 
 .loading-version {
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 10px;
-    color: rgba(44, 42, 40, 0.04);
+    color: rgba(232, 221, 208, 0.02);
     letter-spacing: 2px;
 }
 
@@ -236,7 +236,7 @@
     }
 
     .quote-text {
-        font-size: 14px;
+        font-size: 13px;
     }
 
     .loading-content {
@@ -265,6 +265,6 @@
     }
 
     .quote-text {
-        font-size: 13px;
+        font-size: 12px;
     }
 }

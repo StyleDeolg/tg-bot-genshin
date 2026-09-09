@@ -1,6 +1,6 @@
 import React from 'react';
 
-interface GoldButtonProps {
+interface LiyueButtonProps {
     text: string;
     onClick: () => void;
     outline?: boolean;
@@ -10,7 +10,7 @@ interface GoldButtonProps {
     style?: React.CSSProperties;
 }
 
-export default function GoldButton({
+export default function LiyueButton({
     text,
     onClick,
     outline = false,
@@ -18,16 +18,16 @@ export default function GoldButton({
     icon,
     className = '',
     style = {},
-}: GoldButtonProps) {
+}: LiyueButtonProps) {
     return (
         <button
-            className={`gold-button ${outline ? 'outline' : ''} ${className}`}
+            className={`liyue-button ${outline ? 'outline' : ''} ${className}`}
             onClick={onClick}
             disabled={disabled}
             style={style}
         >
-            {icon && <span className="gold-button-icon">{icon}</span>}
-            <span className="gold-button-text">{text}</span>
+            {icon && <span className="liyue-button-icon">{icon}</span>}
+            <span className="liyue-button-text">{text}</span>
         </button>
     );
 }

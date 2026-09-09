@@ -41,17 +41,13 @@ export default function FriendsPage() {
     return (
         <div className="page friends-page">
             <PageOrnament />
-            <h1 className="page-title">👥 Друзья</h1>
-            <p className="page-subtitle">Приглашай друзей и получай бонусы!</p>
+            <h1 className="page-title">四海之内皆兄弟</h1>
+            <p className="page-subtitle">Друзья</p>
 
-            <div className="invite-card">
-                <div className="corner-decor tl"></div>
-                <div className="corner-decor tr"></div>
-                <div className="corner-decor bl"></div>
-                <div className="corner-decor br"></div>
+            <div className="liyue-card">
                 <p style={{
-                    fontFamily: "'Cormorant Garamond', serif",
-                    color: 'rgba(232,224,212,0.5)',
+                    fontFamily: "'Inter', sans-serif",
+                    color: 'rgba(232,221,208,0.3)',
                     fontSize: '13px',
                     marginBottom: '8px'
                 }}>
@@ -61,18 +57,18 @@ export default function FriendsPage() {
                     <span className="invite-link" onClick={() => handleCopy(data?.link || '')}>
                         {data?.link}
                     </span>
-                    {copied && <span className="copy-tooltip">✅ Скопировано!</span>}
+                    {copied && <span className="copy-tooltip">Скопировано!</span>}
                 </div>
             </div>
 
             <div className="referral-stats">
                 <div className="stat-card">
                     <span className="stat-number">{data?.count || 0}</span>
-                    <span className="stat-label">👥 Приглашено</span>
+                    <span className="stat-label">Приглашено</span>
                 </div>
             </div>
 
-            <h3 className="list-title">🎁 Прогресс наград</h3>
+            <h3 className="list-title">Прогресс наград</h3>
 
             <div className="referral-progress-wrapper">
                 {data?.rewards?.map((r: any, index: number) => {

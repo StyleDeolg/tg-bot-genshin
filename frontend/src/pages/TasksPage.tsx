@@ -3,7 +3,7 @@ import { useAuthStore } from '../store/authStore';
 import { getTasks, claimTask, checkTasks } from '../api/tasks';
 import { getSponsors, checkSponsorSubscription } from '../api/sponsors';
 import type { Sponsor } from '../api/sponsors';
-import GoldButton from '../components/GoldButton';
+import LiyueButton from '../components/LiyueButton';
 import TicketIcon from '../components/TicketIcon';
 import PageOrnament from '../components/PageOrnament';
 
@@ -40,7 +40,6 @@ export default function TasksPage() {
         loadData();
     }, [user]);
 
-    // ===== ОБНОВЛЕНИЕ ТАЙМЕРОВ =====
     useEffect(() => {
         const updateTimers = () => {
             const now = Date.now();
@@ -59,10 +58,10 @@ export default function TasksPage() {
                         const seconds = totalSeconds % 60;
                         newTimeLeft[task.id] = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
                     } else {
-                        newTimeLeft[task.id] = '✅ Готово!';
+                        newTimeLeft[task.id] = 'Готово!';
                     }
                 } else if (task.task_type === 'daily' && !task.last_claimed_at) {
-                    newTimeLeft[task.id] = '🎁 Забрать!';
+                    newTimeLeft[task.id] = 'Забрать!';
                 }
             });
 
@@ -90,7 +89,7 @@ export default function TasksPage() {
         setClaiming(taskId);
         try {
             const result = await claimTask(user.telegram_id, taskId);
-            console.log('✅ Claim result:', result);
+            console.log('Claim result:', result);
 
             setTasks(prevTasks =>
                 prevTasks.map(task => {
@@ -113,7 +112,7 @@ export default function TasksPage() {
 
         } catch (error: any) {
             const message = error.response?.data?.detail || 'Ошибка при получении награды';
-            console.error('❌ Claim error:', error);
+            console.error('Claim error:', error);
             alert('❌ ' + message);
         } finally {
             setClaiming(null);
@@ -139,7 +138,7 @@ export default function TasksPage() {
             await updateProfile();
 
             if (result.success) {
-                alert('✅ Подписка подтверждена! Ты получил 3 билетика! 🎉');
+                alert('Подписка подтверждена! Ты получил 3 билетика!');
             } else {
                 alert('❌ ' + (result.message || 'Ты ещё не подписался на канал. Подпишись и попробуй снова!'));
             }
@@ -166,11 +165,10 @@ export default function TasksPage() {
         <div className="page tasks-page">
             <div style={{ marginBottom: '28px' }}>
                 <PageOrnament />
-                <h1 className="page-title">📋 Задания</h1>
-                <p className="page-subtitle">Выполняй задания и получай награды!</p>
+                <h1 className="page-title">任务</h1>
+                <p className="page-subtitle">Задания</p>
             </div>
 
-            {/* СПОНСОРЫ */}
             {sponsorTasks.length > 0 && (
                 <div style={{ marginBottom: '32px' }}>
                     <div style={{
@@ -182,19 +180,19 @@ export default function TasksPage() {
                         <span style={{
                             fontSize: '20px',
                             fontWeight: '600',
-                            color: '#d4af37',
+                            color: '#b83a2a',
                             letterSpacing: '0.5px',
-                            fontFamily: "'Cormorant Garamond', serif",
+                            fontFamily: "'Inter', sans-serif",
                         }}>
-                            🤝 Спонсоры
+                            赞助商
                         </span>
                         <span style={{
                             fontSize: '12px',
-                            color: 'rgba(232,224,212,0.2)',
-                            background: 'rgba(212,175,55,0.04)',
+                            color: 'rgba(232,221,208,0.2)',
+                            background: 'rgba(180,60,40,0.04)',
                             padding: '2px 10px',
-                            borderRadius: '12px',
-                            border: '1px solid rgba(212,175,55,0.04)',
+                            borderRadius: '4px',
+                            border: '1px solid rgba(180,60,40,0.04)',
                         }}>
                             {sponsorTasks.filter(t => t.completed).length}/{sponsorTasks.length}
                         </span>
@@ -206,32 +204,26 @@ export default function TasksPage() {
                         const isChecking = checking === task.id;
 
                         return (
-                            <div key={task.id} className="task-card" style={{
+                            <div key={task.id} className="liyue-card" style={{
                                 border: isCompleted
-                                    ? '1px solid rgba(90, 143, 106, 0.12)'
-                                    : '1px solid rgba(255,255,255,0.03)',
+                                    ? '1px solid rgba(90, 143, 106, 0.04)'
+                                    : '1px solid rgba(180,60,40,0.04)',
                                 position: 'relative',
                                 overflow: 'hidden',
                             }}>
-                                <div className="corner-decor tl"></div>
-                                <div className="corner-decor tr"></div>
-                                <div className="corner-decor bl"></div>
-                                <div className="corner-decor br"></div>
-
                                 {isCompleted && (
                                     <div style={{
                                         position: 'absolute',
                                         top: 0,
                                         right: 0,
-                                        background: 'rgba(90, 143, 106, 0.06)',
+                                        background: 'rgba(90, 143, 106, 0.04)',
                                         padding: '4px 14px',
-                                        borderRadius: '0 14px 0 12px',
+                                        borderRadius: '0 8px 0 8px',
                                         fontSize: '11px',
                                         fontWeight: '600',
                                         color: '#5a8f6a',
-                                        fontFamily: "'Cormorant Garamond', serif",
                                     }}>
-                                        ✅ Выполнено
+                                        Выполнено
                                     </div>
                                 )}
 
@@ -239,7 +231,7 @@ export default function TasksPage() {
                                     <span style={{
                                         fontSize: '15px',
                                         fontWeight: '600',
-                                        color: '#e8e0d4',
+                                        color: '#e8ddd0',
                                     }}>
                                         {task.title}
                                     </span>
@@ -247,7 +239,7 @@ export default function TasksPage() {
 
                                 <p style={{
                                     fontSize: '13px',
-                                    color: 'rgba(232,224,212,0.35)',
+                                    color: 'rgba(232,221,208,0.35)',
                                     marginBottom: '14px',
                                     lineHeight: 1.5,
                                 }}>
@@ -265,27 +257,23 @@ export default function TasksPage() {
                                                 alignItems: 'center',
                                                 gap: '8px',
                                                 padding: '8px 18px',
-                                                background: 'rgba(212, 175, 55, 0.04)',
-                                                color: '#d4af37',
-                                                borderRadius: '8px',
+                                                background: 'rgba(180,60,40,0.04)',
+                                                color: '#b83a2a',
+                                                borderRadius: '4px',
                                                 fontSize: '13px',
                                                 fontWeight: '500',
                                                 textDecoration: 'none',
-                                                border: '1px solid rgba(212, 175, 55, 0.04)',
+                                                border: '1px solid rgba(180,60,40,0.04)',
                                                 transition: 'all 0.3s ease',
-                                                fontFamily: "'Cormorant Garamond', serif",
                                             }}
                                             onMouseEnter={(e) => {
-                                                e.currentTarget.style.background = 'rgba(212, 175, 55, 0.08)';
-                                                e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.08)';
+                                                e.currentTarget.style.background = 'rgba(180,60,40,0.08)';
                                             }}
                                             onMouseLeave={(e) => {
-                                                e.currentTarget.style.background = 'rgba(212, 175, 55, 0.04)';
-                                                e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.04)';
+                                                e.currentTarget.style.background = 'rgba(180,60,40,0.04)';
                                             }}
                                         >
-                                            <span style={{ fontSize: '16px' }}>🔗</span>
-                                            Перейти в канал
+                                            进入频道
                                         </a>
                                     </div>
                                 )}
@@ -295,15 +283,15 @@ export default function TasksPage() {
                                         <div style={{
                                             padding: '10px 0',
                                             textAlign: 'center',
-                                            color: 'rgba(90, 143, 106, 0.4)',
+                                            color: 'rgba(90, 143, 106, 0.3)',
                                             fontSize: '13px',
                                             fontWeight: '500',
                                         }}>
-                                            🎉 Награда получена!
+                                            Награда получена
                                         </div>
                                     ) : (
-                                        <GoldButton
-                                            text={isChecking ? '⏳ Проверяю...' : '✅ Проверить подписку'}
+                                        <LiyueButton
+                                            text={isChecking ? 'Проверяю...' : 'Проверить подписку'}
                                             onClick={() => handleCheckSponsor(sponsor.id)}
                                             disabled={isChecking}
                                             icon={<TicketIcon size={16} />}
@@ -316,7 +304,6 @@ export default function TasksPage() {
                 </div>
             )}
 
-            {/* ОБЫЧНЫЕ ЗАДАНИЯ */}
             {regularTasks.length > 0 && (
                 <div>
                     <div style={{
@@ -328,18 +315,18 @@ export default function TasksPage() {
                         <span style={{
                             fontSize: '20px',
                             fontWeight: '600',
-                            color: '#e8e0d4',
+                            color: '#e8ddd0',
                             letterSpacing: '0.5px',
-                            fontFamily: "'Cormorant Garamond', serif",
+                            fontFamily: "'Inter', sans-serif",
                         }}>
-                            📋 Другие задания
+                            任务
                         </span>
                         <span style={{
                             fontSize: '12px',
-                            color: 'rgba(232,224,212,0.15)',
+                            color: 'rgba(232,221,208,0.15)',
                             background: 'rgba(255,255,255,0.02)',
                             padding: '2px 10px',
-                            borderRadius: '12px',
+                            borderRadius: '4px',
                             border: '1px solid rgba(255,255,255,0.02)',
                         }}>
                             {regularTasks.filter(t => t.completed).length}/{regularTasks.length}
@@ -357,25 +344,25 @@ export default function TasksPage() {
 
                         const isTaskCompleted = isCompleted || (task.task_type === 'spin' && progress >= required);
 
-                        let buttonText = '🎁 Забрать награду';
+                        let buttonText = 'Забрать награду';
                         let buttonDisabled = false;
                         let buttonOnClick: () => Promise<void> = () => handleClaim(task.id);
 
                         if (isDaily) {
                             if (canClaim) {
-                                buttonText = isClaiming ? '⏳ Забираю...' : '🎁 Забрать награду';
+                                buttonText = isClaiming ? 'Забираю...' : 'Забрать награду';
                                 buttonDisabled = isClaiming;
                                 buttonOnClick = () => handleClaim(task.id);
-                            } else if (timer && timer !== '✅ Готово!' && timer !== '🎁 Забрать!') {
+                            } else if (timer && timer !== 'Готово!' && timer !== 'Забрать!') {
                                 buttonText = `⏳ ${timer}`;
                                 buttonDisabled = true;
                                 buttonOnClick = async () => { };
-                            } else if (timer === '🎁 Забрать!') {
-                                buttonText = '🎁 Забрать награду';
+                            } else if (timer === 'Забрать!') {
+                                buttonText = 'Забрать награду';
                                 buttonDisabled = false;
                                 buttonOnClick = () => handleClaim(task.id);
-                            } else if (timer === '✅ Готово!') {
-                                buttonText = '🎁 Забрать награду';
+                            } else if (timer === 'Готово!') {
+                                buttonText = 'Забрать награду';
                                 buttonDisabled = false;
                                 buttonOnClick = () => handleClaim(task.id);
                             } else {
@@ -385,31 +372,26 @@ export default function TasksPage() {
                             }
                         } else {
                             if (isTaskCompleted && !canClaim) {
-                                buttonText = '🎉 Награда получена';
+                                buttonText = 'Награда получена';
                                 buttonDisabled = true;
                                 buttonOnClick = async () => { };
                             } else if (canClaim || progress >= required) {
-                                buttonText = isClaiming ? '⏳ Забираю...' : '🎁 Забрать награду';
+                                buttonText = isClaiming ? 'Забираю...' : 'Забрать награду';
                                 buttonDisabled = isClaiming;
                                 buttonOnClick = () => handleClaim(task.id);
                             } else {
-                                buttonText = '⏳ Выполняется...';
+                                buttonText = 'Выполняется...';
                                 buttonDisabled = true;
                                 buttonOnClick = async () => { };
                             }
                         }
 
                         return (
-                            <div key={task.id} className="task-card" style={{
+                            <div key={task.id} className="liyue-card" style={{
                                 border: isTaskCompleted
-                                    ? '1px solid rgba(90, 143, 106, 0.06)'
-                                    : '1px solid rgba(255,255,255,0.03)',
+                                    ? '1px solid rgba(90, 143, 106, 0.04)'
+                                    : '1px solid rgba(180,60,40,0.04)',
                             }}>
-                                <div className="corner-decor tl"></div>
-                                <div className="corner-decor tr"></div>
-                                <div className="corner-decor bl"></div>
-                                <div className="corner-decor br"></div>
-
                                 <div style={{
                                     display: 'flex',
                                     justifyContent: 'space-between',
@@ -419,31 +401,31 @@ export default function TasksPage() {
                                     <span style={{
                                         fontSize: '15px',
                                         fontWeight: '600',
-                                        color: '#e8e0d4',
+                                        color: '#e8ddd0',
                                     }}>
                                         {task.title}
                                     </span>
                                     <span style={{
                                         fontSize: '11px',
                                         fontWeight: '500',
-                                        color: isTaskCompleted ? '#5a8f6a' : 'rgba(232,224,212,0.15)',
+                                        color: isTaskCompleted ? '#5a8f6a' : 'rgba(232,221,208,0.15)',
                                         background: isTaskCompleted
-                                            ? 'rgba(90, 143, 106, 0.06)'
+                                            ? 'rgba(90, 143, 106, 0.04)'
                                             : 'rgba(255,255,255,0.02)',
                                         padding: '2px 12px',
-                                        borderRadius: '12px',
+                                        borderRadius: '4px',
                                         border: isTaskCompleted
-                                            ? '1px solid rgba(90, 143, 106, 0.06)'
+                                            ? '1px solid rgba(90, 143, 106, 0.04)'
                                             : '1px solid rgba(255,255,255,0.02)',
                                         whiteSpace: 'nowrap',
                                     }}>
-                                        {isTaskCompleted ? '✅ Готово' : '⏳ В процессе'}
+                                        {isTaskCompleted ? 'Готово' : 'В процессе'}
                                     </span>
                                 </div>
 
                                 <p style={{
                                     fontSize: '13px',
-                                    color: 'rgba(232,224,212,0.35)',
+                                    color: 'rgba(232,221,208,0.35)',
                                     marginBottom: '12px',
                                     lineHeight: 1.5,
                                 }}>
@@ -469,7 +451,7 @@ export default function TasksPage() {
                                                 height: '100%',
                                                 background: progress >= required
                                                     ? 'linear-gradient(90deg, #5a8f6a, #7aaf8a)'
-                                                    : 'linear-gradient(90deg, #b8962e, #d4af37)',
+                                                    : 'linear-gradient(90deg, #b83a2a, #8a2a1a)',
                                                 borderRadius: '4px',
                                                 transition: 'width 0.5s ease',
                                             }} />
@@ -477,7 +459,7 @@ export default function TasksPage() {
                                         <span style={{
                                             fontSize: '12px',
                                             fontWeight: '500',
-                                            color: progress >= required ? '#5a8f6a' : 'rgba(232,224,212,0.25)',
+                                            color: progress >= required ? '#5a8f6a' : 'rgba(232,221,208,0.25)',
                                             minWidth: '45px',
                                             textAlign: 'right',
                                             fontVariantNumeric: 'tabular-nums',
@@ -496,9 +478,9 @@ export default function TasksPage() {
                                             gap: '8px',
                                             padding: '12px 20px',
                                             background: 'rgba(255,255,255,0.02)',
-                                            borderRadius: '10px',
+                                            borderRadius: '4px',
                                             border: '1px solid rgba(255,255,255,0.02)',
-                                            color: 'rgba(232,224,212,0.15)',
+                                            color: 'rgba(232,221,208,0.15)',
                                             fontSize: '14px',
                                             fontWeight: '500',
                                             fontFamily: 'monospace',
@@ -508,7 +490,7 @@ export default function TasksPage() {
                                             {buttonText}
                                         </div>
                                     ) : (
-                                        <GoldButton
+                                        <LiyueButton
                                             text={buttonText}
                                             onClick={buttonOnClick}
                                             disabled={buttonDisabled}
@@ -526,11 +508,11 @@ export default function TasksPage() {
                 <div style={{
                     textAlign: 'center',
                     padding: '60px 20px',
-                    color: 'rgba(232,224,212,0.1)',
+                    color: 'rgba(232,221,208,0.08)',
                 }}>
                     <div style={{ fontSize: '48px', marginBottom: '16px' }}>📭</div>
                     <p style={{ fontSize: '16px' }}>Заданий пока нет</p>
-                    <p style={{ fontSize: '13px', marginTop: '4px', color: 'rgba(232,224,212,0.06)' }}>
+                    <p style={{ fontSize: '13px', marginTop: '4px', color: 'rgba(232,221,208,0.04)' }}>
                         Загляни позже, они скоро появятся!
                     </p>
                 </div>

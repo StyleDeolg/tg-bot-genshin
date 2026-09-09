@@ -49,19 +49,14 @@ export default function ProfilePage() {
                     {avatarUrl ? (
                         <img src={avatarUrl} alt={profile?.first_name || 'User'} className="profile-avatar-image" onError={() => setAvatarUrl(null)} />
                     ) : (
-                        <span className="profile-avatar-fallback">{profile?.first_name?.[0] || '⚜'}</span>
+                        <span className="profile-avatar-fallback">{profile?.first_name?.[0] || '璃'}</span>
                     )}
                 </div>
                 <h2>{profile?.first_name} {profile?.last_name}</h2>
-                <p>@{profile?.username || 'Искатель приключений'}</p>
+                <p>@{profile?.username || 'Путник'}</p>
             </div>
 
-            <div className="profile-card">
-                <div className="corner-decor tl"></div>
-                <div className="corner-decor tr"></div>
-                <div className="corner-decor bl"></div>
-                <div className="corner-decor br"></div>
-
+            <div className="liyue-card">
                 <div className="info-row">
                     <span className="info-label"><TicketIcon size={16} style={{ marginRight: 6 }} /> Билетики</span>
                     <span className="info-value">{profile?.tickets ?? 0}</span>
@@ -73,17 +68,17 @@ export default function ProfilePage() {
                 </div>
                 <hr />
                 <div className="info-row">
-                    <span className="info-label">👥 Рефералы</span>
+                    <span className="info-label">Рефералы</span>
                     <span className="info-value">{profile?.referrals_count ?? 0}</span>
                 </div>
                 <hr />
                 <div className="info-row">
-                    <span className="info-label">📋 Заданий выполнено</span>
+                    <span className="info-label">Заданий выполнено</span>
                     <span className="info-value">{profile?.tasks_completed ?? 0}</span>
                 </div>
                 <hr />
                 <div className="info-row">
-                    <span className="info-label">🎮 Genshin UID</span>
+                    <span className="info-label">Genshin UID</span>
                     <span className="info-value uid-inactive">{profile?.genshin_uid || 'Не привязан'}</span>
                 </div>
             </div>

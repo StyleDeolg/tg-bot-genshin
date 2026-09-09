@@ -14,7 +14,7 @@ export default function Header() {
         }
     }, [user?.telegram_id]);
 
-    const name = user?.first_name || 'Игрок';
+    const name = user?.first_name || 'Путник';
 
     return (
         <header className="header">
@@ -28,7 +28,7 @@ export default function Header() {
                 </div>
                 <div>
                     <div className="user-name">{name}</div>
-                    <div className="user-username">@{user?.username || 'Искатель приключений'}</div>
+                    <div className="user-username">@{user?.username || 'путь'}</div>
                 </div>
             </div>
             <div className="header-right">

@@ -70,8 +70,8 @@ export default function Wheel({
 
     if (segments.length === 0) {
         return (
-            <div className="wheel-container-genshin">
-                <div style={{ textAlign: 'center', padding: '40px', color: 'rgba(232,224,212,0.05)' }}>
+            <div className="wheel-container-liyue">
+                <div style={{ textAlign: 'center', padding: '40px', color: 'rgba(232,221,208,0.05)' }}>
                     Загрузка...
                 </div>
             </div>
@@ -84,48 +84,46 @@ export default function Wheel({
     const angle = (2 * Math.PI) / segments.length;
 
     const colorPalette = [
-        ['#1a1a2e', '#2d2d5e'],
-        ['#2d2d5e', '#1a1a2e'],
-        ['#1a1a2e', '#2d2d5e'],
-        ['#2d2d5e', '#1a1a2e'],
-        ['#1a1a2e', '#2d2d5e'],
-        ['#2d2d5e', '#1a1a2e'],
-        ['#1a1a2e', '#2d2d5e'],
-        ['#2d2d5e', '#1a1a2e'],
+        ['#1a1410', '#2a1a14'],
+        ['#2a1a14', '#1a1410'],
+        ['#1a1410', '#2a1a14'],
+        ['#2a1a14', '#1a1410'],
+        ['#1a1410', '#2a1a14'],
+        ['#2a1a14', '#1a1410'],
+        ['#1a1410', '#2a1a14'],
+        ['#2a1a14', '#1a1410'],
     ];
 
     return (
-        <div className="wheel-container-genshin">
-            <div className={`wheel-glow ${isAnimating ? 'spinning' : ''}`}>
-                <div className="wheel-glow-inner"></div>
-                <div className="wheel-glow-outer"></div>
+        <div className="wheel-container-liyue">
+            <div className={`wheel-glow-liyue ${isAnimating ? 'spinning' : ''}`}>
+                <div className="wheel-glow-liyue-inner"></div>
+                <div className="wheel-glow-liyue-outer"></div>
             </div>
 
             <div className="wheel-wrapper">
-                {/* Стрелка с элементами герба */}
-                <div className="wheel-arrow-genshin">
+                <div className="wheel-arrow-liyue">
                     <svg width="40" height="52" viewBox="0 0 40 52" fill="none">
                         <defs>
-                            <linearGradient id="arrowGradNew" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" stopColor="#d4af37" />
-                                <stop offset="100%" stopColor="#b8962e" />
+                            <linearGradient id="arrowLiyue" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stopColor="#b83a2a" />
+                                <stop offset="100%" stopColor="#8a2a1a" />
                             </linearGradient>
-                            <filter id="arrowShadowNew">
-                                <feDropShadow dx="0" dy="6" stdDeviation="16" floodColor="#d4af37" floodOpacity="0.05" />
+                            <filter id="arrowShadowLiyue">
+                                <feDropShadow dx="0" dy="6" stdDeviation="16" floodColor="#b83a2a" floodOpacity="0.05" />
                             </filter>
                         </defs>
                         <path
                             d="M20 0 L6 40 L20 32 L34 40 L20 0Z"
-                            fill="url(#arrowGradNew)"
-                            filter="url(#arrowShadowNew)"
+                            fill="url(#arrowLiyue)"
+                            filter="url(#arrowShadowLiyue)"
                         />
-                        <circle cx="20" cy="40" r="8" fill="#d4af37" opacity="0.05" />
-                        <circle cx="20" cy="40" r="4" fill="#d4af37" />
-                        <circle cx="20" cy="40" r="1.5" fill="#0b0e1a" />
+                        <circle cx="20" cy="40" r="8" fill="#b83a2a" opacity="0.05" />
+                        <circle cx="20" cy="40" r="4" fill="#b83a2a" />
+                        <circle cx="20" cy="40" r="1.5" fill="#1a1410" />
                     </svg>
                 </div>
 
-                {/* Колесо с декоративными элементами */}
                 <svg
                     width={size}
                     height={size}
@@ -135,52 +133,30 @@ export default function Wheel({
                         transition: isAnimating
                             ? 'transform 5.5s cubic-bezier(0.08, 0.75, 0.12, 0.98)'
                             : 'none',
-                        filter: isAnimating ? 'drop-shadow(0 0 60px rgba(212,175,55,0.02))' : 'none',
+                        filter: isAnimating ? 'drop-shadow(0 0 60px rgba(180,60,40,0.02))' : 'none',
                     }}
                 >
                     <defs>
-                        <linearGradient id="glowRing" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#d4af37" stopOpacity="0.04" />
-                            <stop offset="50%" stopColor="#d4af37" stopOpacity="0.01" />
-                            <stop offset="100%" stopColor="#d4af37" stopOpacity="0.04" />
+                        <linearGradient id="glowRingLiyue" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#b83a2a" stopOpacity="0.04" />
+                            <stop offset="50%" stopColor="#b83a2a" stopOpacity="0.01" />
+                            <stop offset="100%" stopColor="#b83a2a" stopOpacity="0.04" />
                         </linearGradient>
-                        <radialGradient id="centerGlow">
-                            <stop offset="0%" stopColor="#d4af37" stopOpacity="0.01" />
-                            <stop offset="100%" stopColor="#d4af37" stopOpacity="0" />
+                        <radialGradient id="centerGlowLiyue">
+                            <stop offset="0%" stopColor="#b83a2a" stopOpacity="0.01" />
+                            <stop offset="100%" stopColor="#b83a2a" stopOpacity="0" />
                         </radialGradient>
                     </defs>
 
-                    {/* Декоративная внешняя рамка */}
                     <circle
                         cx={center}
                         cy={center}
                         r={radius + 4}
                         fill="none"
-                        stroke="rgba(212,175,55,0.02)"
+                        stroke="rgba(180,60,40,0.02)"
                         strokeWidth="1"
                     />
-                    <circle
-                        cx={center}
-                        cy={center}
-                        r={radius + 8}
-                        fill="none"
-                        stroke="rgba(212,175,55,0.01)"
-                        strokeWidth="0.5"
-                        strokeDasharray="4 4"
-                    />
 
-                    {/* Декоративные элементы по краям (арки Мондштадта) */}
-                    {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => (
-                        <g key={`arch-${deg}`}>
-                            <path
-                                d={`M ${center + (radius + 4) * Math.cos(deg * Math.PI / 180)} ${center + (radius + 4) * Math.sin(deg * Math.PI / 180)} L ${center + (radius + 8) * Math.cos(deg * Math.PI / 180)} ${center + (radius + 8) * Math.sin(deg * Math.PI / 180)}`}
-                                stroke="rgba(212,175,55,0.02)"
-                                strokeWidth="1"
-                            />
-                        </g>
-                    ))}
-
-                    {/* Сектора */}
                     {segments.map((seg, i) => {
                         const startAngle = i * angle - Math.PI / 2;
                         const endAngle = startAngle + angle;
@@ -214,12 +190,11 @@ export default function Wheel({
                                 <path
                                     d={`M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 0 1 ${x2} ${y2} Z`}
                                     fill={`url(#grad-${i})`}
-                                    stroke="rgba(212,175,55,0.01)"
+                                    stroke="rgba(180,60,40,0.01)"
                                     strokeWidth="0.5"
                                     opacity={0.9}
                                 />
 
-                                {/* Декоративная линия в секторе */}
                                 <path
                                     d={`M ${center + radius * 0.2 * Math.cos(midAngle)} ${center + radius * 0.2 * Math.sin(midAngle)} L ${center + radius * 0.9 * Math.cos(midAngle)} ${center + radius * 0.9 * Math.sin(midAngle)}`}
                                     stroke="rgba(255,255,255,0.01)"
@@ -235,7 +210,7 @@ export default function Wheel({
                                         width={iconSize}
                                         height={iconSize}
                                         transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${iconX}, ${iconY})`}
-                                        style={{ filter: 'drop-shadow(0 0 30px rgba(212,175,55,0.04))' }}
+                                        style={{ filter: 'drop-shadow(0 0 30px rgba(180,60,40,0.04))' }}
                                     />
                                 )}
 
@@ -293,7 +268,7 @@ export default function Wheel({
                                         fontWeight="700"
                                         textAnchor="middle"
                                         transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${labelX}, ${labelY})`}
-                                        fontFamily="'Montserrat', sans-serif"
+                                        fontFamily="'Inter', sans-serif"
                                     >
                                         {seg.value}
                                     </text>
@@ -303,15 +278,15 @@ export default function Wheel({
                                     <text
                                         x={labelX}
                                         y={labelY + 5}
-                                        fill="rgba(212,175,55,0.2)"
+                                        fill="rgba(180,60,40,0.2)"
                                         fontSize={10}
                                         fontWeight="700"
                                         textAnchor="middle"
                                         transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${labelX}, ${labelY})`}
-                                        fontFamily="'Cormorant Garamond', serif"
+                                        fontFamily="'Ma Shan Zheng', cursive"
                                         letterSpacing="1"
                                     >
-                                        ЛУНА
+                                        月
                                     </text>
                                 )}
 
@@ -324,45 +299,42 @@ export default function Wheel({
                                         fontWeight="600"
                                         textAnchor="middle"
                                         transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${labelX}, ${labelY})`}
-                                        fontFamily="'Montserrat', sans-serif"
+                                        fontFamily="'Inter', sans-serif"
                                         letterSpacing="0.3"
                                     >
-                                        ОСКОЛОК
+                                        碎片
                                     </text>
                                 )}
                             </g>
                         );
                     })}
 
-                    {/* Центр колеса с гербом */}
-                    <circle cx={center} cy={center} r={26} fill="#0b0e1a" stroke="rgba(212,175,55,0.02)" strokeWidth="1" />
-                    <circle cx={center} cy={center} r={22} fill="url(#centerGlow)" />
+                    <circle cx={center} cy={center} r={26} fill="#1a1410" stroke="rgba(180,60,40,0.02)" strokeWidth="1" />
+                    <circle cx={center} cy={center} r={22} fill="url(#centerGlowLiyue)" />
 
-                    {/* Декоративные арки в центре */}
                     {[0, 45, 90, 135, 180, 225, 270, 315].map((deg, idx) => (
                         <circle
                             key={`dot-${idx}`}
                             cx={center + 16 * Math.cos(deg * Math.PI / 180)}
                             cy={center + 16 * Math.sin(deg * Math.PI / 180)}
                             r={1}
-                            fill="rgba(212,175,55,0.04)"
+                            fill="rgba(180,60,40,0.04)"
                         />
                     ))}
 
-                    {/* Герб в центре */}
                     <text
                         x={center}
                         y={center + 6}
                         textAnchor="middle"
                         fontSize="16"
-                        fill="rgba(212,175,55,0.03)"
-                        fontFamily="'Cormorant Garamond', serif"
+                        fill="rgba(180,60,40,0.03)"
+                        fontFamily="'Ma Shan Zheng', cursive"
                     >
-                        ⚜
+                        璃
                     </text>
 
-                    <circle cx={center} cy={center} r={4} fill="rgba(212,175,55,0.02)" />
-                    <circle cx={center} cy={center} r={1.5} fill="rgba(212,175,55,0.03)" />
+                    <circle cx={center} cy={center} r={4} fill="rgba(180,60,40,0.02)" />
+                    <circle cx={center} cy={center} r={1.5} fill="rgba(180,60,40,0.03)" />
                 </svg>
             </div>
         </div>
