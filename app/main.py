@@ -54,14 +54,15 @@ async def get_bot_app():
     if _bot_app is None:
         _bot_app = Application.builder().token(TOKEN).build()
         
-        # ===== КОМАНДЫ =====
+        # ===== 1. СНАЧАЛА ВСЕ КОМАНДЫ =====
         _bot_app.add_handler(CommandHandler("start", start_command))
         _bot_app.add_handler(CommandHandler("help", help_command))
         _bot_app.add_handler(CommandHandler("profile", profile_command))
         _bot_app.add_handler(CommandHandler("unbind_uid", unbind_uid))
         _bot_app.add_handler(CommandHandler("app", app_command))
         
-        # ===== CONVERSATION HANDLER (ПЕРВЫЙ ОБРАБАТЫВАЕТ ТЕКСТ) =====
+        # ===== 2. ПОТОМ CONVERSATION HANDLER (ОН ПЕРЕХВАТЫВАЕТ ТЕКСТ) =====
+        # ВАЖНО: ConversationHandler должен быть ДО MessageHandler
         conv_handler = ConversationHandler(
             entry_points=[CommandHandler("bind_uid", bind_uid_start)],
             states={
@@ -69,11 +70,14 @@ async def get_bot_app():
                 WAITING_SERVER: [MessageHandler(filters.TEXT & ~filters.COMMAND, bind_uid_server)],
             },
             fallbacks=[CommandHandler("start", start_command)],
+            # 👇 ВАЖНО: разрешаем повторный вход
+            allow_reentry=True,
         )
         _bot_app.add_handler(conv_handler)
         
-        # ===== ОБРАБОТЧИК КНОПОК (ВТОРЫМ) =====
-        # Он будет обрабатывать только то, что не перехватил ConversationHandler
+        # ===== 3. ПОТОМ ОБРАБОТЧИК КНОПОК =====
+        # Он будет обрабатывать только те текстовые сообщения,
+        # которые НЕ перехватил ConversationHandler
         _bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons))
         _bot_app.add_error_handler(error_handler)
         
