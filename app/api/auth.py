@@ -59,46 +59,66 @@ async def login(request: AuthRequest):
 async def get_avatar(telegram_id: str):
     """Получает ссылку на аватарку пользователя из Telegram"""
     try:
+        print(f"🔍 Получен запрос на аватарку для {telegram_id}")
+        
         db = SessionLocal()
         user = db.query(User).filter_by(telegram_id=telegram_id).first()
         db.close()
         
         if not user:
+            print(f"❌ Пользователь {telegram_id} не найден в БД")
             return {"avatar_url": None, "error": "Пользователь не найден"}
+        
+        # Проверяем токен
+        if not config.BOT_TOKEN:
+            print("❌ BOT_TOKEN не настроен в .env!")
+            return {"avatar_url": None, "error": "BOT_TOKEN не настроен"}
+        
+        print(f"🔍 Токен: {config.BOT_TOKEN[:10]}...")
         
         url = f"https://api.telegram.org/bot{config.BOT_TOKEN}/getUserProfilePhotos"
         params = {"user_id": int(telegram_id), "limit": 1}
+        
+        print(f"🔍 Запрос к Telegram API: {url}")
+        print(f"🔍 Параметры: user_id={telegram_id}, limit=1")
         
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.get(url, params=params)
             data = response.json()
             
+            print(f"📦 Ответ Telegram API: {data}")
+            
             if not data.get("ok"):
-                print(f"Telegram API error: {data}")
-                return {"avatar_url": None}
+                print(f"❌ Telegram API error: {data}")
+                return {"avatar_url": None, "error": data.get("description", "Unknown error")}
             
             photos = data.get("result", {}).get("photos", [])
             if not photos:
+                print("ℹ️ У пользователя нет аватарки")
                 return {"avatar_url": None}
             
             file_id = photos[0][0]["file_id"]
+            print(f"🔍 file_id: {file_id}")
             
             file_url = f"https://api.telegram.org/bot{config.BOT_TOKEN}/getFile"
             file_response = await client.get(file_url, params={"file_id": file_id})
             file_data = file_response.json()
             
             if not file_data.get("ok"):
-                print(f"Telegram API file error: {file_data}")
+                print(f"❌ Telegram API file error: {file_data}")
                 return {"avatar_url": None}
             
             file_path = file_data["result"]["file_path"]
             avatar_url = f"https://api.telegram.org/file/bot{config.BOT_TOKEN}/{file_path}"
             
+            print(f"✅ Аватарка получена: {avatar_url}")
             return {"avatar_url": avatar_url}
             
     except httpx.TimeoutException:
-        print("Timeout при запросе к Telegram API")
-        return {"avatar_url": None}
+        print("⏱️ Timeout при запросе к Telegram API")
+        return {"avatar_url": None, "error": "Timeout"}
     except Exception as e:
-        print(f"Ошибка получения аватарки: {e}")
-        return {"avatar_url": None}
+        print(f"❌ Ошибка получения аватарки: {e}")
+        import traceback
+        traceback.print_exc()
+        return {"avatar_url": None, "error": str(e)}
