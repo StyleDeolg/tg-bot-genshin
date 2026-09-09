@@ -48,27 +48,18 @@ TOKEN = config.BOT_TOKEN
 WEBHOOK_PATH = "/webhook"
 SECRET_TOKEN = config.WEBHOOK_SECRET_TOKEN
 
-# Глобальная переменная для бота
-_bot_app = None
+# Создаём приложение бота
+bot_app = Application.builder().token(TOKEN).build()
 
-async def get_bot_app():
-    """Инициализирует и возвращает приложение бота"""
-    global _bot_app
-    if _bot_app is None:
-        _bot_app = Application.builder().token(TOKEN).build()
-        _bot_app.add_handler(CommandHandler("start", start_command))
-        _bot_app.add_handler(CommandHandler("help", help_command))
-        _bot_app.add_handler(CommandHandler("profile", profile_command))
-        _bot_app.add_handler(CommandHandler("unbind_uid", unbind_uid))
-        _bot_app.add_handler(CommandHandler("app", app_command))
-        _bot_app.add_handler(CommandHandler("bind_uid", bind_uid_start))
-        _bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons))
-        _bot_app.add_error_handler(error_handler)
-        
-        # 👇 ЯВНАЯ ИНИЦИАЛИЗАЦИЯ (ОБЯЗАТЕЛЬНО!)
-        await _bot_app.initialize()
-        print("✅ Бот инициализирован")
-    return _bot_app
+# Регистрируем хендлеры
+bot_app.add_handler(CommandHandler("start", start_command))
+bot_app.add_handler(CommandHandler("help", help_command))
+bot_app.add_handler(CommandHandler("profile", profile_command))
+bot_app.add_handler(CommandHandler("unbind_uid", unbind_uid))
+bot_app.add_handler(CommandHandler("app", app_command))
+bot_app.add_handler(CommandHandler("bind_uid", bind_uid_start))
+bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons))
+bot_app.add_error_handler(error_handler)
 
 
 @app.post(WEBHOOK_PATH)
@@ -78,7 +69,12 @@ async def webhook_endpoint(request: Request):
         if secret != SECRET_TOKEN:
             return Response(status_code=403)
     try:
-        bot_app = await get_bot_app()
+        # 👇 ИНИЦИАЛИЗАЦИЯ ПРЯМО ЗДЕСЬ
+        if not hasattr(bot_app, '_initialized'):
+            await bot_app.initialize()
+            bot_app._initialized = True
+            print("✅ Бот инициализирован")
+        
         json_data = await request.json()
         update = Update.de_json(json_data, bot_app.bot)
         await bot_app.process_update(update)
@@ -91,7 +87,6 @@ async def webhook_endpoint(request: Request):
 @app.get("/webhook-info")
 async def webhook_info():
     try:
-        bot_app = await get_bot_app()
         info = await bot_app.bot.get_webhook_info()
         return {
             "url": info.url,
