@@ -37,7 +37,7 @@ async def spin(request: SpinRequest):
             db.close()
             raise HTTPException(status_code=400, detail="Недостаточно билетиков")
         
-        prizes = db.query(WheelConfig).filter_by(is_active="true").order_by(WheelConfig.id).all()
+        prizes = db.query(WheelConfig).filter_by(is_active="true").order_by(WheelConfig.order).all()
         if not prizes:
             db.close()
             raise HTTPException(status_code=404, detail="Призы не настроены")
@@ -171,7 +171,7 @@ async def get_prizes():
     """Получить список активных призов для колеса"""
     db = SessionLocal()
     try:
-        prizes = db.query(WheelConfig).filter_by(is_active="true").order_by(WheelConfig.id).all()
+        prizes = db.query(WheelConfig).filter_by(is_active="true").order_by(WheelConfig.order).all()
         
         if not prizes:
             return [

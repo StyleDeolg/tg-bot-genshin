@@ -12,7 +12,7 @@ class User(Base):
     first_name = Column(String, nullable=True)
     last_name = Column(String, nullable=True)
     public_id = Column(UUID(as_uuid=True), unique=True, default=uuid.uuid4)
-    tickets = Column(Integer, default=10)
+    tickets = Column(Integer, default=2)
     primogems = Column(Integer, default=0)
     spins_count = Column(Integer, default=0)  # ← ДЛЯ ЗАДАНИЙ
     

@@ -29,7 +29,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             first_name=user.first_name,
             last_name=user.last_name,
             public_id=uuid.uuid4(),
-            tickets=12,
+            tickets=4,
             primogems=0,
         )
         db.add(new_user)
