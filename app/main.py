@@ -46,7 +46,10 @@ TOKEN = config.BOT_TOKEN
 WEBHOOK_PATH = "/webhook"
 SECRET_TOKEN = config.WEBHOOK_SECRET_TOKEN
 
+# Создаём приложение бота
 bot_app = Application.builder().token(TOKEN).build()
+
+# Регистрируем хендлеры
 bot_app.add_handler(CommandHandler("start", start_command))
 bot_app.add_handler(CommandHandler("help", help_command))
 bot_app.add_handler(CommandHandler("profile", profile_command))
@@ -63,6 +66,10 @@ async def webhook_endpoint(request: Request):
         if secret != SECRET_TOKEN:
             return Response(status_code=403)
     try:
+        # 👇 ИНИЦИАЛИЗАЦИЯ (исправляет ошибку)
+        if not bot_app.initialized:
+            await bot_app.initialize()
+        
         json_data = await request.json()
         update = Update.de_json(json_data, bot_app.bot)
         await bot_app.process_update(update)
@@ -73,6 +80,10 @@ async def webhook_endpoint(request: Request):
 
 @app.get("/webhook-info")
 async def webhook_info():
+    # 👇 ТОЖЕ ДОБАВЛЯЕМ ИНИЦИАЛИЗАЦИЮ
+    if not bot_app.initialized:
+        await bot_app.initialize()
+    
     info = await bot_app.bot.get_webhook_info()
     return {
         "url": info.url,
