@@ -34,12 +34,8 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
     user_id = update.effective_user.id
     
-    # ===== ПРОВЕРКА: ЕСЛИ МЫ В ДИАЛОГЕ ПРИВЯЗКИ UID =====
-    # Этот код теперь НЕ НУЖЕН, потому что ConversationHandler перехватывает сообщения ДО нас
-    # Но оставим для безопасности
-    if context.user_data.get('conversation') == 'bind_uid':
-        print("🔍 [handle_buttons] Пропускаем, т.к. мы в диалоге bind_uid")
-        return
+    # ===== УБИРАЕМ ПРОВЕРКУ НА ДИАЛОГ! =====
+    # ConversationHandler в группе 0 перехватывает сообщения ДО нас
     
     # ===== АКТИВНЫЕ ДЕЙСТВИЯ АДМИНКИ =====
     action = context.user_data.get('admin_action')
