@@ -14,16 +14,29 @@ export default function HomePage() {
     const [result, setResult] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
     const [showResult, setShowResult] = useState(false);
+    const [isClosing, setIsClosing] = useState(false); // 🔥 фаза "уход"
 
     const OFFSET = -2;
 
-    // 🔥 Автоскрытие модалки через 2 секунды
+    // 🔥 Открытие модалки
     useEffect(() => {
         if (!showResult) return;
-        const timer = setTimeout(() => {
-            setShowResult(false);
+
+        // Через 2 секунды начинаем плавно скрывать
+        const closeTimer = setTimeout(() => {
+            setIsClosing(true);
         }, 2000);
-        return () => clearTimeout(timer);
+
+        // Ещё через 400мс полностью убираем (когда анимация завершится)
+        const removeTimer = setTimeout(() => {
+            setShowResult(false);
+            setIsClosing(false);
+        }, 2400);
+
+        return () => {
+            clearTimeout(closeTimer);
+            clearTimeout(removeTimer);
+        };
     }, [showResult]);
 
     const handleSpin = async () => {
@@ -37,6 +50,7 @@ export default function HomePage() {
         setResult(null);
         setError(null);
         setShowResult(false);
+        setIsClosing(false);
 
         try {
             const data = await spinWheel(user.telegram_id);
@@ -67,36 +81,66 @@ export default function HomePage() {
         setShowResult(true);
     };
 
+    // 🔥 Возвращает: { emoji/icon, label, sublabel, isMoon }
     const getResultDisplay = () => {
         if (!result) return null;
 
+        // 🌙 ЛУНА ИЗ 6 ОСКОЛКОВ — самый эпичный случай
         if (result.moon_completed) {
             return {
                 emoji: '🌙',
-                text: 'Ты собрал 6 осколков и получил ЛУНУ!'
+                label: 'ЛУНА ТВОЯ!',
+                sublabel: 'Ты собрал 6 осколков и получил ЛУНУ в Genshin Impact',
+                isMoon: true,
             };
         }
+
+        // 💨 ПУСТО
         if (result.prize_type?.startsWith('empty')) {
-            return { emoji: '💨', text: 'Тебе ничего не выпало... Попробуй ещё раз!' };
+            return {
+                emoji: '💨',
+                label: 'ПУСТО',
+                sublabel: 'Ничего не выпало. Попробуй ещё раз!',
+                isMoon: false,
+            };
         }
+
+        // 🌙 ЛУНА НАПРЯМУЮ
         if (result.prize_type === 'moon' || result.prize_type === 'moon_from_shards') {
-            return { emoji: '🌙', text: 'Ты выиграл ЛУНУ! 🎉' };
+            return {
+                emoji: '🌙',
+                label: 'ЛУНА ТВОЯ!',
+                sublabel: 'Ты выиграл ЛУНУ в Genshin Pool!',
+                isMoon: true,
+            };
         }
+
+        // 🔮 ОСКОЛОК
         if (result.prize_type === 'shard') {
             return {
                 icon: <ShardIcon size={56} />,
-                text: `Ты выиграл осколок! (${result.shards}/6)`
+                label: 'ОСКОЛОК ЛУНЫ!',
+                sublabel: `Собрано ${result.shards}/6. Ещё немного!`,
+                isMoon: false,
             };
         }
+
+        // 💎 КРИСТАЛЛЫ
         if (result.prize_type === 'crystals_60' || result.prize_type === 'crystals_330') {
             return {
                 emoji: '💎',
-                text: `Ты выиграл ${result.prize_value} кристаллов!`
+                label: 'ПОЗДРАВЛЯЮ!',
+                sublabel: `Ты выиграл ${result.prize_value} кристаллов!`,
+                isMoon: false,
             };
         }
+
+        // Fallback
         return {
             emoji: result.emoji || '🎁',
-            text: `Ты выиграл ${result.prize}!`
+            label: 'ПОБЕДА!',
+            sublabel: `Ты выиграл ${result.prize}!`,
+            isMoon: false,
         };
     };
 
@@ -127,17 +171,22 @@ export default function HomePage() {
                     />
                 </div>
 
-                {/* 🔥 МОДАЛЬНОЕ ОКНО ПОВЕРХ ЭКРАНА */}
+                {/* 🔥 МОДАЛЬНОЕ ОКНО */}
                 {showResult && resultDisplay && (
-                    <div className="spin-modal-overlay">
-                        <div className={`spin-modal ${result?.moon_completed ? 'spin-modal-moon' : ''}`}>
+                    <div className={`spin-modal-overlay ${isClosing ? 'closing' : ''}`}>
+                        <div className={`spin-modal ${resultDisplay.isMoon ? 'spin-modal-moon' : ''}`}>
                             <div className="spin-modal-content">
                                 {resultDisplay.icon ? (
                                     <div className="spin-modal-emoji">{resultDisplay.icon}</div>
                                 ) : (
                                     <div className="spin-modal-emoji">{resultDisplay.emoji}</div>
                                 )}
-                                <p className="spin-modal-text">{resultDisplay.text}</p>
+
+                                {/* 🔥 Акцентная надпись */}
+                                <h2 className="spin-modal-label">{resultDisplay.label}</h2>
+
+                                {/* Подпись */}
+                                <p className="spin-modal-sublabel">{resultDisplay.sublabel}</p>
                             </div>
                         </div>
                     </div>

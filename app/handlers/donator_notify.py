@@ -56,13 +56,14 @@ async def notify_donator(winner_telegram_id: int, prize: str, uid: str, server: 
 async def notify_user_win(telegram_id: int, prize: str, shards: int = 0, moon_completed: bool = False):
     """
     Отправляет пользователю уведомление о выигрыше.
-    
-    prize: "moon" | "moon_from_shards" | "shard" | "crystals_60" | "crystals_330" | "empty..."
-    shards: сколько осколков у пользователя сейчас (после операции)
-    moon_completed: True, если именно в этом спине собралась луна из 6 осколков
+    НЕ отправляет уведомление при пустом исходе (empty).
     """
 
-    # 🔥 Приоритет №1: луна только что собрана из осколков
+    # 🔥 Пропускаем пустые исходы — пользователь и так видит "Пусто" на фронте
+    if prize.startswith("empty"):
+        print(f"ℹ️ Пропуск уведомления (пусто) для {telegram_id}")
+        return
+
     if moon_completed or prize == "moon_from_shards":
         text = (
             "🌙 *ПОЗДРАВЛЯЮ!*\n\n"
@@ -94,12 +95,6 @@ async def notify_user_win(telegram_id: int, prize: str, shards: int = 0, moon_co
             "💎 *330 КРИСТАЛЛОВ!*\n\n"
             "Ты выиграл 330 кристаллов!\n"
             "Скоро с тобой свяжется донатор для передачи награды."
-        )
-    elif prize.startswith("empty"):
-        text = (
-            "💨 *ПУСТО!*\n\n"
-            "Тебе ничего не выпало...\n"
-            "Попробуй ещё раз! 🎡"
         )
     else:
         text = f"🎁 Ты выиграл {prize}!"

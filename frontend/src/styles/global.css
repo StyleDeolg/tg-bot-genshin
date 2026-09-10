@@ -515,30 +515,47 @@ body {
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     z-index: 9999;
+    opacity: 1;
     animation: spinModalFadeIn 0.25s ease-out;
+    transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
+}
+
+/* 🔥 Плавный уход */
+.spin-modal-overlay.closing {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    pointer-events: none;
+}
+
+.spin-modal-overlay.closing .spin-modal {
+    transform: scale(0.9) translateY(10px);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.4s ease;
 }
 
 .spin-modal {
     background: linear-gradient(135deg, rgba(11, 14, 26, 0.98), rgba(20, 24, 40, 0.98));
     border: 1px solid rgba(212, 175, 55, 0.35);
     border-radius: 20px;
-    padding: 36px 44px;
-    max-width: 340px;
-    min-width: 260px;
+    padding: 32px 40px 28px;
+    max-width: 360px;
+    min-width: 280px;
     text-align: center;
     box-shadow:
         0 0 40px rgba(212, 175, 55, 0.15),
         0 20px 60px rgba(0, 0, 0, 0.6);
-    animation: spinModalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: spinModalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 0.4s ease, opacity 0.4s ease;
 }
 
 .spin-modal-moon {
-    border-color: rgba(212, 175, 55, 0.7);
+    border-color: rgba(212, 175, 55, 0.75);
     box-shadow:
-        0 0 60px rgba(212, 175, 55, 0.35),
-        0 0 120px rgba(212, 175, 55, 0.15),
+        0 0 60px rgba(212, 175, 55, 0.4),
+        0 0 140px rgba(212, 175, 55, 0.2),
         0 20px 60px rgba(0, 0, 0, 0.6);
-    animation: spinModalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    animation: spinModalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
         spinModalGlow 1.5s ease-in-out infinite;
 }
 
@@ -546,30 +563,59 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 16px;
+    gap: 8px;
 }
 
 .spin-modal-emoji {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 64px;
+    font-size: 72px;
     line-height: 1;
-    filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.4));
+    filter: drop-shadow(0 0 24px rgba(212, 175, 55, 0.45));
+    margin-bottom: 4px;
+    animation: spinModalEmojiPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.spin-modal-text {
+/* 🔥 Большая акцентная надпись */
+.spin-modal-label {
     margin: 0;
-    color: #e8e0d4;
-    font-size: 17px;
-    font-weight: 600;
-    line-height: 1.4;
-    letter-spacing: 0.3px;
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #f0d060 0%, #d4af37 50%, #b8962e 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: #d4af37;
+    text-shadow: 0 0 30px rgba(212, 175, 55, 0.35);
+    line-height: 1.1;
+    animation: spinModalLabelIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
 }
 
-.spin-modal-moon .spin-modal-text {
-    color: #f0d060;
-    text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+.spin-modal-moon .spin-modal-label {
+    font-size: 32px;
+    background: linear-gradient(180deg, #fff2b0 0%, #f0d060 40%, #d4af37 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 40px rgba(240, 208, 96, 0.5);
+}
+
+/* Подпись под заголовком */
+.spin-modal-sublabel {
+    margin: 6px 0 0;
+    color: rgba(232, 224, 212, 0.75);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.45;
+    letter-spacing: 0.2px;
+    animation: spinModalSubIn 0.6s ease 0.2s both;
+}
+
+.spin-modal-moon .spin-modal-sublabel {
+    color: rgba(240, 208, 96, 0.85);
 }
 
 @keyframes spinModalFadeIn {
@@ -594,20 +640,60 @@ body {
     }
 }
 
+@keyframes spinModalEmojiPop {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) rotate(-15deg);
+    }
+
+    60% {
+        transform: scale(1.15) rotate(5deg);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+@keyframes spinModalLabelIn {
+    0% {
+        opacity: 0;
+        transform: translateY(10px) scale(0.9);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes spinModalSubIn {
+    0% {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 @keyframes spinModalGlow {
 
     0%,
     100% {
         box-shadow:
-            0 0 60px rgba(212, 175, 55, 0.35),
-            0 0 120px rgba(212, 175, 55, 0.15),
+            0 0 60px rgba(212, 175, 55, 0.4),
+            0 0 140px rgba(212, 175, 55, 0.2),
             0 20px 60px rgba(0, 0, 0, 0.6);
     }
 
     50% {
         box-shadow:
-            0 0 80px rgba(212, 175, 55, 0.5),
-            0 0 160px rgba(212, 175, 55, 0.25),
+            0 0 80px rgba(212, 175, 55, 0.55),
+            0 0 180px rgba(212, 175, 55, 0.3),
             0 20px 60px rgba(0, 0, 0, 0.6);
     }
 }
@@ -1189,15 +1275,23 @@ body {
     }
 
     .spin-modal {
-        padding: 28px 32px;
+        padding: 24px 28px;
         min-width: 240px;
     }
 
     .spin-modal-emoji {
-        font-size: 52px;
+        font-size: 56px;
     }
 
-    .spin-modal-text {
-        font-size: 15px;
+    .spin-modal-label {
+        font-size: 22px;
+    }
+
+    .spin-modal-moon .spin-modal-label {
+        font-size: 26px;
+    }
+
+    .spin-modal-sublabel {
+        font-size: 13px;
     }
 }
