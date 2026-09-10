@@ -50,7 +50,7 @@ async def get_sponsors(telegram_id: str):
                         chat_id=int(sponsor.channel_id),
                         user_id=int(telegram_id)
                     )
-                    # 🔥 ИСПРАВЛЕНО: ДОБАВЛЕН 'requested'
+                    # 🔥 ПРОВЕРЯЕМ 'member', 'administrator', 'creator' И 'requested'
                     is_subscribed = chat_member.status in ['member', 'administrator', 'creator', 'requested']
                     print(f"✅ {sponsor.name}: {chat_member.status}")
                 except Exception as e:
@@ -120,12 +120,9 @@ async def check_subscription(telegram_id: str, sponsor_id: str):
             status = chat_member.status
             print(f"📊 Статус: {status}")
             
-            # 🔥 ИСПРАВЛЕНО: ПРОВЕРЯЕМ 'member', 'administrator', 'creator' ИЛИ 'requested'
-            if status in ['member', 'administrator', 'creator']:
-                # Подписан ✅
-                pass
-            elif status == 'requested':
-                # 🔥 ЗАЯВКА ПОДАНА — ТОЖЕ СЧИТАЕМ УСПЕХОМ
+            # 🔥 УСПЕХ: ПОДПИСАН ИЛИ ПОДАЛ ЗАЯВКУ
+            if status in ['member', 'administrator', 'creator', 'requested']:
+                # Всё хорошо — даём награду
                 pass
             else:
                 return {
