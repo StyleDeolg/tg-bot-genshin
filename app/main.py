@@ -35,12 +35,20 @@ async def ping():
 
 # ========== WEBHOOK ==========
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    MessageHandler,
+    ChatJoinRequestHandler,
+    filters,
+    ContextTypes,
+)
 from app.handlers import (
     start_command, help_command, profile_command,
     bind_uid_start, unbind_uid, app_command, donate_command, error_handler
 )
 from app.handlers.buttons import handle_buttons
+from app.handlers.join_request import handle_join_request
 
 TOKEN = config.BOT_TOKEN
 WEBHOOK_PATH = "/webhook"
@@ -61,12 +69,37 @@ async def get_bot_app():
         _bot_app.add_handler(CommandHandler("app", app_command))
         _bot_app.add_handler(CommandHandler("bind_uid", bind_uid_start))
         
+        # 🔥 НОВОЕ: обработчик заявок на вступление в каналы
+        _bot_app.add_handler(ChatJoinRequestHandler(handle_join_request))
+        
         # Обработчик всех текстовых сообщений (кнопки и ввод)
         _bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons))
         _bot_app.add_error_handler(error_handler)
         
         await _bot_app.initialize()
         print("✅ Бот инициализирован")
+        
+        # 🔥 ВАЖНО: подписываемся на chat_join_request в вебхуке
+        # Если WEBHOOK_URL задан — устанавливаем вебхук с нужными allowed_updates
+        webhook_url = getattr(config, "WEBHOOK_URL", None)
+        if webhook_url:
+            full_url = f"{webhook_url.rstrip('/')}{WEBHOOK_PATH}"
+            try:
+                await _bot_app.bot.set_webhook(
+                    url=full_url,
+                    secret_token=SECRET_TOKEN if SECRET_TOKEN else None,
+                    allowed_updates=[
+                        "message",
+                        "callback_query",
+                        "chat_join_request",
+                    ],
+                )
+                print(f"✅ Вебхук установлен: {full_url}")
+            except Exception as e:
+                print(f"❌ Не удалось установить вебхук: {e}")
+        else:
+            print("⚠️ WEBHOOK_URL не задан в config — пропускаю установку вебхука")
+
     return _bot_app
 
 
@@ -80,7 +113,11 @@ async def webhook_endpoint(request: Request):
         print("🔍 [webhook] Получен запрос")
         bot_app = await get_bot_app()
         json_data = await request.json()
-        print(f"🔍 [webhook] Данные: {str(json_data)[:200]}...")
+        
+        # Логируем тип апдейта
+        update_type = list(json_data.keys())
+        print(f"🔍 [webhook] Тип апдейта: {update_type}")
+        
         update = Update.de_json(json_data, bot_app.bot)
         await bot_app.process_update(update)
         print("🔍 [webhook] Обработка завершена")
@@ -99,6 +136,31 @@ async def webhook_info():
             "url": info.url,
             "pending_update_count": info.pending_update_count,
             "last_error_message": info.last_error_message,
+            "allowed_updates": info.allowed_updates,
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@app.get("/set-webhook")
+async def set_webhook_manually():
+    """Ручная установка вебхука с нужными allowed_updates."""
+    try:
+        bot_app = await get_bot_app()
+        webhook_url = getattr(config, "WEBHOOK_URL", None)
+        if not webhook_url:
+            return {"error": "WEBHOOK_URL не задан в config"}
+        full_url = f"{webhook_url.rstrip('/')}{WEBHOOK_PATH}"
+        await bot_app.bot.set_webhook(
+            url=full_url,
+            secret_token=SECRET_TOKEN if SECRET_TOKEN else None,
+            allowed_updates=["message", "callback_query", "chat_join_request"],
+        )
+        info = await bot_app.bot.get_webhook_info()
+        return {
+            "success": True,
+            "url": info.url,
+            "allowed_updates": info.allowed_updates,
         }
     except Exception as e:
         return {"error": str(e)}

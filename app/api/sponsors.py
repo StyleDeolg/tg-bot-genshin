@@ -50,8 +50,8 @@ async def get_sponsors(telegram_id: str):
                         chat_id=int(sponsor.channel_id),
                         user_id=int(telegram_id)
                     )
-                    # 🔥 ПРОВЕРЯЕМ 'member', 'administrator', 'creator' И 'requested'
-                    is_subscribed = chat_member.status in ['member', 'administrator', 'creator', 'requested']
+                    # Только реальные участники
+                    is_subscribed = chat_member.status in ['member', 'administrator', 'creator']
                     print(f"✅ {sponsor.name}: {chat_member.status}")
                 except Exception as e:
                     print(f"❌ {sponsor.name}: {e}")
@@ -120,14 +120,13 @@ async def check_subscription(telegram_id: str, sponsor_id: str):
             status = chat_member.status
             print(f"📊 Статус: {status}")
             
-            # 🔥 УСПЕХ: ПОДПИСАН ИЛИ ПОДАЛ ЗАЯВКУ
-            if status in ['member', 'administrator', 'creator', 'requested']:
-                # Всё хорошо — даём награду
-                pass
-            else:
+            # 🔥 Только реальные участники. Заявки обрабатываются через chat_join_request.
+            if status not in ['member', 'administrator', 'creator']:
                 return {
                     "success": False,
-                    "message": "❌ Ты не подписан на канал и не подал заявку. Подпишись и попробуй снова!"
+                    "message": "❌ Ты не подписан на канал. Подпишись и попробуй снова!\n"
+                               "ℹ️ Если ты только что подал заявку — награда придёт автоматически, "
+                               "как только бот получит уведомление."
                 }
                 
         except Exception as e:
@@ -151,7 +150,8 @@ async def check_subscription(telegram_id: str, sponsor_id: str):
                 }
         
         # ===== ВЫДАЁМ НАГРАДУ =====
-        user.tickets += 1
+        reward = task.reward or 1
+        user.tickets += reward
         
         if not user_task:
             user_task = UserTask(
@@ -167,17 +167,10 @@ async def check_subscription(telegram_id: str, sponsor_id: str):
         
         db.commit()
         
-        # 🔥 ИЗМЕНЕНО СООБЩЕНИЕ
-        if status == 'requested':
-            return {
-                "success": True,
-                "message": "✅ Заявка на вступление подана! Ты получил 1 билетик! 🎉\nℹ️ Как только админ одобрит заявку, ты станешь участником канала."
-            }
-        else:
-            return {
-                "success": True,
-                "message": "✅ Подписка подтверждена! Ты получил 1 билетик! 🎉"
-            }
+        return {
+            "success": True,
+            "message": f"✅ Подписка подтверждена! Ты получил {reward} билетик! 🎉"
+        }
         
     except Exception as e:
         db.rollback()
