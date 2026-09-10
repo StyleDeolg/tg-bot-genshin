@@ -3,7 +3,7 @@ from telegram.ext import ContextTypes
 from app.keyboards import get_keyboard_for_user
 from app.handlers.start import start_command
 from app.handlers.profile import profile_command
-from app.handlers.bind_uid import bind_uid_start, bind_uid_input
+from app.handlers.bind_uid import bind_uid_start
 from app.handlers.unbind_uid import unbind_uid
 from app.handlers.help import help_command
 from app.handlers.admin import (
@@ -24,6 +24,9 @@ from app.handlers.sponsors import (
     delete_sponsor_confirm,
     list_sponsors_admin,
     add_sponsor_start,
+    add_sponsor_name,
+    add_sponsor_link,
+    add_sponsor_channel_id,
 )
 from app.config import config
 
@@ -35,8 +38,12 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     
     # ===== ПРОВЕРКА: МЫ В ДИАЛОГЕ ПРИВЯЗКИ UID? =====
-    if context.user_data.get('waiting_for_uid'):
-        await bind_uid_input(update, context)
+    if context.user_data.get('conversation') == 'bind_uid':
+        return
+    
+    # ===== ПРОВЕРКА: МЫ В ДИАЛОГЕ ДОБАВЛЕНИЯ СПОНСОРА? =====
+    if context.user_data.get('admin_action') == 'add_sponsor':
+        # Пропускаем, ConversationHandler сам обработает
         return
     
     # ===== АКТИВНЫЕ ДЕЙСТВИЯ АДМИНКИ =====
@@ -113,6 +120,7 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     elif text == "➕ Добавить спонсора":
         if user_id in config.ADMIN_IDS:
+            # 👇 ЗАПУСКАЕМ ConversationHandler
             await add_sponsor_start(update, context)
         else:
             await update.message.reply_text("⛔ Нет доступа")
@@ -136,6 +144,7 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("⛔ Нет доступа")
     
     else:
+        # Если пользователь ввёл что-то неизвестное — показываем меню
         await update.message.reply_text(
             "❌ Неизвестная команда. Используйте кнопки меню.",
             reply_markup=get_keyboard_for_user(user_id)
