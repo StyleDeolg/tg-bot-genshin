@@ -9,8 +9,10 @@ from app.handlers.donator_notify import notify_donator, notify_user_win
 
 router = APIRouter(prefix="/api/wheel", tags=["wheel"])
 
+
 class SpinRequest(BaseModel):
     telegram_id: str
+
 
 class SpinResponse(BaseModel):
     prize: str
@@ -20,57 +22,58 @@ class SpinResponse(BaseModel):
     tickets_left: int
     shards: int = 0
     has_moon: bool = False
+    moon_completed: bool = False
     segment_index: int = 0
 
 
 @router.post("/spin", response_model=SpinResponse)
 async def spin(request: SpinRequest):
     db = SessionLocal()
-    
+
     try:
         user = db.query(User).filter_by(telegram_id=request.telegram_id).first()
         if not user:
             db.close()
             raise HTTPException(status_code=404, detail="Пользователь не найден")
-        
+
         if user.tickets < 1:
             db.close()
             raise HTTPException(status_code=400, detail="Недостаточно билетиков")
-        
+
         prizes = db.query(WheelConfig).filter_by(is_active="true").order_by(WheelConfig.order).all()
         if not prizes:
             db.close()
             raise HTTPException(status_code=404, detail="Призы не настроены")
-        
+
         prizes_data = []
         for p in prizes:
             chance = p.chance
-            
+
             # ===== СТУПЕНЧАТЫЙ ШАНС ДЛЯ ОСКОЛКА =====
             if p.prize_type == "shard":
                 shards = user.moon_shards
                 if shards == 0:
-                    chance = 5000   # 50%
+                    chance = 5000
                 elif shards == 1:
-                    chance = 1500   # 15%
+                    chance = 1500
                 elif shards == 2:
-                    chance = 500    # 5%
+                    chance = 500
                 elif shards == 3:
-                    chance = 200    # 2%
+                    chance = 200
                 elif shards == 4:
-                    chance = 200    # 2%
+                    chance = 200
                 elif shards == 5:
-                    chance = 200    # 2%
+                    chance = 200
                 else:
-                    chance = 0      # 0% (луна уже собрана)
-                
+                    chance = 0
+
                 if chance <= 0:
                     continue
-            
+
             # Бонус для 60 кристаллов
             if p.prize_type == "crystals_60" and user.crystals_60_boosted:
                 chance = max(chance, 200)
-            
+
             prizes_data.append({
                 "name": str(p.name),
                 "value": int(p.value),
@@ -78,15 +81,15 @@ async def spin(request: SpinRequest):
                 "emoji": str(p.emoji) if p.emoji else "🎁",
                 "prize_type": str(p.prize_type),
             })
-        
+
         if not prizes_data:
             prizes_data = [
                 {"name": "Пусто", "value": 0, "chance": 1000, "emoji": "💨", "prize_type": "empty_fallback"},
             ]
-        
+
         total_chance = sum(p["chance"] for p in prizes_data)
         rand = random.randint(1, total_chance)
-        
+
         cumulative = 0
         selected = prizes_data[0]
         selected_index = 0
@@ -96,36 +99,50 @@ async def spin(request: SpinRequest):
                 selected = prize
                 selected_index = idx
                 break
-        
+
         prize_type = selected["prize_type"]
         prize_name = selected["name"]
         prize_value = selected["value"]
         prize_emoji = selected["emoji"]
-        
+
         user.tickets -= 1
         user.spins_count += 1
-        
-        # Обработка выигрыша
+
+        # 🔥 ФЛАГ "ЛУНА СОБРАНА ИЗ 6 ОСКОЛКОВ"
+        moon_completed = False
+
+        # ===== ОБРАБОТКА ВЫИГРЫША =====
         if prize_type == "moon":
             user.has_moon = True
             user.is_donator = True
+
         elif prize_type == "shard":
             user.moon_shards += 1
             if user.moon_shards >= 6:
                 user.has_moon = True
                 user.is_donator = True
                 user.moon_shards = 0
+                moon_completed = True  # 🔥
+
+                # 🔥 ПОДМЕНА ПРИЗА: чтобы фронт/боты показали "ЛУНА"
+                prize_type = "moon_from_shards"
+                prize_name = "Луна (из 6 осколков)"
+                prize_emoji = "🌙"
+                prize_value = 0
+
         elif prize_type == "crystals_330":
             user.crystals_330_claimed = True
             user.is_donator = True
+
         elif prize_type == "crystals_60":
             user.crystals_60_claimed = True
             user.crystals_60_boosted = False
             user.is_donator = True
+
         elif prize_type.startswith("empty"):
             prize_value = 0
             prize_emoji = "💨"
-        
+
         spin_record = WheelSpin(
             user_id=user.id,
             prize=prize_name,
@@ -134,20 +151,29 @@ async def spin(request: SpinRequest):
         )
         db.add(spin_record)
         db.commit()
-        
-        # Уведомления
-        await notify_user_win(int(user.telegram_id), prize_type, user.moon_shards)
-        
-        if prize_type in ["moon", "crystals_60", "crystals_330"]:
+
+        # ===== УВЕДОМЛЕНИЯ =====
+        print(f"🔍 DEBUG: prize_type={prize_type}, moon_completed={moon_completed}, shards={user.moon_shards}")
+
+        # Пользователю
+        await notify_user_win(
+            int(user.telegram_id),
+            prize_type,
+            user.moon_shards,
+            moon_completed=moon_completed,
+        )
+
+        # Донаторам
+        if prize_type in ["moon", "moon_from_shards", "crystals_60", "crystals_330"]:
             await notify_donator(
                 winner_telegram_id=int(user.telegram_id),
                 prize=prize_type,
                 uid=user.genshin_uid or "Не указан",
                 server=user.genshin_server or "Не указан",
                 username=user.username,
-                first_name=user.first_name
+                first_name=user.first_name,
             )
-        
+
         return SpinResponse(
             prize=prize_name,
             prize_value=prize_value,
@@ -156,9 +182,12 @@ async def spin(request: SpinRequest):
             tickets_left=user.tickets,
             shards=user.moon_shards or 0,
             has_moon=user.has_moon or False,
+            moon_completed=moon_completed,
             segment_index=selected_index,
         )
-        
+
+    except HTTPException:
+        raise
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
@@ -172,7 +201,7 @@ async def get_prizes():
     db = SessionLocal()
     try:
         prizes = db.query(WheelConfig).filter_by(is_active="true").order_by(WheelConfig.order).all()
-        
+
         if not prizes:
             return [
                 {"name": "Пусто", "value": 0, "emoji": "💨", "prize_type": "empty_1", "color": "#d4af37"},
@@ -184,7 +213,7 @@ async def get_prizes():
                 {"name": "Пусто", "value": 0, "emoji": "💨", "prize_type": "empty_4", "color": "#d4af37"},
                 {"name": "330 💎", "value": 330, "emoji": "💎", "prize_type": "crystals_330", "color": "#1a1a2e"},
             ]
-        
+
         return [
             {
                 "name": p.name,
