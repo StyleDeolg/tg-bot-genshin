@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { getPrizes, type Prize } from '../api/wheel';
 import ShardIcon from './ShardIcon';
+import Crystall60Icon from './Crystall60Icon';
+import Crystall330Icon from './Crystall330Icon';
 
 interface WheelProps {
     isSpinning?: boolean;
@@ -176,11 +178,16 @@ export default function Wheel({
                         const isEmpty = seg.prize_type?.startsWith('empty');
                         const isMoon = seg.prize_type === 'moon';
                         const isShard = seg.prize_type === 'shard';
+                        const isCrystall60 = seg.prize_type === 'crystals_60';
+                        const isCrystall330 = seg.prize_type === 'crystals_330';
+                        const isCrystall = isCrystall60 || isCrystall330;
                         const isGold = i % 2 === 0;
 
                         let iconSize = 26;
                         if (isMoon) iconSize = 34;
                         if (isShard) iconSize = 28;
+                        if (isCrystall60) iconSize = 30;
+                        if (isCrystall330) iconSize = 32;
 
                         return (
                             <g key={`segment-${i}-${seg.prize_type}`}>
@@ -192,6 +199,7 @@ export default function Wheel({
                                     opacity={isGold ? 0.95 : 0.9}
                                 />
 
+                                {/* 🌙 ЛУНА */}
                                 {isMoon && (
                                     <image
                                         href="/images/wheel/moon.png"
@@ -204,6 +212,7 @@ export default function Wheel({
                                     />
                                 )}
 
+                                {/* 🔮 ОСКОЛОК */}
                                 {isShard && (
                                     <foreignObject
                                         x={iconX - iconSize / 2}
@@ -224,7 +233,50 @@ export default function Wheel({
                                     </foreignObject>
                                 )}
 
-                                {!isEmpty && !isMoon && !isShard && (
+                                {/* 💎 60 КРИСТАЛЛОВ */}
+                                {isCrystall60 && (
+                                    <foreignObject
+                                        x={iconX - iconSize / 2}
+                                        y={iconY - iconSize / 2}
+                                        width={iconSize}
+                                        height={iconSize}
+                                        transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${iconX}, ${iconY})`}
+                                    >
+                                        <div style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            width: '100%',
+                                            height: '100%',
+                                        }}>
+                                            <Crystall60Icon size={iconSize} />
+                                        </div>
+                                    </foreignObject>
+                                )}
+
+                                {/* 💎 330 КРИСТАЛЛОВ */}
+                                {isCrystall330 && (
+                                    <foreignObject
+                                        x={iconX - iconSize / 2}
+                                        y={iconY - iconSize / 2}
+                                        width={iconSize}
+                                        height={iconSize}
+                                        transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${iconX}, ${iconY})`}
+                                    >
+                                        <div style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            width: '100%',
+                                            height: '100%',
+                                        }}>
+                                            <Crystall330Icon size={iconSize} />
+                                        </div>
+                                    </foreignObject>
+                                )}
+
+                                {/* Fallback для остальных непустых призов — primogem */}
+                                {!isEmpty && !isMoon && !isShard && !isCrystall && (
                                     <image
                                         href="/images/wheel/primogem.png"
                                         x={iconX - iconSize / 2}
@@ -235,6 +287,7 @@ export default function Wheel({
                                     />
                                 )}
 
+                                {/* ✦ ПУСТО */}
                                 {isEmpty && (
                                     <text
                                         x={iconX}
@@ -249,7 +302,8 @@ export default function Wheel({
                                     </text>
                                 )}
 
-                                {!isEmpty && !isMoon && !isShard && (
+                                {/* Подпись значения (только для primogem / fallback) */}
+                                {!isEmpty && !isMoon && !isShard && !isCrystall && (
                                     <text
                                         x={labelX}
                                         y={labelY + 5}
@@ -263,6 +317,7 @@ export default function Wheel({
                                     </text>
                                 )}
 
+                                {/* Подпись ЛУНА */}
                                 {isMoon && (
                                     <text
                                         x={labelX}
@@ -278,6 +333,7 @@ export default function Wheel({
                                     </text>
                                 )}
 
+                                {/* Подпись ОСКОЛОК */}
                                 {isShard && (
                                     <text
                                         x={labelX}
@@ -290,6 +346,38 @@ export default function Wheel({
                                         letterSpacing="0.3"
                                     >
                                         ОСКОЛОК
+                                    </text>
+                                )}
+
+                                {/* Подпись КРИСТАЛЛЫ (60) */}
+                                {isCrystall60 && (
+                                    <text
+                                        x={labelX}
+                                        y={labelY + 5}
+                                        fill="rgba(232, 224, 212, 0.15)"
+                                        fontSize={10}
+                                        fontWeight="600"
+                                        textAnchor="middle"
+                                        transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${labelX}, ${labelY})`}
+                                        letterSpacing="0.3"
+                                    >
+                                        60 💎
+                                    </text>
+                                )}
+
+                                {/* Подпись КРИСТАЛЛЫ (330) */}
+                                {isCrystall330 && (
+                                    <text
+                                        x={labelX}
+                                        y={labelY + 5}
+                                        fill="rgba(232, 224, 212, 0.15)"
+                                        fontSize={10}
+                                        fontWeight="600"
+                                        textAnchor="middle"
+                                        transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${labelX}, ${labelY})`}
+                                        letterSpacing="0.3"
+                                    >
+                                        330 💎
                                     </text>
                                 )}
                             </g>
