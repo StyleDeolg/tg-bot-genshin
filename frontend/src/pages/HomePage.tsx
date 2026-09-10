@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { spinWheel } from '../api/wheel';
 import { checkTasks } from '../api/tasks';
@@ -16,6 +16,15 @@ export default function HomePage() {
     const [showResult, setShowResult] = useState(false);
 
     const OFFSET = -2;
+
+    // 🔥 Автоскрытие модалки через 2 секунды
+    useEffect(() => {
+        if (!showResult) return;
+        const timer = setTimeout(() => {
+            setShowResult(false);
+        }, 2000);
+        return () => clearTimeout(timer);
+    }, [showResult]);
 
     const handleSpin = async () => {
         if (!user || isSpinning) return;
@@ -61,15 +70,21 @@ export default function HomePage() {
     const getResultDisplay = () => {
         if (!result) return null;
 
+        if (result.moon_completed) {
+            return {
+                emoji: '🌙',
+                text: 'Ты собрал 6 осколков и получил ЛУНУ!'
+            };
+        }
         if (result.prize_type?.startsWith('empty')) {
             return { emoji: '💨', text: 'Тебе ничего не выпало... Попробуй ещё раз!' };
         }
-        if (result.prize_type === 'moon') {
+        if (result.prize_type === 'moon' || result.prize_type === 'moon_from_shards') {
             return { emoji: '🌙', text: 'Ты выиграл ЛУНУ! 🎉' };
         }
         if (result.prize_type === 'shard') {
             return {
-                icon: <ShardIcon size={28} />,
+                icon: <ShardIcon size={56} />,
                 text: `Ты выиграл осколок! (${result.shards}/6)`
             };
         }
@@ -112,15 +127,18 @@ export default function HomePage() {
                     />
                 </div>
 
+                {/* 🔥 МОДАЛЬНОЕ ОКНО ПОВЕРХ ЭКРАНА */}
                 {showResult && resultDisplay && (
-                    <div className="spin-result">
-                        <div className="spin-result-content">
-                            {resultDisplay.icon ? (
-                                <span className="spin-result-emoji">{resultDisplay.icon}</span>
-                            ) : (
-                                <span className="spin-result-emoji">{resultDisplay.emoji}</span>
-                            )}
-                            <p>{resultDisplay.text}</p>
+                    <div className="spin-modal-overlay">
+                        <div className={`spin-modal ${result?.moon_completed ? 'spin-modal-moon' : ''}`}>
+                            <div className="spin-modal-content">
+                                {resultDisplay.icon ? (
+                                    <div className="spin-modal-emoji">{resultDisplay.icon}</div>
+                                ) : (
+                                    <div className="spin-modal-emoji">{resultDisplay.emoji}</div>
+                                )}
+                                <p className="spin-modal-text">{resultDisplay.text}</p>
+                            </div>
                         </div>
                     </div>
                 )}

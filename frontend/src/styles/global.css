@@ -12,7 +12,6 @@
     --genshin-gold-dark: #b8962e;
     --genshin-text: #e8e0d4;
     --genshin-text-dim: rgba(232, 224, 212, 0.45);
-    /* ← БЫЛО 0.35, СТАЛО 0.45 */
     --genshin-text-faint: rgba(232, 224, 212, 0.15);
     --genshin-glass: rgba(255, 255, 255, 0.03);
     --genshin-glass-border: rgba(212, 175, 55, 0.06);
@@ -61,9 +60,7 @@ body {
     height: 100%;
     object-fit: cover;
     opacity: 0.15;
-    /* ← УВЕЛИЧЕНО С 0.04 ДО 0.15 */
     filter: blur(2px) saturate(0.5);
-    /* ← МЕНЬШЕ РАЗМЫТИЯ */
 }
 
 .genshin-glow {
@@ -504,7 +501,118 @@ body {
     }
 }
 
-/* ===== SPIN RESULT ===== */
+/* ===== SPIN MODAL (поверх колеса) ===== */
+.spin-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 9999;
+    animation: spinModalFadeIn 0.25s ease-out;
+}
+
+.spin-modal {
+    background: linear-gradient(135deg, rgba(11, 14, 26, 0.98), rgba(20, 24, 40, 0.98));
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-radius: 20px;
+    padding: 36px 44px;
+    max-width: 340px;
+    min-width: 260px;
+    text-align: center;
+    box-shadow:
+        0 0 40px rgba(212, 175, 55, 0.15),
+        0 20px 60px rgba(0, 0, 0, 0.6);
+    animation: spinModalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.spin-modal-moon {
+    border-color: rgba(212, 175, 55, 0.7);
+    box-shadow:
+        0 0 60px rgba(212, 175, 55, 0.35),
+        0 0 120px rgba(212, 175, 55, 0.15),
+        0 20px 60px rgba(0, 0, 0, 0.6);
+    animation: spinModalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+        spinModalGlow 1.5s ease-in-out infinite;
+}
+
+.spin-modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.spin-modal-emoji {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 64px;
+    line-height: 1;
+    filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.4));
+}
+
+.spin-modal-text {
+    margin: 0;
+    color: #e8e0d4;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0.3px;
+}
+
+.spin-modal-moon .spin-modal-text {
+    color: #f0d060;
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+}
+
+@keyframes spinModalFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes spinModalPop {
+    0% {
+        opacity: 0;
+        transform: scale(0.7) translateY(20px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes spinModalGlow {
+
+    0%,
+    100% {
+        box-shadow:
+            0 0 60px rgba(212, 175, 55, 0.35),
+            0 0 120px rgba(212, 175, 55, 0.15),
+            0 20px 60px rgba(0, 0, 0, 0.6);
+    }
+
+    50% {
+        box-shadow:
+            0 0 80px rgba(212, 175, 55, 0.5),
+            0 0 160px rgba(212, 175, 55, 0.25),
+            0 20px 60px rgba(0, 0, 0, 0.6);
+    }
+}
+
+/* ===== SPIN RESULT (старый блок снизу — оставлен на случай) ===== */
 .spin-result {
     margin-top: 16px;
     padding: 16px 24px;
@@ -933,6 +1041,70 @@ body {
     max-width: 100%;
 }
 
+/* ===== РЕФЕРАЛЬНЫЕ НАГРАДЫ ===== */
+.referral-rewards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 12px;
+    width: 100%;
+    margin-top: 8px;
+}
+
+.referral-reward-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 12px 8px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    position: relative;
+    min-height: 80px;
+}
+
+.referral-reward-card.completed {
+    background: rgba(90, 143, 106, 0.04);
+    border-color: rgba(90, 143, 106, 0.2);
+    box-shadow: 0 0 30px rgba(90, 143, 106, 0.02);
+}
+
+.referral-reward-card.completed .referral-reward-level,
+.referral-reward-card.completed .referral-reward-amount {
+    color: #5a8f6a;
+}
+
+.referral-reward-level {
+    font-size: 18px;
+    font-weight: 700;
+    color: rgba(232, 224, 212, 0.15);
+    font-family: 'Cinzel', serif;
+}
+
+.referral-reward-amount {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(232, 224, 212, 0.08);
+}
+
+.referral-reward-check {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    font-size: 12px;
+}
+
+.referral-reward-card:not(.completed) .referral-reward-check {
+    display: none;
+}
+
+/* ===== HOME ===== */
+.home-content .btn-genshin {
+    margin: 0 auto;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 480px) {
     .page-title {
@@ -965,6 +1137,20 @@ body {
 
     .main-content {
         padding: 16px 12px 80px;
+    }
+
+    .referral-rewards-grid {
+        grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+        gap: 8px;
+    }
+
+    .referral-reward-card {
+        padding: 8px 4px;
+        min-height: 60px;
+    }
+
+    .referral-reward-level {
+        font-size: 16px;
     }
 }
 
@@ -1001,94 +1187,17 @@ body {
     .main-content {
         padding: 12px 10px 80px;
     }
-}
 
-.home-content .btn-genshin {
-    margin: 0 auto;
-}
-
-/* ===== РЕФЕРАЛЬНЫЕ НАГРАДЫ ===== */
-.referral-rewards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-    gap: 12px;
-    width: 100%;
-    margin-top: 8px;
-}
-
-.referral-reward-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    padding: 12px 8px;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.04);
-    border-radius: 12px;
-    transition: all 0.3s ease;
-    position: relative;
-    min-height: 80px;
-}
-
-.referral-reward-card.completed {
-    background: rgba(90, 143, 106, 0.04);
-    border-color: rgba(90, 143, 106, 0.2);
-    box-shadow: 0 0 30px rgba(90, 143, 106, 0.02);
-}
-
-.referral-reward-card.completed .referral-reward-level {
-    color: #5a8f6a;
-}
-
-.referral-reward-card.completed .referral-reward-amount {
-    color: #5a8f6a;
-}
-
-.referral-reward-level {
-    font-size: 18px;
-    font-weight: 700;
-    color: rgba(232, 224, 212, 0.15);
-    font-family: 'Cinzel', serif;
-}
-
-.referral-reward-card.completed .referral-reward-level {
-    color: #5a8f6a;
-}
-
-.referral-reward-amount {
-    font-size: 13px;
-    font-weight: 600;
-    color: rgba(232, 224, 212, 0.08);
-}
-
-.referral-reward-card.completed .referral-reward-amount {
-    color: #5a8f6a;
-}
-
-.referral-reward-check {
-    position: absolute;
-    top: 4px;
-    right: 6px;
-    font-size: 12px;
-}
-
-.referral-reward-card:not(.completed) .referral-reward-check {
-    display: none;
-}
-
-@media (max-width: 480px) {
-    .referral-rewards-grid {
-        grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
-        gap: 8px;
+    .spin-modal {
+        padding: 28px 32px;
+        min-width: 240px;
     }
 
-    .referral-reward-card {
-        padding: 8px 4px;
-        min-height: 60px;
+    .spin-modal-emoji {
+        font-size: 52px;
     }
 
-    .referral-reward-level {
-        font-size: 16px;
+    .spin-modal-text {
+        font-size: 15px;
     }
 }

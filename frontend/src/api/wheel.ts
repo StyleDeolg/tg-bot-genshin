@@ -8,6 +8,7 @@ export interface SpinResult {
     tickets_left: number;
     shards: number;
     has_moon: boolean;
+    moon_completed: boolean; // 🔥 НОВОЕ
     segment_index: number;
 }
 
