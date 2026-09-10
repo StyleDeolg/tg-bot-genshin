@@ -7,7 +7,7 @@ interface ShardIconProps {
 export default function ShardIcon({ size = 24, className = '', style = {} }: ShardIconProps) {
     return (
         <img
-            src="/images/wheel/shard.jpg"
+            src="/images/wheel/shard.png"
             alt="Осколок луны"
             className={className}
             style={{
