@@ -50,6 +50,7 @@ async def get_sponsors(telegram_id: str):
                         chat_id=int(sponsor.channel_id),
                         user_id=int(telegram_id)
                     )
+                    # 🔥 ИСПРАВЛЕНО: ДОБАВЛЕН 'requested'
                     is_subscribed = chat_member.status in ['member', 'administrator', 'creator', 'requested']
                     print(f"✅ {sponsor.name}: {chat_member.status}")
                 except Exception as e:
@@ -119,17 +120,17 @@ async def check_subscription(telegram_id: str, sponsor_id: str):
             status = chat_member.status
             print(f"📊 Статус: {status}")
             
+            # 🔥 ИСПРАВЛЕНО: ПРОВЕРЯЕМ 'member', 'administrator', 'creator' ИЛИ 'requested'
             if status in ['member', 'administrator', 'creator']:
+                # Подписан ✅
                 pass
             elif status == 'requested':
-                return {
-                    "success": False,
-                    "message": "⏳ Ты подал заявку на вступление. Дождись одобрения и попробуй снова!"
-                }
+                # 🔥 ЗАЯВКА ПОДАНА — ТОЖЕ СЧИТАЕМ УСПЕХОМ
+                pass
             else:
                 return {
                     "success": False,
-                    "message": "❌ Ты не подписан на канал. Подпишись и попробуй снова!"
+                    "message": "❌ Ты не подписан на канал и не подал заявку. Подпишись и попробуй снова!"
                 }
                 
         except Exception as e:
@@ -153,7 +154,6 @@ async def check_subscription(telegram_id: str, sponsor_id: str):
                 }
         
         # ===== ВЫДАЁМ НАГРАДУ =====
-        # 🔥 ИСПРАВЛЕНО: 3 → 1
         user.tickets += 1
         
         if not user_task:
@@ -170,10 +170,17 @@ async def check_subscription(telegram_id: str, sponsor_id: str):
         
         db.commit()
         
-        return {
-            "success": True,
-            "message": "✅ Подписка подтверждена! Ты получил 1 билетик! 🎉"
-        }
+        # 🔥 ИЗМЕНЕНО СООБЩЕНИЕ
+        if status == 'requested':
+            return {
+                "success": True,
+                "message": "✅ Заявка на вступление подана! Ты получил 1 билетик! 🎉\nℹ️ Как только админ одобрит заявку, ты станешь участником канала."
+            }
+        else:
+            return {
+                "success": True,
+                "message": "✅ Подписка подтверждена! Ты получил 1 билетик! 🎉"
+            }
         
     except Exception as e:
         db.rollback()
