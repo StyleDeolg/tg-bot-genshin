@@ -106,6 +106,7 @@ export default function TasksPage() {
                 })
             );
 
+            await loadData();
             await updateProfile();
             alert(result.message);
 
@@ -152,13 +153,206 @@ export default function TasksPage() {
 
     if (loading) return <div className="loading-text text-center py-5" style={{ color: 'rgba(232,224,212,0.15)' }}>Загрузка заданий...</div>;
 
+    // ===== КАТЕГОРИИ =====
     const sponsorTasks = tasks.filter(task => task.task_type === 'sponsor');
-    const regularTasks = tasks.filter(task => task.task_type !== 'sponsor');
+    const dailyTasks = tasks.filter(task => task.task_type === 'daily');
+    const regularTasks = tasks.filter(task => task.task_type === 'spin' || task.task_type === 'social');
 
     const sponsorsMap = sponsors.reduce<Record<string, Sponsor>>((acc, s) => {
         acc[s.id] = s;
         return acc;
     }, {});
+
+    // ===== ЕДИНЫЙ РЕНДЕР КАРТОЧКИ =====
+    const renderTaskCard = (task: any) => {
+        const isCompleted = task.completed;
+        const isClaiming = claiming === task.id;
+        const isChecking = checking === task.id;
+        const canClaim = task.can_claim;
+        const isDaily = task.task_type === 'daily';
+        const isSponsor = task.task_type === 'sponsor';
+        const progress = task.progress;
+        const required = task.required_count;
+        const timer = timeLeft[task.id];
+
+        // ===== СТАТУС =====
+        let statusLabel = 'В процессе';
+        let statusClass = 'pending';
+        if (isSponsor) {
+            if (isCompleted) {
+                statusLabel = 'Готово';
+                statusClass = 'done';
+            } else {
+                statusLabel = 'В процессе';
+                statusClass = 'pending';
+            }
+        } else if (isDaily) {
+            if (canClaim) {
+                statusLabel = 'Можно забрать';
+                statusClass = 'done';
+            } else if (timer && timer !== 'Готово!' && timer !== 'Забрать!') {
+                statusLabel = 'Ожидание';
+                statusClass = 'pending';
+            } else {
+                statusLabel = 'Можно забрать';
+                statusClass = 'done';
+            }
+        } else {
+            // spin / social
+            if (isCompleted && !canClaim) {
+                statusLabel = 'Готово';
+                statusClass = 'done';
+            } else if (canClaim || progress >= required) {
+                statusLabel = 'Можно забрать';
+                statusClass = 'done';
+            } else {
+                statusLabel = 'В процессе';
+                statusClass = 'pending';
+            }
+        }
+
+        // ===== КНОПКА =====
+        let buttonText = 'Забрать награду';
+        let buttonDisabled = false;
+        let buttonOnClick: () => Promise<void> = () => handleClaim(task.id);
+        let showTicketIcon = true;
+        let showAsPlainText = false;
+
+        if (isSponsor) {
+            if (isCompleted) {
+                buttonText = 'Награда получена';
+                buttonDisabled = true;
+                buttonOnClick = async () => { };
+                showTicketIcon = false;
+                showAsPlainText = true;
+            } else {
+                buttonText = isChecking ? 'Проверяю...' : 'Проверить подписку';
+                buttonDisabled = isChecking;
+                buttonOnClick = () => handleCheckSponsor(task.sponsor_id!);
+                showTicketIcon = false;
+            }
+        } else if (isDaily) {
+            if (canClaim) {
+                buttonText = isClaiming ? 'Забираю...' : 'Забрать награду';
+                buttonDisabled = isClaiming;
+            } else if (timer && timer !== 'Готово!' && timer !== 'Забрать!') {
+                buttonText = `⏳ ${timer}`;
+                buttonDisabled = true;
+                buttonOnClick = async () => { };
+                showTicketIcon = false;
+                showAsPlainText = true;
+            } else {
+                buttonText = 'Забрать награду';
+                buttonDisabled = false;
+            }
+        } else {
+            // spin / social
+            if (isCompleted && !canClaim) {
+                buttonText = 'Награда получена';
+                buttonDisabled = true;
+                buttonOnClick = async () => { };
+                showTicketIcon = false;
+                showAsPlainText = true;
+            } else if (canClaim || progress >= required) {
+                buttonText = isClaiming ? 'Забираю...' : 'Забрать награду';
+                buttonDisabled = isClaiming;
+            } else {
+                buttonText = 'Выполняется...';
+                buttonDisabled = true;
+                buttonOnClick = async () => { };
+                showTicketIcon = false;
+                showAsPlainText = true;
+            }
+        }
+
+        const sponsor = sponsorsMap[task.sponsor_id];
+
+        return (
+            <div key={task.id} className="task-card">
+                <div className="task-header">
+                    <div className="task-title">{task.title}</div>
+                    <div className={`task-status ${statusClass}`}>{statusLabel}</div>
+                </div>
+
+                <div className="task-desc">{task.description}</div>
+
+                {/* Прогресс-бар — только для spin / social */}
+                {!isDaily && !isSponsor && (
+                    <div className="task-progress-wrapper">
+                        <div className="task-progress-bar">
+                            <div
+                                className="task-progress-fill"
+                                style={{ width: `${Math.min((progress / required) * 100, 100)}%` }}
+                            />
+                            <span className="task-progress-text">{progress}/{required}</span>
+                        </div>
+                    </div>
+                )}
+
+                {/* Кнопка "Перейти в канал" — только для спонсоров и пока не выполнено */}
+                {isSponsor && sponsor && !isCompleted && (
+                    <a
+                        href={sponsor.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            padding: '8px 18px',
+                            background: 'rgba(212, 175, 55, 0.02)',
+                            color: '#d4af37',
+                            borderRadius: '8px',
+                            fontSize: '13px',
+                            fontWeight: '500',
+                            textDecoration: 'none',
+                            border: '1px solid rgba(212, 175, 55, 0.02)',
+                            transition: 'all 0.3s ease',
+                            width: 'fit-content',
+                            marginBottom: '12px',
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(212, 175, 55, 0.04)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'rgba(212, 175, 55, 0.02)';
+                        }}
+                    >
+                        Перейти в канал
+                    </a>
+                )}
+
+                <div className="task-actions">
+                    {showAsPlainText ? (
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                            padding: '12px 20px',
+                            background: 'rgba(255,255,255,0.02)',
+                            borderRadius: '8px',
+                            border: '1px solid rgba(212, 175, 55, 0.02)',
+                            color: 'rgba(232,224,212,0.15)',
+                            fontSize: '14px',
+                            fontWeight: '500',
+                            fontFamily: buttonText.includes('⏳') ? 'monospace' : 'inherit',
+                            letterSpacing: buttonText.includes('⏳') ? '0.5px' : 'normal',
+                        }}>
+                            {buttonText}
+                        </div>
+                    ) : (
+                        <ButtonGenshin
+                            text={buttonText}
+                            onClick={buttonOnClick}
+                            disabled={buttonDisabled}
+                            icon={showTicketIcon ? <TicketIcon size={16} /> : undefined}
+                        />
+                    )}
+                </div>
+            </div>
+        );
+    };
 
     return (
         <div className="page tasks-page">
@@ -168,6 +362,7 @@ export default function TasksPage() {
                     <p className="page-subtitle">Выполняй и получай награды</p>
                 </div>
 
+                {/* ===== 1. СПОНСОРЫ ===== */}
                 {sponsorTasks.length > 0 && (
                     <div className="tasks-section">
                         <div className="tasks-section-header">
@@ -176,188 +371,33 @@ export default function TasksPage() {
                                 {sponsorTasks.filter(t => t.completed).length}/{sponsorTasks.length}
                             </span>
                         </div>
-
-                        {sponsorTasks.map((task) => {
-                            const sponsor = sponsorsMap[task.sponsor_id];
-                            const isCompleted = task.completed;
-                            const isChecking = checking === task.id;
-
-                            return (
-                                <div key={task.id} className="task-card">
-                                    {isCompleted && (
-                                        <div className="task-status done">Выполнено</div>
-                                    )}
-                                    <div className="task-title">{task.title}</div>
-                                    <div className="task-desc">{task.description}</div>
-
-                                    {sponsor && (
-                                        <a
-                                            href={sponsor.link}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            style={{
-                                                display: 'inline-flex',
-                                                alignItems: 'center',
-                                                gap: '8px',
-                                                padding: '8px 18px',
-                                                background: 'rgba(212, 175, 55, 0.02)',
-                                                color: '#d4af37',
-                                                borderRadius: '8px',
-                                                fontSize: '13px',
-                                                fontWeight: '500',
-                                                textDecoration: 'none',
-                                                border: '1px solid rgba(212, 175, 55, 0.02)',
-                                                transition: 'all 0.3s ease',
-                                                width: 'fit-content',
-                                            }}
-                                            onMouseEnter={(e) => {
-                                                e.currentTarget.style.background = 'rgba(212, 175, 55, 0.04)';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.currentTarget.style.background = 'rgba(212, 175, 55, 0.02)';
-                                            }}
-                                        >
-                                            Перейти в канал
-                                        </a>
-                                    )}
-
-                                    <div className="task-actions">
-                                        {isCompleted ? (
-                                            <div style={{ padding: '10px 0', textAlign: 'center', color: 'rgba(90, 143, 106, 0.3)', fontSize: '13px', fontWeight: '500' }}>
-                                                Награда получена
-                                            </div>
-                                        ) : (
-                                            <ButtonGenshin
-                                                text={isChecking ? 'Проверяю...' : 'Проверить подписку'}
-                                                onClick={() => handleCheckSponsor(sponsor.id)}
-                                                disabled={isChecking}
-                                                icon={<TicketIcon size={16} />}
-                                            />
-                                        )}
-                                    </div>
-                                </div>
-                            );
-                        })}
+                        {sponsorTasks.map(renderTaskCard)}
                     </div>
                 )}
 
+                {/* ===== 2. ЕЖЕДНЕВНЫЕ ===== */}
+                {dailyTasks.length > 0 && (
+                    <div className="tasks-section">
+                        <div className="tasks-section-header">
+                            <span className="tasks-section-title">Ежедневные</span>
+                            <span className="tasks-section-count">
+                                {dailyTasks.filter(t => t.can_claim).length}/{dailyTasks.length}
+                            </span>
+                        </div>
+                        {dailyTasks.map(renderTaskCard)}
+                    </div>
+                )}
+
+                {/* ===== 3. ПОСТОЯННЫЕ (spin + social) ===== */}
                 {regularTasks.length > 0 && (
                     <div className="tasks-section">
                         <div className="tasks-section-header">
-                            <span className="tasks-section-title">Другие задания</span>
+                            <span className="tasks-section-title">Постоянные</span>
                             <span className="tasks-section-count">
                                 {regularTasks.filter(t => t.completed).length}/{regularTasks.length}
                             </span>
                         </div>
-
-                        {regularTasks.map((task) => {
-                            const isCompleted = task.completed;
-                            const isClaiming = claiming === task.id;
-                            const canClaim = task.can_claim;
-                            const isDaily = task.task_type === 'daily';
-                            const progress = task.progress;
-                            const required = task.required_count;
-                            const timer = timeLeft[task.id];
-
-                            const isTaskCompleted = isCompleted || (task.task_type === 'spin' && progress >= required);
-
-                            let buttonText = 'Забрать награду';
-                            let buttonDisabled = false;
-                            let buttonOnClick: () => Promise<void> = () => handleClaim(task.id);
-
-                            if (isDaily) {
-                                if (canClaim) {
-                                    buttonText = isClaiming ? 'Забираю...' : 'Забрать награду';
-                                    buttonDisabled = isClaiming;
-                                    buttonOnClick = () => handleClaim(task.id);
-                                } else if (timer && timer !== 'Готово!' && timer !== 'Забрать!') {
-                                    buttonText = `⏳ ${timer}`;
-                                    buttonDisabled = true;
-                                    buttonOnClick = async () => { };
-                                } else if (timer === 'Забрать!') {
-                                    buttonText = 'Забрать награду';
-                                    buttonDisabled = false;
-                                    buttonOnClick = () => handleClaim(task.id);
-                                } else if (timer === 'Готово!') {
-                                    buttonText = 'Забрать награду';
-                                    buttonDisabled = false;
-                                    buttonOnClick = () => handleClaim(task.id);
-                                } else {
-                                    buttonText = '⏳ 24:00:00';
-                                    buttonDisabled = true;
-                                    buttonOnClick = async () => { };
-                                }
-                            } else {
-                                if (isTaskCompleted && !canClaim) {
-                                    buttonText = 'Награда получена';
-                                    buttonDisabled = true;
-                                    buttonOnClick = async () => { };
-                                } else if (canClaim || progress >= required) {
-                                    buttonText = isClaiming ? 'Забираю...' : 'Забрать награду';
-                                    buttonDisabled = isClaiming;
-                                    buttonOnClick = () => handleClaim(task.id);
-                                } else {
-                                    buttonText = 'Выполняется...';
-                                    buttonDisabled = true;
-                                    buttonOnClick = async () => { };
-                                }
-                            }
-
-                            return (
-                                <div key={task.id} className="task-card">
-                                    <div className="task-header">
-                                        <div className="task-title">{task.title}</div>
-                                        <div className={`task-status ${isTaskCompleted ? 'done' : 'pending'}`}>
-                                            {isTaskCompleted ? 'Готово' : 'В процессе'}
-                                        </div>
-                                    </div>
-
-                                    <div className="task-desc">{task.description}</div>
-
-                                    {!isDaily && (
-                                        <div className="task-progress-wrapper">
-                                            <div className="task-progress-bar">
-                                                <div
-                                                    className="task-progress-fill"
-                                                    style={{ width: `${Math.min((progress / required) * 100, 100)}%` }}
-                                                />
-                                                <span className="task-progress-text">{progress}/{required}</span>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    <div className="task-actions">
-                                        {buttonDisabled && !buttonText.includes('Награда получена') ? (
-                                            <div style={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                gap: '8px',
-                                                padding: '12px 20px',
-                                                background: 'rgba(255,255,255,0.02)',
-                                                borderRadius: '8px',
-                                                border: '1px solid rgba(212, 175, 55, 0.02)',
-                                                color: 'rgba(232,224,212,0.15)',
-                                                fontSize: '14px',
-                                                fontWeight: '500',
-                                                fontFamily: 'monospace',
-                                                letterSpacing: '0.5px',
-                                            }}>
-                                                <span>⏳</span>
-                                                {buttonText}
-                                            </div>
-                                        ) : (
-                                            <ButtonGenshin
-                                                text={buttonText}
-                                                onClick={buttonOnClick}
-                                                disabled={buttonDisabled}
-                                                icon={!buttonDisabled && !buttonText.includes('Награда получена') ? <TicketIcon size={16} /> : undefined}
-                                            />
-                                        )}
-                                    </div>
-                                </div>
-                            );
-                        })}
+                        {regularTasks.map(renderTaskCard)}
                     </div>
                 )}
 

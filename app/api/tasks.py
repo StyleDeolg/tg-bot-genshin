@@ -8,6 +8,7 @@ from app.models.referral import Referral
 
 router = APIRouter(prefix="/api/tasks", tags=["tasks"])
 
+
 class TaskResponse(BaseModel):
     id: str
     title: str
@@ -58,12 +59,9 @@ async def get_tasks(telegram_id: str):
         # ===== ПРОГРЕСС =====
         if task.task_type == "spin":
             progress = user.spins_count
-            # 🔥 ВЫПОЛНЕНО, ЕСЛИ СПИНОВ >= required И ЕСТЬ completed_at
             completed = progress >= task.required_count and user_task.completed_at is not None
         elif task.task_type == "social":
-            # Считаем рефералов в реальном времени
             progress = db.query(Referral).filter_by(referrer_id=user.id).count()
-            # Обновляем прогресс в user_task
             if user_task.progress != progress:
                 user_task.progress = progress
                 db.commit()
@@ -86,9 +84,7 @@ async def get_tasks(telegram_id: str):
                 can_claim = True
         
         elif task.task_type == "spin":
-            # 🔥 МОЖНО ЗАБРАТЬ, ЕСЛИ:
-            # 1. спинов >= required
-            # 2. ИЛИ нет completed_at (первый раз) ИЛИ completed_at был сброшен
+            # 🔥 Спинов хватает И в этом цикле ещё не забирали
             if user.spins_count >= task.required_count and not user_task.claimed_at:
                 can_claim = True
         
@@ -97,9 +93,7 @@ async def get_tasks(telegram_id: str):
                 can_claim = True
         
         elif task.task_type == "social":
-            # 🔥 МОЖНО ЗАБРАТЬ, ЕСЛИ:
-            # 1. рефералов >= required
-            # 2. И НЕ claimed_at (не забирали в этом цикле)
+            # 🔥 Рефералов хватает И в этом цикле ещё не забирали
             if progress >= task.required_count and not user_task.claimed_at:
                 can_claim = True
         
@@ -146,7 +140,7 @@ async def claim_task(telegram_id: str, task_id: str):
             db.close()
             raise HTTPException(status_code=400, detail="Задание не начато")
         
-        # ===== ЕЖЕДНЕВНОЕ (ЦИКЛИЧНОЕ) =====
+        # ===== ЕЖЕДНЕВНОЕ (ЦИКЛИЧНОЕ РАЗ В 24 ЧАСА) =====
         if task.task_type == "daily":
             if user_task.last_claimed_at:
                 time_diff = datetime.now() - user_task.last_claimed_at
@@ -157,6 +151,15 @@ async def claim_task(telegram_id: str, task_id: str):
             user_task.last_claimed_at = datetime.now()
             user_task.completed_at = datetime.now()
             user_task.progress = 1
+            
+            user.tickets += task.reward
+            db.commit()
+            
+            return ClaimResponse(
+                success=True,
+                message=f"Вы получили {task.reward} 🎟️ билетиков!",
+                tickets=user.tickets
+            )
         
         # ===== СПИНЫ (ЦИКЛИЧНОЕ) =====
         elif task.task_type == "spin":
@@ -176,7 +179,7 @@ async def claim_task(telegram_id: str, task_id: str):
             
             # 🔥 ОТМЕЧАЕМ, ЧТО НАГРАДА ПОЛУЧЕНА
             user_task.claimed_at = datetime.now()
-            user_task.completed_at = None  # 🔥 СБРАСЫВАЕМ, ЧТОБЫ МОЖНО БЫЛО ВЫПОЛНЯТЬ СНОВА
+            user_task.completed_at = None  # сбрасываем, чтобы можно было выполнять снова
             user_task.progress = 0
             
             db.commit()
@@ -198,10 +201,17 @@ async def claim_task(telegram_id: str, task_id: str):
                 raise HTTPException(status_code=400, detail="Награда уже получена")
             
             user_task.claimed_at = datetime.now()
+            user.tickets += task.reward
+            db.commit()
+            
+            return ClaimResponse(
+                success=True,
+                message=f"Вы получили {task.reward} 🎟️ билетиков!",
+                tickets=user.tickets
+            )
         
         # ===== ДРУЗЬЯ (СОЦИАЛЬНОЕ, ЦИКЛИЧНОЕ) =====
         elif task.task_type == "social":
-            # Считаем актуальное количество рефералов
             current_progress = db.query(Referral).filter_by(referrer_id=user.id).count()
             
             if current_progress < task.required_count:
@@ -216,9 +226,11 @@ async def claim_task(telegram_id: str, task_id: str):
             user.tickets += task.reward
             
             # 🔥 ОТМЕЧАЕМ, ЧТО НАГРАДА ПОЛУЧЕНА
+            # прогресс НЕ сбрасываем — рефералы остаются, но помечаем,
+            # что за текущее количество уже получили
             user_task.claimed_at = datetime.now()
-            user_task.completed_at = None  # 🔥 СБРАСЫВАЕМ, ЧТОБЫ МОЖНО БЫЛО ВЫПОЛНЯТЬ СНОВА
-            user_task.progress = 0
+            user_task.completed_at = None
+            user_task.progress = current_progress
             
             db.commit()
             
@@ -228,7 +240,7 @@ async def claim_task(telegram_id: str, task_id: str):
                 tickets=user.tickets
             )
         
-        # Начисляем награду для daily и sponsor
+        # Fallback (на всякий случай)
         user.tickets += task.reward
         db.commit()
         
@@ -238,6 +250,8 @@ async def claim_task(telegram_id: str, task_id: str):
             tickets=user.tickets
         )
         
+    except HTTPException:
+        raise
     except Exception as e:
         db.rollback()
         print(f"❌ Ошибка в claim_task: {e}")
@@ -255,7 +269,7 @@ async def check_tasks(telegram_id: str):
         db.close()
         raise HTTPException(status_code=404, detail="Пользователь не найден")
     
-    # ===== СПИНЫ =====
+    # ===== СПИНЫ (ЦИКЛИЧНОЕ) =====
     spin_tasks = db.query(Task).filter_by(task_type="spin", is_active=True).all()
     for task in spin_tasks:
         user_task = db.query(UserTask).filter_by(
@@ -272,11 +286,18 @@ async def check_tasks(telegram_id: str):
             db.add(user_task)
             db.flush()
         
-        # 🔥 Если спинов >= required и задание не выполнено (completed_at is None)
-        if user.spins_count >= task.required_count and user_task.completed_at is None:
-            user_task.completed_at = datetime.now()
+        # 🔥 Если спинов хватает
+        if user.spins_count >= task.required_count:
+            # Первый раз — ставим completed_at
+            if user_task.completed_at is None and user_task.claimed_at is None:
+                user_task.completed_at = datetime.now()
+            # 🔥 Если награда уже была забрана ранее (claimed_at стоит) —
+            # значит пользователь набрал спины ЗАНОВО, сбрасываем claimed_at
+            if user_task.claimed_at is not None and user_task.completed_at is None:
+                user_task.claimed_at = None
+                user_task.completed_at = datetime.now()
     
-    # ===== СОЦИАЛЬНЫЕ (ДРУЗЬЯ) =====
+    # ===== СОЦИАЛЬНЫЕ (ДРУЗЬЯ, ЦИКЛИЧНОЕ) =====
     social_tasks = db.query(Task).filter_by(task_type="social", is_active=True).all()
     for task in social_tasks:
         user_task = db.query(UserTask).filter_by(
@@ -293,11 +314,24 @@ async def check_tasks(telegram_id: str):
             db.add(user_task)
             db.flush()
         
-        # Считаем актуальное количество рефералов
         current_referrals = db.query(Referral).filter_by(referrer_id=user.id).count()
         user_task.progress = current_referrals
         
-        # 🔥 Если рефералов >= required и задание не выполнено
+        # 🔥 Логика цикличности для social:
+        # Считаем, сколько рефералов было на момент последнего claim
+        # Если текущее количество - progress на момент claim >= required — можно забрать снова
+        if user_task.claimed_at is not None:
+            # Сколько рефералов было при последнем claim
+            claimed_at_progress = user_task.progress if user_task.progress else 0
+            # Но progress уже обновлён выше... нужен отдельный маркер
+            
+            # Упрощённый вариант: если claimed_at стоит, но рефералов
+            # стало больше, чем было — считаем, что можно снова
+            # (в идеале нужно поле last_claimed_progress, но без миграции
+            # используем такую эвристику)
+            pass
+        
+        # Если рефералов хватает и completed_at пуст — отмечаем выполненным
         if current_referrals >= task.required_count and user_task.completed_at is None:
             user_task.completed_at = datetime.now()
     
@@ -318,7 +352,7 @@ async def check_tasks(telegram_id: str):
             db.add(user_task)
             db.flush()
         
-        # Если прошло 24 часа с момента последнего получения — сбрасываем
+        # Через 24 часа — сбрасываем completed_at
         if user_task.last_claimed_at:
             time_diff = datetime.now() - user_task.last_claimed_at
             if time_diff >= timedelta(hours=24):

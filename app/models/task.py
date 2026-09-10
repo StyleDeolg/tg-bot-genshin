@@ -33,6 +33,8 @@ class UserTask(Base):
     completed_at = Column(DateTime, nullable=True)
     claimed_at = Column(DateTime, nullable=True)
     last_claimed_at = Column(DateTime, nullable=True)
+    # 🔥 НОВОЕ ПОЛЕ: сколько прогресса было на момент последнего claim
+    last_claimed_progress = Column(Integer, default=0)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
