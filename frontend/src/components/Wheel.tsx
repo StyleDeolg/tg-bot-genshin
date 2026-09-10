@@ -47,7 +47,6 @@ export default function Wheel({
         while (targetAngle < 0) targetAngle += 360;
         while (targetAngle >= 360) targetAngle -= 360;
 
-        // БОЛЬШЕ ОБОРОТОВ И МЕДЛЕННЕЕ
         const extraSpins = 8 + Math.floor(Math.random() * 4);
         const totalRotation = extraSpins * 360 + targetAngle;
 
@@ -61,7 +60,7 @@ export default function Wheel({
         spinRef.current = window.setTimeout(() => {
             setIsAnimating(false);
             if (onSpinComplete) onSpinComplete();
-        }, 6500); // ДОЛЬШЕ
+        }, 6500);
     };
 
     useEffect(() => {
@@ -180,7 +179,6 @@ export default function Wheel({
                         const isShard = seg.prize_type === 'shard';
                         const isCrystall60 = seg.prize_type === 'crystals_60';
                         const isCrystall330 = seg.prize_type === 'crystals_330';
-                        const isCrystall = isCrystall60 || isCrystall330;
                         const isGold = i % 2 === 0;
 
                         let iconSize = 26;
@@ -188,6 +186,9 @@ export default function Wheel({
                         if (isShard) iconSize = 28;
                         if (isCrystall60) iconSize = 30;
                         if (isCrystall330) iconSize = 32;
+
+                        const textRotation = `rotate(${(midAngle * 180) / Math.PI + 90}, ${labelX}, ${labelY})`;
+                        const iconRotation = `rotate(${(midAngle * 180) / Math.PI + 90}, ${iconX}, ${iconY})`;
 
                         return (
                             <g key={`segment-${i}-${seg.prize_type}`}>
@@ -207,8 +208,8 @@ export default function Wheel({
                                         y={iconY - iconSize / 2}
                                         width={iconSize}
                                         height={iconSize}
-                                        transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${iconX}, ${iconY})`}
-                                        style={{ filter: 'drop-shadow(0 0 30px rgba(212,175,55,0.02))' }}
+                                        transform={iconRotation}
+                                        style={{ filter: 'drop-shadow(0 0 12px rgba(212,175,55,0.35))' }}
                                     />
                                 )}
 
@@ -219,7 +220,7 @@ export default function Wheel({
                                         y={iconY - iconSize / 2}
                                         width={iconSize}
                                         height={iconSize}
-                                        transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${iconX}, ${iconY})`}
+                                        transform={iconRotation}
                                     >
                                         <div style={{
                                             display: 'flex',
@@ -240,7 +241,7 @@ export default function Wheel({
                                         y={iconY - iconSize / 2}
                                         width={iconSize}
                                         height={iconSize}
-                                        transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${iconX}, ${iconY})`}
+                                        transform={iconRotation}
                                     >
                                         <div style={{
                                             display: 'flex',
@@ -261,7 +262,7 @@ export default function Wheel({
                                         y={iconY - iconSize / 2}
                                         width={iconSize}
                                         height={iconSize}
-                                        transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${iconX}, ${iconY})`}
+                                        transform={iconRotation}
                                     >
                                         <div style={{
                                             display: 'flex',
@@ -275,45 +276,21 @@ export default function Wheel({
                                     </foreignObject>
                                 )}
 
-                                {/* Fallback для остальных непустых призов — primogem */}
-                                {!isEmpty && !isMoon && !isShard && !isCrystall && (
-                                    <image
-                                        href="/images/wheel/primogem.png"
-                                        x={iconX - iconSize / 2}
-                                        y={iconY - iconSize / 2}
-                                        width={iconSize}
-                                        height={iconSize}
-                                        transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${iconX}, ${iconY})`}
-                                    />
-                                )}
-
                                 {/* ✦ ПУСТО */}
                                 {isEmpty && (
                                     <text
                                         x={iconX}
-                                        y={iconY + 7}
-                                        fill="rgba(255,255,255,0.02)"
-                                        fontSize={28}
+                                        y={iconY + 8}
+                                        fill="rgba(232, 224, 212, 0.25)"
+                                        stroke="rgba(11, 14, 26, 0.9)"
+                                        strokeWidth="1.2"
+                                        paintOrder="stroke"
+                                        fontSize={30}
                                         fontWeight="300"
                                         textAnchor="middle"
-                                        transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${iconX}, ${iconY})`}
+                                        transform={iconRotation}
                                     >
                                         ✦
-                                    </text>
-                                )}
-
-                                {/* Подпись значения (только для primogem / fallback) */}
-                                {!isEmpty && !isMoon && !isShard && !isCrystall && (
-                                    <text
-                                        x={labelX}
-                                        y={labelY + 5}
-                                        fill="rgba(232, 224, 212, 0.25)"
-                                        fontSize={13}
-                                        fontWeight="700"
-                                        textAnchor="middle"
-                                        transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${labelX}, ${labelY})`}
-                                    >
-                                        {seg.value}
                                     </text>
                                 )}
 
@@ -322,12 +299,15 @@ export default function Wheel({
                                     <text
                                         x={labelX}
                                         y={labelY + 5}
-                                        fill="rgba(212, 175, 55, 0.2)"
-                                        fontSize={10}
-                                        fontWeight="700"
+                                        fill="#f0d060"
+                                        stroke="rgba(11, 14, 26, 0.95)"
+                                        strokeWidth="2.5"
+                                        paintOrder="stroke"
+                                        fontSize={12}
+                                        fontWeight="800"
                                         textAnchor="middle"
-                                        transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${labelX}, ${labelY})`}
-                                        letterSpacing="1"
+                                        transform={textRotation}
+                                        letterSpacing="1.2"
                                     >
                                         ЛУНА
                                     </text>
@@ -338,12 +318,15 @@ export default function Wheel({
                                     <text
                                         x={labelX}
                                         y={labelY + 5}
-                                        fill="rgba(232, 224, 212, 0.08)"
-                                        fontSize={9}
-                                        fontWeight="600"
+                                        fill="rgba(232, 224, 212, 0.75)"
+                                        stroke="rgba(11, 14, 26, 0.95)"
+                                        strokeWidth="2.5"
+                                        paintOrder="stroke"
+                                        fontSize={11}
+                                        fontWeight="700"
                                         textAnchor="middle"
-                                        transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${labelX}, ${labelY})`}
-                                        letterSpacing="0.3"
+                                        transform={textRotation}
+                                        letterSpacing="0.5"
                                     >
                                         ОСКОЛОК
                                     </text>
@@ -354,14 +337,17 @@ export default function Wheel({
                                     <text
                                         x={labelX}
                                         y={labelY + 5}
-                                        fill="rgba(232, 224, 212, 0.15)"
-                                        fontSize={10}
-                                        fontWeight="600"
+                                        fill="rgba(232, 224, 212, 0.75)"
+                                        stroke="rgba(11, 14, 26, 0.95)"
+                                        strokeWidth="2.5"
+                                        paintOrder="stroke"
+                                        fontSize={12}
+                                        fontWeight="700"
                                         textAnchor="middle"
-                                        transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${labelX}, ${labelY})`}
-                                        letterSpacing="0.3"
+                                        transform={textRotation}
+                                        letterSpacing="0.5"
                                     >
-                                        60 💎
+                                        60
                                     </text>
                                 )}
 
@@ -370,14 +356,17 @@ export default function Wheel({
                                     <text
                                         x={labelX}
                                         y={labelY + 5}
-                                        fill="rgba(232, 224, 212, 0.15)"
-                                        fontSize={10}
-                                        fontWeight="600"
+                                        fill="rgba(232, 224, 212, 0.75)"
+                                        stroke="rgba(11, 14, 26, 0.95)"
+                                        strokeWidth="2.5"
+                                        paintOrder="stroke"
+                                        fontSize={12}
+                                        fontWeight="700"
                                         textAnchor="middle"
-                                        transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${labelX}, ${labelY})`}
-                                        letterSpacing="0.3"
+                                        transform={textRotation}
+                                        letterSpacing="0.5"
                                     >
-                                        330 💎
+                                        330
                                     </text>
                                 )}
                             </g>

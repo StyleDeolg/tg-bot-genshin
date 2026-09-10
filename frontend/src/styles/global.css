@@ -577,6 +577,12 @@ body {
     animation: spinModalEmojiPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* 🔥 Центровка картинок/иконок внутри */
+.spin-modal-emoji img,
+.spin-modal-emoji svg {
+    display: block;
+}
+
 /* 🔥 Большая акцентная надпись */
 .spin-modal-label {
     margin: 0;

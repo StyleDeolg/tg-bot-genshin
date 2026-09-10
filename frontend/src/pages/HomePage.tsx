@@ -5,6 +5,8 @@ import { checkTasks } from '../api/tasks';
 import Wheel from '../components/Wheel';
 import TicketIcon from '../components/TicketIcon';
 import ShardIcon from '../components/ShardIcon';
+import Crystall60Icon from '../components/Crystall60Icon';
+import Crystall330Icon from '../components/Crystall330Icon';
 import ButtonGenshin from '../components/ButtonGenshin';
 import GlassCard from '../components/GlassCard';
 
@@ -14,20 +16,18 @@ export default function HomePage() {
     const [result, setResult] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
     const [showResult, setShowResult] = useState(false);
-    const [isClosing, setIsClosing] = useState(false); // 🔥 фаза "уход"
+    const [isClosing, setIsClosing] = useState(false);
 
     const OFFSET = -2;
 
-    // 🔥 Открытие модалки
+    // 🔥 Открытие/закрытие модалки
     useEffect(() => {
         if (!showResult) return;
 
-        // Через 2 секунды начинаем плавно скрывать
         const closeTimer = setTimeout(() => {
             setIsClosing(true);
         }, 2000);
 
-        // Ещё через 400мс полностью убираем (когда анимация завершится)
         const removeTimer = setTimeout(() => {
             setShowResult(false);
             setIsClosing(false);
@@ -81,11 +81,11 @@ export default function HomePage() {
         setShowResult(true);
     };
 
-    // 🔥 Возвращает: { emoji/icon, label, sublabel, isMoon }
+    // 🔥 Возвращает { emoji | icon, label, sublabel, isMoon }
     const getResultDisplay = () => {
         if (!result) return null;
 
-        // 🌙 ЛУНА ИЗ 6 ОСКОЛКОВ — самый эпичный случай
+        // 🌙 ЛУНА ИЗ 6 ОСКОЛКОВ
         if (result.moon_completed) {
             return {
                 emoji: '🌙',
@@ -110,7 +110,7 @@ export default function HomePage() {
             return {
                 emoji: '🌙',
                 label: 'ЛУНА ТВОЯ!',
-                sublabel: 'Ты выиграл ЛУНУ в Genshin Pool!',
+                sublabel: 'Ты выиграл ЛУНУ в Genshin Impact!',
                 isMoon: true,
             };
         }
@@ -118,19 +118,29 @@ export default function HomePage() {
         // 🔮 ОСКОЛОК
         if (result.prize_type === 'shard') {
             return {
-                icon: <ShardIcon size={56} />,
+                icon: <ShardIcon size={72} />,
                 label: 'ОСКОЛОК ЛУНЫ!',
                 sublabel: `Собрано ${result.shards}/6. Ещё немного!`,
                 isMoon: false,
             };
         }
 
-        // 💎 КРИСТАЛЛЫ
-        if (result.prize_type === 'crystals_60' || result.prize_type === 'crystals_330') {
+        // 💎 60 КРИСТАЛЛОВ
+        if (result.prize_type === 'crystals_60') {
             return {
-                emoji: '💎',
-                label: 'ПОЗДРАВЛЯЮ!',
-                sublabel: `Ты выиграл ${result.prize_value} кристаллов!`,
+                icon: <Crystall60Icon size={72} />,
+                label: 'КРАСАВА!',
+                sublabel: 'Ты выиграл 60 кристаллов!',
+                isMoon: false,
+            };
+        }
+
+        // 💎 330 КРИСТАЛЛОВ
+        if (result.prize_type === 'crystals_330') {
+            return {
+                icon: <Crystall330Icon size={72} />,
+                label: 'КРАСАВА!',
+                sublabel: 'Ты выиграл 330 кристаллов!',
                 isMoon: false,
             };
         }
@@ -182,10 +192,7 @@ export default function HomePage() {
                                     <div className="spin-modal-emoji">{resultDisplay.emoji}</div>
                                 )}
 
-                                {/* 🔥 Акцентная надпись */}
                                 <h2 className="spin-modal-label">{resultDisplay.label}</h2>
-
-                                {/* Подпись */}
                                 <p className="spin-modal-sublabel">{resultDisplay.sublabel}</p>
                             </div>
                         </div>
