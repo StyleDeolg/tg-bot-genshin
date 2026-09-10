@@ -35,25 +35,12 @@ async def ping():
 
 # ========== WEBHOOK ==========
 from telegram import Update
-from telegram.ext import (
-    Application, CommandHandler, MessageHandler, filters, 
-    ContextTypes, ConversationHandler
-)
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from app.handlers import (
     start_command, help_command, profile_command,
     bind_uid_start, unbind_uid, app_command, donate_command, error_handler
 )
 from app.handlers.buttons import handle_buttons
-from app.handlers.sponsors import (
-    add_sponsor_start,
-    add_sponsor_name,
-    add_sponsor_link,
-    add_sponsor_channel_id,
-    ADD_SPONSOR_NAME,
-    ADD_SPONSOR_LINK,
-    ADD_SPONSOR_CHANNEL_ID,
-)
-
 
 TOKEN = config.BOT_TOKEN
 WEBHOOK_PATH = "/webhook"
@@ -66,7 +53,7 @@ async def get_bot_app():
     if _bot_app is None:
         _bot_app = Application.builder().token(TOKEN).build()
         
-        # ===== КОМАНДЫ =====
+        # Команды
         _bot_app.add_handler(CommandHandler("start", start_command))
         _bot_app.add_handler(CommandHandler("help", help_command))
         _bot_app.add_handler(CommandHandler("profile", profile_command))
@@ -74,19 +61,7 @@ async def get_bot_app():
         _bot_app.add_handler(CommandHandler("app", app_command))
         _bot_app.add_handler(CommandHandler("bind_uid", bind_uid_start))
         
-        # ===== CONVERSATION HANDLER ДЛЯ СПОНСОРОВ =====
-        sponsor_conv_handler = ConversationHandler(
-            entry_points=[CommandHandler("add_sponsor", add_sponsor_start)],
-            states={
-                ADD_SPONSOR_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_sponsor_name)],
-                ADD_SPONSOR_LINK: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_sponsor_link)],
-                ADD_SPONSOR_CHANNEL_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_sponsor_channel_id)],
-            },
-            fallbacks=[CommandHandler("start", start_command)],
-        )
-        _bot_app.add_handler(sponsor_conv_handler)
-        
-        # ===== ОБРАБОТЧИК ВСЕХ ТЕКСТОВЫХ СООБЩЕНИЙ =====
+        # Обработчик всех текстовых сообщений (кнопки и ввод)
         _bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons))
         _bot_app.add_error_handler(error_handler)
         

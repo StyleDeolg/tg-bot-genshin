@@ -24,9 +24,7 @@ from app.handlers.sponsors import (
     delete_sponsor_confirm,
     list_sponsors_admin,
     add_sponsor_start,
-    add_sponsor_name,
-    add_sponsor_link,
-    add_sponsor_channel_id,
+    add_sponsor_input,
 )
 from app.config import config
 
@@ -42,8 +40,8 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     
     # ===== ПРОВЕРКА: МЫ В ДИАЛОГЕ ДОБАВЛЕНИЯ СПОНСОРА? =====
-    if context.user_data.get('admin_action') == 'add_sponsor':
-        # Пропускаем, ConversationHandler сам обработает
+    if context.user_data.get('waiting_for_sponsor'):
+        await add_sponsor_input(update, context)
         return
     
     # ===== АКТИВНЫЕ ДЕЙСТВИЯ АДМИНКИ =====
@@ -120,7 +118,6 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     elif text == "➕ Добавить спонсора":
         if user_id in config.ADMIN_IDS:
-            # 👇 ЗАПУСКАЕМ ConversationHandler
             await add_sponsor_start(update, context)
         else:
             await update.message.reply_text("⛔ Нет доступа")
@@ -144,7 +141,6 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("⛔ Нет доступа")
     
     else:
-        # Если пользователь ввёл что-то неизвестное — показываем меню
         await update.message.reply_text(
             "❌ Неизвестная команда. Используйте кнопки меню.",
             reply_markup=get_keyboard_for_user(user_id)
