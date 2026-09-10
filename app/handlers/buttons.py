@@ -3,7 +3,7 @@ from telegram.ext import ContextTypes
 from app.keyboards import get_keyboard_for_user
 from app.handlers.start import start_command
 from app.handlers.profile import profile_command
-from app.handlers.bind_uid import bind_uid_start
+from app.handlers.bind_uid import bind_uid_start, bind_uid_input
 from app.handlers.unbind_uid import unbind_uid
 from app.handlers.help import help_command
 from app.handlers.admin import (
@@ -35,16 +35,19 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
     user_id = update.effective_user.id
     
-    # ===== ПРОВЕРКА: МЫ В ДИАЛОГЕ ПРИВЯЗКИ UID? =====
-    if context.user_data.get('conversation') == 'bind_uid':
+    # ===== ПРОВЕРКА: АКТИВНЫЕ ДИАЛОГИ (приоритет №1) =====
+    
+    # 🎮 Привязка UID
+    if context.user_data.get('uid_step') in ('waiting_uid', 'waiting_server'):
+        await bind_uid_input(update, context)
         return
     
-    # ===== ПРОВЕРКА: МЫ В ДИАЛОГЕ ДОБАВЛЕНИЯ СПОНСОРА? =====
+    # ➕ Добавление спонсора
     if context.user_data.get('waiting_for_sponsor'):
         await add_sponsor_input(update, context)
         return
     
-    # ===== АКТИВНЫЕ ДЕЙСТВИЯ АДМИНКИ =====
+    # ===== АКТИВНЫЕ ДЕЙСТВИЯ АДМИНКИ (приоритет №2) =====
     action = context.user_data.get('admin_action')
     
     if action == 'give_tickets':
@@ -63,7 +66,9 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await admin_give_moon_user(update, context)
         return
     
-    # ===== ОБЫЧНЫЕ КНОПКИ =====
+    # ===== ОБЫЧНЫЕ КНОПКИ (приоритет №3) =====
+    
+    # ---- Пользовательские ----
     if text == "👤 Профиль":
         await profile_command(update, context)
     elif text == "🎮 Привязать UID":
@@ -73,7 +78,7 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif text == "📖 Помощь":
         await help_command(update, context)
     
-    # ===== АДМИН-КНОПКИ =====
+    # ---- Админские ----
     elif text == "👑 Админ-панель":
         if user_id in config.ADMIN_IDS:
             await admin_panel(update, context)
@@ -140,6 +145,7 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             await update.message.reply_text("⛔ Нет доступа")
     
+    # ---- Fallback ----
     else:
         await update.message.reply_text(
             "❌ Неизвестная команда. Используйте кнопки меню.",
