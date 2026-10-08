@@ -1,10 +1,13 @@
-from telegram import Update, ReplyKeyboardRemove
+from telegram import Update
 from telegram.ext import ContextTypes
 from app.database import SessionLocal
 from app.models.user import User
 from app.models.referral import Referral
 from app.keyboards import get_keyboard_for_user
-from app.config import config
+from app.handlers.subscription import (
+    get_user_subscription_status,
+    send_subscription_gate,
+)
 import uuid
 
 
@@ -45,7 +48,6 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         reward_claimed=False
                     )
                     db.add(referral)
-                    # 🔥 ИСПРАВЛЕНО: 3 → 1
                     referrer.tickets += 1
                     new_user.tickets += 1
                     db.commit()
@@ -58,9 +60,15 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         print(f"Не удалось отправить уведомление: {e}")
         
         db.commit()
-        
+        db.close()
+
+        # 🔥 СНАЧАЛА ПРОВЕРЯЕМ ПОДПИСКУ
+        status = await get_user_subscription_status(user.id, context.bot)
+        if not status["has_access"]:
+            await send_subscription_gate(update, status["missing"], is_start=True)
+            return
+
         keyboard = get_keyboard_for_user(user.id)
-        
         await update.message.reply_text(
             f"👋 Привет, {user.first_name or 'пользователь'}!\n\n"
             f"Добро пожаловать в Genshin Impact Community Bot!\n"
@@ -69,11 +77,19 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"📖 Используй кнопки внизу для навигации.",
             reply_markup=keyboard
         )
-    else:
-        keyboard = get_keyboard_for_user(user.id)
-        await update.message.reply_text(
-            f"👋 С возвращением, {user.first_name or 'пользователь'}!\n\n"
-            f"📖 Используй кнопки внизу для навигации.",
-            reply_markup=keyboard
-        )
+        return
+
     db.close()
+
+    # 🔥 СУЩЕСТВУЮЩИЙ ЮЗЕР — ТОЖЕ ПРОВЕРЯЕМ ПОДПИСКУ
+    status = await get_user_subscription_status(user.id, context.bot)
+    if not status["has_access"]:
+        await send_subscription_gate(update, status["missing"], is_start=True)
+        return
+
+    keyboard = get_keyboard_for_user(user.id)
+    await update.message.reply_text(
+        f"👋 С возвращением, {user.first_name or 'пользователь'}!\n\n"
+        f"📖 Используй кнопки внизу для навигации.",
+        reply_markup=keyboard
+    )

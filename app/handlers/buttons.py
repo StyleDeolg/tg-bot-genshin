@@ -1,7 +1,6 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 from app.keyboards import get_keyboard_for_user
-from app.handlers.start import start_command
 from app.handlers.profile import profile_command
 from app.handlers.bind_uid import bind_uid_start, bind_uid_input
 from app.handlers.unbind_uid import unbind_uid
@@ -25,6 +24,10 @@ from app.handlers.sponsors import (
     list_sponsors_admin,
     add_sponsor_start,
     add_sponsor_input,
+)
+from app.handlers.subscription import (
+    get_user_subscription_status,
+    send_subscription_gate,
 )
 from app.config import config
 
@@ -66,7 +69,15 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await admin_give_moon_user(update, context)
         return
     
-    # ===== ОБЫЧНЫЕ КНОПКИ (приоритет №3) =====
+    # ===== 🔥 ПРОВЕРКА ОБЯЗАТЕЛЬНОЙ ПОДПИСКИ (приоритет №3) =====
+    # Админы проходят без проверки
+    if user_id not in config.ADMIN_IDS:
+        status = await get_user_subscription_status(user_id, context.bot)
+        if not status["has_access"]:
+            await send_subscription_gate(update, status["missing"], is_start=False)
+            return
+    
+    # ===== ОБЫЧНЫЕ КНОПКИ (приоритет №4) =====
     
     # ---- Пользовательские ----
     if text == "👤 Профиль":

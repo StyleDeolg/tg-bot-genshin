@@ -39,6 +39,7 @@ from telegram.ext import (
     Application,
     CommandHandler,
     MessageHandler,
+    CallbackQueryHandler,
     ChatJoinRequestHandler,
     filters,
     ContextTypes,
@@ -49,6 +50,7 @@ from app.handlers import (
 )
 from app.handlers.buttons import handle_buttons
 from app.handlers.join_request import handle_join_request
+from app.handlers.subscription import check_subscription_callback
 
 TOKEN = config.BOT_TOKEN
 WEBHOOK_PATH = "/webhook"
@@ -69,7 +71,13 @@ async def get_bot_app():
         _bot_app.add_handler(CommandHandler("app", app_command))
         _bot_app.add_handler(CommandHandler("bind_uid", bind_uid_start))
         
-        # 🔥 НОВОЕ: обработчик заявок на вступление в каналы
+        # 🔥 Callback-обработчик для "✅ Я подписался"
+        _bot_app.add_handler(CallbackQueryHandler(
+            check_subscription_callback,
+            pattern="^check_subscription$",
+        ))
+        
+        # 🔥 Обработчик заявок на вступление в каналы
         _bot_app.add_handler(ChatJoinRequestHandler(handle_join_request))
         
         # Обработчик всех текстовых сообщений (кнопки и ввод)
@@ -79,8 +87,6 @@ async def get_bot_app():
         await _bot_app.initialize()
         print("✅ Бот инициализирован")
         
-        # 🔥 ВАЖНО: подписываемся на chat_join_request в вебхуке
-        # Если WEBHOOK_URL задан — устанавливаем вебхук с нужными allowed_updates
         webhook_url = getattr(config, "WEBHOOK_URL", None)
         if webhook_url:
             full_url = f"{webhook_url.rstrip('/')}{WEBHOOK_PATH}"
@@ -114,7 +120,6 @@ async def webhook_endpoint(request: Request):
         bot_app = await get_bot_app()
         json_data = await request.json()
         
-        # Логируем тип апдейта
         update_type = list(json_data.keys())
         print(f"🔍 [webhook] Тип апдейта: {update_type}")
         
@@ -144,7 +149,6 @@ async def webhook_info():
 
 @app.get("/set-webhook")
 async def set_webhook_manually():
-    """Ручная установка вебхука с нужными allowed_updates."""
     try:
         bot_app = await get_bot_app()
         webhook_url = getattr(config, "WEBHOOK_URL", None)

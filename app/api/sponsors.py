@@ -13,6 +13,70 @@ BOT_TOKEN = config.BOT_TOKEN
 bot = Bot(token=BOT_TOKEN)
 
 
+async def check_access_for_user(telegram_id: int) -> dict:
+    """
+    Проверяет доступ пользователя к боту.
+    Возвращает {has_access, missing, total, subscribed_count}.
+    """
+    db = SessionLocal()
+    try:
+        sponsors = db.query(Sponsor).filter(
+            Sponsor.is_active == True,
+            Sponsor.channel_id.isnot(None),
+        ).all()
+
+        if not sponsors:
+            return {"has_access": True, "missing": [], "total": 0, "subscribed_count": 0}
+
+        missing = []
+        subscribed_count = 0
+
+        for sp in sponsors:
+            try:
+                member = await bot.get_chat_member(
+                    chat_id=int(sp.channel_id),
+                    user_id=int(telegram_id),
+                )
+                # 🔥 Разрешаем 'requested' — заявка = доступ
+                if member.status in ("member", "administrator", "creator", "requested"):
+                    subscribed_count += 1
+                else:
+                    missing.append({
+                        "id": str(sp.id),
+                        "name": sp.name or "Спонсор",
+                        "link": sp.link,
+                    })
+            except Exception as e:
+                print(f"⚠️ [access] Ошибка {sp.name}: {e}")
+                missing.append({
+                    "id": str(sp.id),
+                    "name": sp.name or "Спонсор",
+                    "link": sp.link,
+                })
+
+        return {
+            "has_access": len(missing) == 0,
+            "missing": missing,
+            "total": len(sponsors),
+            "subscribed_count": subscribed_count,
+        }
+    finally:
+        db.close()
+
+
+@router.get("/access/{telegram_id}")
+async def check_access(telegram_id: str):
+    """
+    Проверка доступа в Mini App.
+    Если has_access: false — фронт показывает экран подписки.
+    """
+    try:
+        result = await check_access_for_user(int(telegram_id))
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.get("/{telegram_id}")
 async def get_sponsors(telegram_id: str):
     """Получить список спонсоров с статусом подписки"""
@@ -26,7 +90,6 @@ async def get_sponsors(telegram_id: str):
         
         result = []
         for sponsor in sponsors:
-            # Ищем задание для этого спонсора
             task = db.query(Task).filter_by(
                 sponsor_id=sponsor.id,
                 is_active=True,
@@ -42,7 +105,6 @@ async def get_sponsors(telegram_id: str):
                 if user_task and user_task.completed_at:
                     is_completed = True
             
-            # Проверяем подписку
             is_subscribed = False
             if sponsor.channel_id and task and not is_completed:
                 try:
@@ -50,8 +112,9 @@ async def get_sponsors(telegram_id: str):
                         chat_id=int(sponsor.channel_id),
                         user_id=int(telegram_id)
                     )
-                    # Только реальные участники
-                    is_subscribed = chat_member.status in ['member', 'administrator', 'creator']
+                    # Для задачи спонсора — только реальные подписчики,
+                    # но requested тоже считаем как «подписан» (заявка)
+                    is_subscribed = chat_member.status in ['member', 'administrator', 'creator', 'requested']
                     print(f"✅ {sponsor.name}: {chat_member.status}")
                 except Exception as e:
                     print(f"❌ {sponsor.name}: {e}")
@@ -108,7 +171,6 @@ async def check_subscription(telegram_id: str, sponsor_id: str):
         if user_task and user_task.completed_at:
             return {"success": False, "message": "Вы уже получили награду за это задание"}
         
-        # ===== ПРОВЕРКА ПОДПИСКИ =====
         try:
             print(f"🔍 Проверка: пользователь {telegram_id} в канале {sponsor.channel_id}")
             
@@ -120,13 +182,11 @@ async def check_subscription(telegram_id: str, sponsor_id: str):
             status = chat_member.status
             print(f"📊 Статус: {status}")
             
-            # 🔥 Только реальные участники. Заявки обрабатываются через chat_join_request.
+            # Для задачи — только реальные участники
             if status not in ['member', 'administrator', 'creator']:
                 return {
                     "success": False,
-                    "message": "❌ Ты не подписан на канал. Подпишись и попробуй снова!\n"
-                               "ℹ️ Если ты только что подал заявку — награда придёт автоматически, "
-                               "как только бот получит уведомление."
+                    "message": "❌ Ты не подписан на канал. Подпишись и попробуй снова!"
                 }
                 
         except Exception as e:
@@ -134,22 +194,12 @@ async def check_subscription(telegram_id: str, sponsor_id: str):
             print(f"❌ Ошибка: {error_msg}")
             
             if "bot is not a member" in error_msg.lower():
-                return {
-                    "success": False,
-                    "message": "❌ Бот не добавлен в канал как администратор!"
-                }
+                return {"success": False, "message": "❌ Бот не добавлен в канал как администратор!"}
             elif "user not found" in error_msg.lower():
-                return {
-                    "success": False,
-                    "message": "❌ Ты не найден в канале. Подпишись и попробуй снова!"
-                }
+                return {"success": False, "message": "❌ Ты не найден в канале. Подпишись и попробуй снова!"}
             else:
-                return {
-                    "success": False,
-                    "message": f"❌ Ошибка проверки: {error_msg[:100]}"
-                }
+                return {"success": False, "message": f"❌ Ошибка проверки: {error_msg[:100]}"}
         
-        # ===== ВЫДАЁМ НАГРАДУ =====
         reward = task.reward or 1
         user.tickets += reward
         
