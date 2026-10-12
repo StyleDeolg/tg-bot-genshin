@@ -3,6 +3,7 @@ from sqlalchemy import Column, String, DateTime, Integer, Boolean, func
 from sqlalchemy.dialects.postgresql import UUID
 from app.database import Base
 
+
 class User(Base):
     __tablename__ = "users"
 
@@ -12,9 +13,15 @@ class User(Base):
     first_name = Column(String, nullable=True)
     last_name = Column(String, nullable=True)
     public_id = Column(UUID(as_uuid=True), unique=True, default=uuid.uuid4)
-    tickets = Column(Integer, default=2)
+
+    tickets = Column(Integer, default=0)
     spins_count = Column(Integer, default=0)
-    
+
+    # 🔥 Получил ли награду за подписку на спонсоров
+    sponsor_reward_claimed = Column(
+        Boolean, default=False, nullable=False, server_default="false"
+    )
+
     # Донат-система
     moon_shards = Column(Integer, default=0)
     has_moon = Column(Boolean, default=False)
@@ -22,11 +29,11 @@ class User(Base):
     crystals_330_claimed = Column(Boolean, default=False)
     crystals_60_boosted = Column(Boolean, default=True)
     is_donator = Column(Boolean, default=False)
-    
+
     # Genshin UID и регион
     genshin_uid = Column(String, nullable=True)
-    genshin_server = Column(String, nullable=True)  # asia, us, eu
-    
+    genshin_server = Column(String, nullable=True)
+
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 

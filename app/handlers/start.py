@@ -6,9 +6,11 @@ from app.models.referral import Referral
 from app.keyboards import get_keyboard_for_user
 from app.handlers.subscription import (
     get_user_subscription_status,
-    grant_rewards_for_subscribed,
     send_subscription_gate,
-    get_welcome_text,
+    grant_sponsor_reward,
+    has_claimed_reward,
+    get_welcome_text_new,
+    get_welcome_text_returning,
 )
 import uuid
 
@@ -36,6 +38,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             last_name=user.last_name,
             public_id=uuid.uuid4(),
             tickets=0,
+            sponsor_reward_claimed=False,
         )
         db.add(new_user)
         db.flush()
@@ -71,27 +74,40 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         db.close()
 
     # ===== ОБЩАЯ ЛОГИКА =====
+    is_new = not has_claimed_reward(user.id)
+
     status = await get_user_subscription_status(user.id, context.bot)
 
+    # Не подписан на всех — гейт
     if not status["has_access"]:
-        # reward_amount = сколько он получит, когда подпишется на всех:
-        # за "неподписанные" каналы + за те, что уже подписан, но ещё не получал
-        reward_amount = len(status["missing"]) + len(status["rewardable"])
         context.user_data.pop("gate_shown_at", None)
         await send_subscription_gate(
             update,
             status["missing"],
-            reward_amount,
+            is_new=is_new,
             context=context,
         )
         return
 
-    # Подписан на всех — выдаём за тех, кому должны
-    reward = await grant_rewards_for_subscribed(user.id, status["rewardable"])
-
+    # Подписан на всех
     keyboard = get_keyboard_for_user(user.id)
+
+    if is_new:
+        # Награду НЕ выдаём автоматически — только после клика "Я подписался".
+        # Но если он подписан и уже нажал — тогда флаг бы стоял.
+        # Значит, если он только что открыл /start и подписан — показываем
+        # гейт с одной кнопкой "Я подписался".
+        await send_subscription_gate(
+            update,
+            [],  # missing пустой — URL-кнопок не будет
+            is_new=True,
+            context=context,
+        )
+        return
+
+    # Уже получал — просто приветствие
     await update.message.reply_text(
-        get_welcome_text(user.first_name, reward),
+        get_welcome_text_returning(user.first_name),
         parse_mode="Markdown",
         reply_markup=keyboard,
     )

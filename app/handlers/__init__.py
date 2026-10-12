@@ -26,10 +26,13 @@ from app.handlers.admin import (
 from app.handlers.subscription import (
     check_subscription_callback,
     get_user_subscription_status,
-    grant_rewards_for_subscribed,
     send_subscription_gate,
-    get_gate_text,
-    get_welcome_text,
+    grant_sponsor_reward,
+    has_claimed_reward,
+    get_gate_text_new,
+    get_gate_text_returning,
+    get_welcome_text_new,
+    get_welcome_text_returning,
 )
 
 __all__ = [
@@ -59,8 +62,11 @@ __all__ = [
     "add_referral_reward",
     "check_subscription_callback",
     "get_user_subscription_status",
-    "grant_rewards_for_subscribed",
     "send_subscription_gate",
-    "get_gate_text",
-    "get_welcome_text",
+    "grant_sponsor_reward",
+    "has_claimed_reward",
+    "get_gate_text_new",
+    "get_gate_text_returning",
+    "get_welcome_text_new",
+    "get_welcome_text_returning",
 ]

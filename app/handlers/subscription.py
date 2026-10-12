@@ -1,18 +1,12 @@
 """
 Проверка обязательной подписки на спонсоров.
-Один источник правды — user_tasks (completed_at).
-
-Используется:
-- При /start
-- При нажатии "✅ Я подписался"
+Работает для публичных и приватных каналов через get_chat_member.
 """
 import time
-from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from app.database import SessionLocal
 from app.models.sponsor import Sponsor
-from app.models.task import Task, UserTask
 from app.models.user import User
 
 
@@ -20,81 +14,52 @@ GATE_COOLDOWN_SECONDS = 5
 
 
 # =========================================================
-# 1. ПОЛУЧЕНИЕ СПОНСОРОВ И СТАТУСОВ
+# ПОЛУЧЕНИЕ СПОНСОРОВ И СТАТУСОВ
 # =========================================================
 
-async def get_active_sponsors_with_tasks() -> list[dict]:
-    """
-    Возвращает активных спонсоров с их task_id.
-    Задание спонсора нужно для отслеживания user_task.completed_at.
-    """
+async def get_active_sponsors() -> list[dict]:
+    """Все активные спонсоры с заполненным channel_id."""
     db = SessionLocal()
     try:
         sponsors = db.query(Sponsor).filter(
             Sponsor.is_active == True,
             Sponsor.channel_id.isnot(None),
         ).all()
-
-        result = []
-        for sp in sponsors:
-            task = db.query(Task).filter_by(
-                sponsor_id=sp.id,
-                task_type="sponsor",
-                is_active=True,
-            ).first()
-
-            result.append({
-                "sponsor_id": str(sp.id),
-                "task_id": str(task.id) if task else None,
-                "name": sp.name or "Спонсор",
-                "link": sp.link,
-                "channel_id": sp.channel_id,
-            })
-        return result
+        return [
+            {
+                "id": str(s.id),
+                "name": s.name or "Спонсор",
+                "link": s.link,
+                "channel_id": s.channel_id,
+            }
+            for s in sponsors
+        ]
     finally:
         db.close()
 
 
 async def get_user_subscription_status(telegram_id: int, bot) -> dict:
     """
-    Главная функция проверки.
+    Проверяет подписку пользователя на всех активных спонсоров.
 
     Возвращает:
     {
-        "has_access": bool,                      # подписан на всех
-        "missing": [ {name, link}, ... ],        # на кого не подписан
-        "rewardable": [ {task_id, name}, ... ],  # за кого можно получить награду
+        "has_access": bool,               # подписан на всех
+        "missing": [ {name, link}, ... ], # на кого не подписан
         "total": int,
         "subscribed_count": int,
     }
     """
-    sponsors = await get_active_sponsors_with_tasks()
-
+    sponsors = await get_active_sponsors()
     if not sponsors:
         return {
             "has_access": True,
             "missing": [],
-            "rewardable": [],
             "total": 0,
             "subscribed_count": 0,
         }
 
-    # Берём completed_at для всех заданий пользователя
-    db = SessionLocal()
-    try:
-        user = db.query(User).filter_by(telegram_id=str(telegram_id)).first()
-        completed_task_ids = set()
-        if user:
-            rows = db.query(UserTask.task_id).filter(
-                UserTask.user_id == user.id,
-                UserTask.completed_at.isnot(None),
-            ).all()
-            completed_task_ids = {str(r[0]) for r in rows}
-    finally:
-        db.close()
-
     missing = []
-    rewardable = []
     subscribed_count = 0
 
     for sp in sponsors:
@@ -104,108 +69,85 @@ async def get_user_subscription_status(telegram_id: int, bot) -> dict:
                 user_id=int(telegram_id),
             )
             status = member.status
-            is_subscribed = status in ("member", "administrator", "creator", "requested")
-            print(f"   • {sp['name']} (id={sp['channel_id']}): {status}")
+            # 🔥 'requested' — заявка тоже считается подпиской
+            if status in ("member", "administrator", "creator", "requested"):
+                subscribed_count += 1
+                print(f"   • {sp['name']}: {status} ✅")
+            else:
+                missing.append({
+                    "name": sp["name"],
+                    "link": sp["link"],
+                })
+                print(f"   • {sp['name']}: {status} ❌")
         except Exception as e:
-            print(f"   • {sp['name']}: ERROR {e}")
+            print(f"⚠️ [subscription] Ошибка проверки {sp['name']}: {e}")
+            # Технические ошибки пропускаем — не блокируем
             continue
 
-        # За этого спонсора ещё не получал?
-        not_yet_rewarded = sp["task_id"] and sp["task_id"] not in completed_task_ids
-        if not_yet_rewarded:
-            rewardable.append({"task_id": sp["task_id"], "name": sp["name"]})
-
-        if is_subscribed:
-            subscribed_count += 1
-        else:
-            missing.append({
-                "name": sp["name"],
-                "link": sp["link"],
-            })
-
-    print(f"🔍 [subscription] user={telegram_id} | "
-          f"subscribed={subscribed_count}/{len(sponsors)} | "
-          f"missing={len(missing)} | rewardable={len(rewardable)}")
-
-    return {
+    result = {
         "has_access": len(missing) == 0,
         "missing": missing,
-        "rewardable": rewardable,
         "total": len(sponsors),
         "subscribed_count": subscribed_count,
     }
 
+    print(f"🔍 [subscription] user={telegram_id} | "
+          f"subscribed={subscribed_count}/{len(sponsors)} | "
+          f"has_access={result['has_access']}")
+    return result
+
 
 # =========================================================
-# 2. ВЫДАЧА НАГРАД
+# РАБОТА С НАГРАДОЙ
 # =========================================================
 
-async def grant_rewards_for_subscribed(telegram_id: int, rewardable: list[dict]) -> int:
+def has_claimed_reward(telegram_id: int) -> bool:
+    """Получал ли пользователь награду за подписку."""
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter_by(telegram_id=str(telegram_id)).first()
+        if not user:
+            return False
+        return bool(user.sponsor_reward_claimed)
+    finally:
+        db.close()
+
+
+async def grant_sponsor_reward(telegram_id: int, reward: int) -> bool:
     """
-    Выдаёт билетики за каждого спонсора из rewardable,
-    но только если пользователь ПОДПИСАН на канал этого спонсора.
-    Помечает user_task.completed_at.
-    Возвращает количество выданных билетиков.
+    Выдаёт reward билетиков и ставит флаг sponsor_reward_claimed=True.
+    Возвращает True, если награда выдана (или уже была).
     """
-    if not rewardable:
-        return 0
+    if reward <= 0:
+        return False
 
     db = SessionLocal()
     try:
         user = db.query(User).filter_by(telegram_id=str(telegram_id)).first()
         if not user:
             print(f"⚠️ [subscription] Пользователь {telegram_id} не найден")
-            return 0
+            return False
 
-        total_reward = 0
+        if user.sponsor_reward_claimed:
+            print(f"ℹ️ [subscription] {telegram_id} уже получал награду")
+            return False
 
-        for sp in rewardable:
-            task = db.query(Task).filter_by(id=sp["task_id"]).first()
-            if not task:
-                continue
-
-            user_task = db.query(UserTask).filter_by(
-                user_id=user.id,
-                task_id=task.id,
-            ).first()
-
-            if user_task and user_task.completed_at:
-                continue
-
-            reward = task.reward or 1
-            total_reward += reward
-
-            if not user_task:
-                user_task = UserTask(
-                    user_id=user.id,
-                    task_id=task.id,
-                    progress=1,
-                    completed_at=datetime.now(),
-                )
-                db.add(user_task)
-            else:
-                user_task.completed_at = datetime.now()
-                user_task.progress = 1
-
-        if total_reward > 0:
-            user.tickets += total_reward
-            db.commit()
-            print(f"✅ [subscription] {telegram_id} получил {total_reward} билетиков")
-        else:
-            print(f"ℹ️ [subscription] {telegram_id} — нечего выдавать")
-
-        return total_reward
+        user.tickets += reward
+        user.sponsor_reward_claimed = True
+        db.commit()
+        print(f"✅ [subscription] {telegram_id} получил {reward} билетиков")
+        return True
 
     except Exception as e:
         db.rollback()
         print(f"❌ [subscription] Ошибка выдачи {telegram_id}: {e}")
-        return 0
+        return False
     finally:
         db.close()
 
 
 # =========================================================
-# 3. ТЕКСТЫ И КЛАВИАТУРА ГЕЙТА
+# ТЕКСТЫ И КЛАВИАТУРА ГЕЙТА
 # =========================================================
 
 def _pluralize(count: int, one: str, few: str, many: str) -> str:
@@ -229,65 +171,82 @@ def build_subscription_gate_keyboard(missing: list[dict]) -> InlineKeyboardMarku
     return InlineKeyboardMarkup(rows)
 
 
-def get_gate_text(user_name: str, missing: list[dict], reward_amount: int) -> str:
+def get_gate_text_new(user_name: str, missing: list[dict]) -> str:
     """
-    Текст гейта.
-    reward_amount — сколько билетов получит пользователь (missing + rewardable).
-    Если 0 — значит, награды не будет (всё уже получал).
+    Текст гейта для НОВОГО пользователя (ещё не получал награду).
+    Обещаем N прокрутов.
     """
     name = user_name or "пользователь"
+    count = len(missing)
+    word = _pluralize(count, "прокрут", "прокрута", "прокрутов")
 
-    if reward_amount > 0:
-        word = _pluralize(reward_amount, "прокрут", "прокрута", "прокрутов")
-        return (
-            f"👋 *Привет, {name}!*\n\n"
-            f"Добро пожаловать в GenshinPoolBot! 🎡\n\n"
-            f"Чтобы получить *{reward_amount} бесплатных {word}* и начать выбивать призы, "
-            f"выполни простые шаги:\n\n"
-            f"📢 *Шаг 1.* Подпишись на наших спонсоров\n"
-            f"✅ *Шаг 2.* Нажми «Я подписался»\n"
-            f"🎁 *Шаг 3.* Получи доступ + *{reward_amount} {word}* в подарок\n\n"
-            f"👇 Жми на кнопки ниже:"
-        )
-    else:
-        return (
-            f"👋 *Привет, {name}!*\n\n"
-            f"Чтобы бот снова заработал, подпишись на наших спонсоров:\n\n"
-            f"📢 Подпишись на каналы ниже\n"
-            f"✅ И нажми «Я подписался»\n\n"
-            f"👇 Осталось подписаться: *{len(missing)}*"
-        )
+    return (
+        f"👋 *Привет, {name}!*\n\n"
+        f"Добро пожаловать в GenshinPoolBot! 🎡\n\n"
+        f"Чтобы получить *{count} бесплатных {word}* и начать выбивать призы, "
+        f"выполни простые шаги:\n\n"
+        f"📢 *Шаг 1.* Подпишись на наших спонсоров\n"
+        f"✅ *Шаг 2.* Нажми «Я подписался»\n"
+        f"🎁 *Шаг 3.* Получи доступ + *{count} {word}* в подарок\n\n"
+        f"👇 Жми на кнопки ниже:"
+    )
 
 
-def get_welcome_text(user_name: str, reward: int) -> str:
-    """Приветствие после успешного прохода гейта."""
+def get_gate_text_returning(user_name: str, missing: list[dict]) -> str:
+    """
+    Текст гейта для СТАРОГО пользователя (уже получал награду).
+    Без обещания награды.
+    """
+    name = user_name or "пользователь"
+    count = len(missing)
+
+    return (
+        f"👋 *Привет, {name}!*\n\n"
+        f"Чтобы бот снова заработал, подпишись на наших спонсоров:\n\n"
+        f"📢 Подпишись на каналы ниже\n"
+        f"✅ И нажми «Я подписался»\n\n"
+        f"👇 Осталось подписаться: *{count}*"
+    )
+
+
+def get_welcome_text_new(user_name: str, reward: int) -> str:
+    """Приветствие для НОВОГО — с наградой."""
+    name = user_name or "пользователь"
+    word = _pluralize(reward, "прокрут", "прокрута", "прокрутов")
+
+    return (
+        f"✦ *Добро пожаловать, {name}!*\n\n"
+        f"🎁 Ты получил *{reward} {word}* Колеса Фортуны!\n"
+        f"🎡 Крути и выигрывай призы!\n\n"
+        f"📖 Используй кнопки внизу для навигации."
+    )
+
+
+def get_welcome_text_returning(user_name: str) -> str:
+    """Приветствие для СТАРОГО — без награды."""
     name = user_name or "пользователь"
 
-    if reward > 0:
-        word = _pluralize(reward, "прокрут", "прокрута", "прокрутов")
-        return (
-            f"✦ *Добро пожаловать, {name}!*\n\n"
-            f"🎁 Ты получил *{reward} {word}* Колеса Фортуны!\n"
-            f"🎡 Крути и выигрывай призы!\n\n"
-            f"📖 Используй кнопки внизу для навигации."
-        )
-    else:
-        return (
-            f"✦ *С возвращением, {name}!*\n\n"
-            f"🎡 Колесо Фортуны ждёт тебя!\n\n"
-            f"📖 Используй кнопки внизу для навигации."
-        )
+    return (
+        f"✦ *С возвращением, {name}!*\n\n"
+        f"🎡 Колесо Фортуны ждёт тебя!\n\n"
+        f"📖 Используй кнопки внизу для навигации."
+    )
 
 
 async def send_subscription_gate(
     update: Update,
     missing: list[dict],
-    reward_amount: int,
+    is_new: bool,
     context: ContextTypes.DEFAULT_TYPE | None = None,
 ):
-    """Отправляет гейт с антиспамом."""
+    """
+    Отправляет гейт.
+    is_new=True  → текст с наградой
+    is_new=False → текст без награды
+    """
     user_id = update.effective_user.id
 
+    # Антиспам
     if context is not None:
         last_shown = context.user_data.get("gate_shown_at", 0)
         now = time.time()
@@ -298,7 +257,12 @@ async def send_subscription_gate(
 
     keyboard = build_subscription_gate_keyboard(missing)
     user_name = update.effective_user.first_name if update.effective_user else "пользователь"
-    text = get_gate_text(user_name, missing, reward_amount)
+
+    text = (
+        get_gate_text_new(user_name, missing)
+        if is_new
+        else get_gate_text_returning(user_name, missing)
+    )
 
     await update.message.reply_text(
         text,
@@ -309,7 +273,7 @@ async def send_subscription_gate(
 
 
 # =========================================================
-# 4. ОБРАБОТЧИК КНОПКИ "✅ Я ПОДПИСАЛСЯ"
+# ОБРАБОТЧИК КНОПКИ "✅ Я ПОДПИСАЛСЯ"
 # =========================================================
 
 async def check_subscription_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -320,13 +284,23 @@ async def check_subscription_callback(update: Update, context: ContextTypes.DEFA
     telegram_id = update.effective_user.id
     user_name = update.effective_user.first_name or "пользователь"
 
+    is_new = not has_claimed_reward(telegram_id)
+
     status = await get_user_subscription_status(telegram_id, context.bot)
 
     if status["has_access"]:
-        # Выдаём награду только за тех, на кого подписан и ещё не получал
-        # (в rewardable только те, кто не получен — а подписка уже проверена выше)
-        reward = await grant_rewards_for_subscribed(telegram_id, status["rewardable"])
+        # 🔥 Выдаём награду только здесь (если ещё не получал)
+        if is_new:
+            reward = len(status["missing"]) + len(status.get("rewardable", []))
+            # rewardable у нас больше нет — считаем по подпискам:
+            # сколько всего спонсоров, столько и награда
+            reward = status["total"]
+            granted = await grant_sponsor_reward(telegram_id, reward)
+            reward_text = reward if granted else 0
+        else:
+            reward_text = 0
 
+        # Убираем гейт
         try:
             await query.message.delete()
         except Exception:
@@ -334,17 +308,29 @@ async def check_subscription_callback(update: Update, context: ContextTypes.DEFA
 
         from app.keyboards import get_keyboard_for_user
 
-        await context.bot.send_message(
-            chat_id=telegram_id,
-            text=get_welcome_text(user_name, reward),
-            parse_mode="Markdown",
-            reply_markup=get_keyboard_for_user(telegram_id),
-        )
+        if is_new:
+            await context.bot.send_message(
+                chat_id=telegram_id,
+                text=get_welcome_text_new(user_name, reward_text),
+                parse_mode="Markdown",
+                reply_markup=get_keyboard_for_user(telegram_id),
+            )
+        else:
+            await context.bot.send_message(
+                chat_id=telegram_id,
+                text=get_welcome_text_returning(user_name),
+                parse_mode="Markdown",
+                reply_markup=get_keyboard_for_user(telegram_id),
+            )
     else:
+        # Обновляем гейт — только оставшиеся каналы
         missing = status["missing"]
-        reward_amount = len(status["missing"]) + len(status["rewardable"])
         keyboard = build_subscription_gate_keyboard(missing)
-        text = get_gate_text(user_name, missing, reward_amount)
+        text = (
+            get_gate_text_new(user_name, missing)
+            if is_new
+            else get_gate_text_returning(user_name, missing)
+        )
 
         try:
             await query.edit_message_text(
