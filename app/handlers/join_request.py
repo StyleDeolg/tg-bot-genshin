@@ -6,8 +6,8 @@ from app.models.user import User
 
 async def handle_join_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
-    Обработчик события chat_join_request.
-    Никаких уведомлений, никаких наград — только лог.
+    Обработчик chat_join_request. Ничего не одобряет, ничего не уведомляет.
+    Только лог для отладки.
     """
     request = update.chat_join_request
     if not request:
@@ -23,8 +23,7 @@ async def handle_join_request(update: Update, context: ContextTypes.DEFAULT_TYPE
     try:
         user = db.query(User).filter_by(telegram_id=str(user_id)).first()
         if not user:
-            print(f"ℹ️ [join_request] Пользователь {user_id} не найден в БД — игнорирую")
+            print(f"ℹ️ [join_request] Пользователь {user_id} не найден в БД")
             return
-        # Ничего не делаем — всё через /start и кнопку "Я подписался"
     finally:
         db.close()

@@ -22,6 +22,11 @@ class User(Base):
         Boolean, default=False, nullable=False, server_default="false"
     )
 
+    # 🔥 Пропускать ли проверку подписки (для старых пользователей)
+    skip_subscription_check = Column(
+        Boolean, default=False, nullable=False, server_default="false"
+    )
+
     # Донат-система
     moon_shards = Column(Integer, default=0)
     has_moon = Column(Boolean, default=False)
