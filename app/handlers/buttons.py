@@ -25,61 +25,46 @@ from app.handlers.sponsors import (
     add_sponsor_start,
     add_sponsor_input,
 )
-from app.handlers.subscription import (
-    get_user_subscription_status,
-    send_subscription_gate,
-)
 from app.config import config
 
 
 async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработчик кнопок и текстовых сообщений"""
-    
+
     text = update.message.text
     user_id = update.effective_user.id
-    
-    # ===== ПРОВЕРКА: АКТИВНЫЕ ДИАЛОГИ (приоритет №1) =====
-    
-    # 🎮 Привязка UID
+
+    # ===== АКТИВНЫЕ ДИАЛОГИ =====
     if context.user_data.get('uid_step') in ('waiting_uid', 'waiting_server'):
         await bind_uid_input(update, context)
         return
-    
-    # ➕ Добавление спонсора
+
     if context.user_data.get('waiting_for_sponsor'):
         await add_sponsor_input(update, context)
         return
-    
-    # ===== АКТИВНЫЕ ДЕЙСТВИЯ АДМИНКИ (приоритет №2) =====
+
+    # ===== АКТИВНЫЕ ДЕЙСТВИЯ АДМИНКИ =====
     action = context.user_data.get('admin_action')
-    
+
     if action == 'give_tickets':
         await admin_give_tickets_process(update, context)
         return
-    
+
     if action == 'broadcast':
         await admin_broadcast_process(update, context)
         return
-    
+
     if action == 'delete_sponsor':
         await delete_sponsor_confirm(update, context)
         return
-    
+
     if action == 'give_moon':
         await admin_give_moon_user(update, context)
         return
-    
-    # ===== 🔥 ПРОВЕРКА ОБЯЗАТЕЛЬНОЙ ПОДПИСКИ (приоритет №3) =====
-    # Админы проходят без проверки
-    if user_id not in config.ADMIN_IDS:
-        status = await get_user_subscription_status(user_id, context.bot)
-        if not status["has_access"]:
-            await send_subscription_gate(update, status["missing"], is_start=False)
-            return
-    
-    # ===== ОБЫЧНЫЕ КНОПКИ (приоритет №4) =====
-    
-    # ---- Пользовательские ----
+
+    # ===== ОБЫЧНЫЕ КНОПКИ =====
+    # ❗ Проверки подписки здесь НЕТ — она только в /start
+
     if text == "👤 Профиль":
         await profile_command(update, context)
     elif text == "🎮 Привязать UID":
@@ -88,77 +73,75 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await unbind_uid(update, context)
     elif text == "📖 Помощь":
         await help_command(update, context)
-    
-    # ---- Админские ----
+
     elif text == "👑 Админ-панель":
         if user_id in config.ADMIN_IDS:
             await admin_panel(update, context)
         else:
             await update.message.reply_text("⛔ У вас нет доступа к админ-панели")
-    
+
     elif text == "📊 Статистика":
         if user_id in config.ADMIN_IDS:
             await admin_stats(update, context)
         else:
             await update.message.reply_text("⛔ Нет доступа")
-    
+
     elif text == "🎡 Призы":
         if user_id in config.ADMIN_IDS:
             await admin_prizes(update, context)
         else:
             await update.message.reply_text("⛔ Нет доступа")
-    
+
     elif text == "📋 Задания":
         if user_id in config.ADMIN_IDS:
             await admin_tasks(update, context)
         else:
             await update.message.reply_text("⛔ Нет доступа")
-    
+
     elif text == "🎫 Выдать билеты":
         if user_id in config.ADMIN_IDS:
             await admin_give_tickets_start(update, context)
         else:
             await update.message.reply_text("⛔ Нет доступа")
-    
+
     elif text == "📢 Рассылка":
         if user_id in config.ADMIN_IDS:
             await admin_broadcast_start(update, context)
         else:
             await update.message.reply_text("⛔ Нет доступа")
-    
+
     elif text == "🌙 Выдать луну":
         if user_id in config.ADMIN_IDS:
             await admin_give_moon(update, context)
         else:
             await update.message.reply_text("⛔ Нет доступа")
-    
+
     elif text == "➕ Добавить спонсора":
         if user_id in config.ADMIN_IDS:
             await add_sponsor_start(update, context)
         else:
             await update.message.reply_text("⛔ Нет доступа")
-    
+
     elif text == "🗑 Удалить спонсора":
         if user_id in config.ADMIN_IDS:
             await delete_sponsor_start(update, context)
         else:
             await update.message.reply_text("⛔ Нет доступа")
-    
+
     elif text == "📋 Список спонсоров":
         if user_id in config.ADMIN_IDS:
             await list_sponsors_admin(update, context)
         else:
             await update.message.reply_text("⛔ Нет доступа")
-    
+
     elif text == "🔙 Выйти из админки":
         if user_id in config.ADMIN_IDS:
             await admin_exit(update, context)
         else:
             await update.message.reply_text("⛔ Нет доступа")
-    
-    # ---- Fallback ----
+
     else:
         await update.message.reply_text(
             "❌ Неизвестная команда. Используйте кнопки меню.",
-            reply_markup=get_keyboard_for_user(user_id)
+            reply_markup=get_keyboard_for_user(user_id),
         )
