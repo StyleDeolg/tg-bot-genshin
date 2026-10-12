@@ -26,7 +26,10 @@ from app.handlers.admin import (
 from app.handlers.subscription import (
     check_subscription_callback,
     get_user_subscription_status,
+    grant_rewards_for_subscribed,
     send_subscription_gate,
+    get_gate_text,
+    get_welcome_text,
 )
 
 __all__ = [
@@ -56,5 +59,8 @@ __all__ = [
     "add_referral_reward",
     "check_subscription_callback",
     "get_user_subscription_status",
+    "grant_rewards_for_subscribed",
     "send_subscription_gate",
+    "get_gate_text",
+    "get_welcome_text",
 ]

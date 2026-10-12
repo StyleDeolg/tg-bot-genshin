@@ -6,8 +6,8 @@ from app.models.referral import Referral
 from app.keyboards import get_keyboard_for_user
 from app.handlers.subscription import (
     get_user_subscription_status,
+    grant_rewards_for_subscribed,
     send_subscription_gate,
-    grant_sponsor_reward,
     get_welcome_text,
 )
 import uuid
@@ -35,7 +35,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             first_name=user.first_name,
             last_name=user.last_name,
             public_id=uuid.uuid4(),
-            tickets=0,  # стартовых нет — начислим за подписку
+            tickets=0,
         )
         db.add(new_user)
         db.flush()
@@ -67,59 +67,31 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         db.commit()
         db.close()
+    else:
+        db.close()
 
-        # Проверяем подписку
-        status = await get_user_subscription_status(user.id, context.bot)
-
-        if not status["has_access"]:
-            # Сбрасываем возможные старые значения
-            context.user_data.pop("pending_reward", None)
-            await send_subscription_gate(
-                update,
-                status["missing"],
-                context=context,
-            )
-            return
-
-        # Сразу подписан — награда = total
-        reward = status["total"]
-        await grant_sponsor_reward(user.id, reward)
-
-        keyboard = get_keyboard_for_user(user.id)
-        await update.message.reply_text(
-            get_welcome_text(user.first_name, granted=True, reward=reward),
-            parse_mode="Markdown",
-            reply_markup=keyboard,
-        )
-        return
-
-    db.close()
-
-    # ===== СУЩЕСТВУЮЩИЙ ПОЛЬЗОВАТЕЛЬ =====
+    # ===== ОБЩАЯ ЛОГИКА =====
     status = await get_user_subscription_status(user.id, context.bot)
 
     if not status["has_access"]:
-        # Сбрасываем возможные старые значения — гейт зафиксирует новые при первом показе
-        context.user_data.pop("pending_reward", None)
+        # reward_amount = сколько он получит, когда подпишется на всех:
+        # за "неподписанные" каналы + за те, что уже подписан, но ещё не получал
+        reward_amount = len(status["missing"]) + len(status["rewardable"])
         context.user_data.pop("gate_shown_at", None)
         await send_subscription_gate(
             update,
             status["missing"],
+            reward_amount,
             context=context,
         )
         return
 
-    # Подписан. Награду выдаём только если tickets == 0 (то есть новичок, который сразу подписался)
-    # Для старых, кто уже получал раньше — reward будет 0, потому что tickets > 0
-    reward_if_new = status["total"]
-    granted = await grant_sponsor_reward(user.id, reward_if_new)
-
-    # Считаем reward для отображения: если выдали — total, иначе 0
-    display_reward = reward_if_new if granted else 0
+    # Подписан на всех — выдаём за тех, кому должны
+    reward = await grant_rewards_for_subscribed(user.id, status["rewardable"])
 
     keyboard = get_keyboard_for_user(user.id)
     await update.message.reply_text(
-        get_welcome_text(user.first_name, granted=granted, reward=display_reward),
+        get_welcome_text(user.first_name, reward),
         parse_mode="Markdown",
         reply_markup=keyboard,
     )

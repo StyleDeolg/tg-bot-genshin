@@ -63,8 +63,6 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     # ===== ОБЫЧНЫЕ КНОПКИ =====
-    # ❗ Проверки подписки здесь НЕТ — она только в /start
-
     if text == "👤 Профиль":
         await profile_command(update, context)
     elif text == "🎮 Привязать UID":

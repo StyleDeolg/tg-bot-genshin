@@ -38,7 +38,10 @@ async def get_tasks(telegram_id: str):
         db.close()
         raise HTTPException(status_code=404, detail="Пользователь не найден")
     
-    tasks = db.query(Task).filter_by(is_active=True).all()
+    tasks = db.query(Task).filter(
+        Task.is_active == True,
+        Task.task_type != "sponsor",  
+    ).all()
     result = []
     
     for task in tasks:

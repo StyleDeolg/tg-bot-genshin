@@ -1,18 +1,14 @@
 import { useEffect, useState, useRef } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { getTasks, claimTask, checkTasks } from '../api/tasks';
-import { getSponsors, checkSponsorSubscription } from '../api/sponsors';
-import type { Sponsor } from '../api/sponsors';
 import TicketIcon from '../components/TicketIcon';
 import ButtonGenshin from '../components/ButtonGenshin';
 
 export default function TasksPage() {
     const { user, updateProfile } = useAuthStore();
     const [tasks, setTasks] = useState<any[]>([]);
-    const [sponsors, setSponsors] = useState<Sponsor[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [claiming, setClaiming] = useState<string | null>(null);
-    const [checking, setChecking] = useState<string | null>(null);
     const [timeLeft, setTimeLeft] = useState<{ [key: string]: string }>({});
 
     const animationRef = useRef<number | undefined>(undefined);
@@ -25,8 +21,6 @@ export default function TasksPage() {
             await checkTasks(user.telegram_id);
             const tasksData = await getTasks(user.telegram_id);
             setTasks(tasksData);
-            const sponsorsData = await getSponsors(user.telegram_id);
-            setSponsors(sponsorsData);
             await updateProfile();
         } catch (error) {
             console.error('Ошибка загрузки данных:', error);
@@ -119,58 +113,18 @@ export default function TasksPage() {
         }
     };
 
-    const handleCheckSponsor = async (sponsorId: string) => {
-        if (!user || checking) return;
-        setChecking(sponsorId);
-        try {
-            const result = await checkSponsorSubscription(user.telegram_id, sponsorId);
-
-            setSponsors(prevSponsors =>
-                prevSponsors.map(s => {
-                    if (s.id === sponsorId) {
-                        return { ...s, task_completed: true };
-                    }
-                    return s;
-                })
-            );
-
-            await loadData();
-            await updateProfile();
-
-            if (result.success) {
-                alert('✅ Подписка подтверждена! Ты получил 1 билетик!');
-            } else {
-                alert('❌ ' + (result.message || 'Ты ещё не подписался на канал. Подпишись и попробуй снова!'));
-            }
-        } catch (error: any) {
-            const message = error.response?.data?.detail || 'Ошибка при проверке подписки';
-            console.error('Check sponsor error:', message);
-            alert('❌ ' + message);
-        } finally {
-            setChecking(null);
-        }
-    };
-
     if (loading) return <div className="loading-text text-center py-5" style={{ color: 'rgba(232,224,212,0.15)' }}>Загрузка заданий...</div>;
 
     // ===== КАТЕГОРИИ =====
-    const sponsorTasks = tasks.filter(task => task.task_type === 'sponsor');
     const dailyTasks = tasks.filter(task => task.task_type === 'daily');
     const regularTasks = tasks.filter(task => task.task_type === 'spin' || task.task_type === 'social');
-
-    const sponsorsMap = sponsors.reduce<Record<string, Sponsor>>((acc, s) => {
-        acc[s.id] = s;
-        return acc;
-    }, {});
 
     // ===== ЕДИНЫЙ РЕНДЕР КАРТОЧКИ =====
     const renderTaskCard = (task: any) => {
         const isCompleted = task.completed;
         const isClaiming = claiming === task.id;
-        const isChecking = checking === task.id;
         const canClaim = task.can_claim;
         const isDaily = task.task_type === 'daily';
-        const isSponsor = task.task_type === 'sponsor';
         const progress = task.progress;
         const required = task.required_count;
         const timer = timeLeft[task.id];
@@ -178,15 +132,8 @@ export default function TasksPage() {
         // ===== СТАТУС =====
         let statusLabel = 'В процессе';
         let statusClass = 'pending';
-        if (isSponsor) {
-            if (isCompleted) {
-                statusLabel = 'Готово';
-                statusClass = 'done';
-            } else {
-                statusLabel = 'В процессе';
-                statusClass = 'pending';
-            }
-        } else if (isDaily) {
+
+        if (isDaily) {
             if (canClaim) {
                 statusLabel = 'Можно забрать';
                 statusClass = 'done';
@@ -198,7 +145,6 @@ export default function TasksPage() {
                 statusClass = 'done';
             }
         } else {
-            // spin / social
             if (isCompleted && !canClaim) {
                 statusLabel = 'Готово';
                 statusClass = 'done';
@@ -218,20 +164,7 @@ export default function TasksPage() {
         let showTicketIcon = true;
         let showAsPlainText = false;
 
-        if (isSponsor) {
-            if (isCompleted) {
-                buttonText = 'Награда получена';
-                buttonDisabled = true;
-                buttonOnClick = async () => { };
-                showTicketIcon = false;
-                showAsPlainText = true;
-            } else {
-                buttonText = isChecking ? 'Проверяю...' : 'Проверить подписку';
-                buttonDisabled = isChecking;
-                buttonOnClick = () => handleCheckSponsor(task.sponsor_id!);
-                showTicketIcon = false;
-            }
-        } else if (isDaily) {
+        if (isDaily) {
             if (canClaim) {
                 buttonText = isClaiming ? 'Забираю...' : 'Забрать награду';
                 buttonDisabled = isClaiming;
@@ -246,7 +179,6 @@ export default function TasksPage() {
                 buttonDisabled = false;
             }
         } else {
-            // spin / social
             if (isCompleted && !canClaim) {
                 buttonText = 'Награда получена';
                 buttonDisabled = true;
@@ -265,8 +197,6 @@ export default function TasksPage() {
             }
         }
 
-        const sponsor = sponsorsMap[task.sponsor_id];
-
         return (
             <div key={task.id} className="task-card">
                 <div className="task-header">
@@ -277,7 +207,7 @@ export default function TasksPage() {
                 <div className="task-desc">{task.description}</div>
 
                 {/* Прогресс-бар — только для spin / social */}
-                {!isDaily && !isSponsor && (
+                {!isDaily && (
                     <div className="task-progress-wrapper">
                         <div className="task-progress-bar">
                             <div
@@ -287,39 +217,6 @@ export default function TasksPage() {
                             <span className="task-progress-text">{progress}/{required}</span>
                         </div>
                     </div>
-                )}
-
-                {/* Кнопка "Перейти в канал" — только для спонсоров и пока не выполнено */}
-                {isSponsor && sponsor && !isCompleted && (
-                    <a
-                        href={sponsor.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            padding: '8px 18px',
-                            background: 'rgba(212, 175, 55, 0.02)',
-                            color: '#d4af37',
-                            borderRadius: '8px',
-                            fontSize: '13px',
-                            fontWeight: '500',
-                            textDecoration: 'none',
-                            border: '1px solid rgba(212, 175, 55, 0.02)',
-                            transition: 'all 0.3s ease',
-                            width: 'fit-content',
-                            marginBottom: '12px',
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(212, 175, 55, 0.04)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'rgba(212, 175, 55, 0.02)';
-                        }}
-                    >
-                        Перейти в канал
-                    </a>
                 )}
 
                 <div className="task-actions">
@@ -362,20 +259,7 @@ export default function TasksPage() {
                     <p className="page-subtitle">Выполняй и получай награды</p>
                 </div>
 
-                {/* ===== 1. СПОНСОРЫ ===== */}
-                {sponsorTasks.length > 0 && (
-                    <div className="tasks-section">
-                        <div className="tasks-section-header">
-                            <span className="tasks-section-title">Спонсоры</span>
-                            <span className="tasks-section-count">
-                                {sponsorTasks.filter(t => t.completed).length}/{sponsorTasks.length}
-                            </span>
-                        </div>
-                        {sponsorTasks.map(renderTaskCard)}
-                    </div>
-                )}
-
-                {/* ===== 2. ЕЖЕДНЕВНЫЕ ===== */}
+                {/* ===== ЕЖЕДНЕВНЫЕ ===== */}
                 {dailyTasks.length > 0 && (
                     <div className="tasks-section">
                         <div className="tasks-section-header">
@@ -388,7 +272,7 @@ export default function TasksPage() {
                     </div>
                 )}
 
-                {/* ===== 3. ПОСТОЯННЫЕ (spin + social) ===== */}
+                {/* ===== ПОСТОЯННЫЕ (spin + social) ===== */}
                 {regularTasks.length > 0 && (
                     <div className="tasks-section">
                         <div className="tasks-section-header">
