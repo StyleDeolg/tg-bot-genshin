@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, DateTime, Integer, Boolean, func
+from sqlalchemy import Column, String, DateTime, Integer, Boolean, JSON, func
 from sqlalchemy.dialects.postgresql import UUID
 from app.database import Base
 
@@ -25,6 +25,11 @@ class User(Base):
     # 🔥 Пропускать ли проверку подписки (для старых пользователей)
     skip_subscription_check = Column(
         Boolean, default=False, nullable=False, server_default="false"
+    )
+
+    # 🔥 ID спонсоров, которые пользователь «прожал» в боте (JSON список)
+    clicked_sponsors = Column(
+        JSON, default=list, nullable=False, server_default="[]"
     )
 
     # Донат-система

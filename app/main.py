@@ -50,7 +50,11 @@ from app.handlers import (
 )
 from app.handlers.buttons import handle_buttons
 from app.handlers.join_request import handle_join_request
-from app.handlers.subscription import check_subscription_callback
+from app.handlers.subscription import (
+    check_subscription_callback,
+    sponsor_clicked_callback,
+    noop_callback,
+)
 
 TOKEN = config.BOT_TOKEN
 WEBHOOK_PATH = "/webhook"
@@ -62,7 +66,7 @@ async def get_bot_app():
     global _bot_app
     if _bot_app is None:
         _bot_app = Application.builder().token(TOKEN).build()
-        
+
         # Команды
         _bot_app.add_handler(CommandHandler("start", start_command))
         _bot_app.add_handler(CommandHandler("help", help_command))
@@ -70,23 +74,35 @@ async def get_bot_app():
         _bot_app.add_handler(CommandHandler("unbind_uid", unbind_uid))
         _bot_app.add_handler(CommandHandler("app", app_command))
         _bot_app.add_handler(CommandHandler("bind_uid", bind_uid_start))
-        
-        # 🔥 Callback-обработчик для "✅ Я подписался"
+
+        # 🔥 Обработчик клика «✅ Отметить» (раньше check_subscription — по порядку не важно)
+        _bot_app.add_handler(CallbackQueryHandler(
+            sponsor_clicked_callback,
+            pattern=r"^sponsor_clicked_",
+        ))
+
+        # 🔥 Заглушка для «✅ Уже пройдено»
+        _bot_app.add_handler(CallbackQueryHandler(
+            noop_callback,
+            pattern=r"^noop$",
+        ))
+
+        # 🔥 Кнопка «✅ Я подписался»
         _bot_app.add_handler(CallbackQueryHandler(
             check_subscription_callback,
-            pattern="^check_subscription$",
+            pattern=r"^check_subscription$",
         ))
-        
-        # 🔥 Обработчик заявок на вступление в каналы
+
+        # 🔥 Обработчик заявок
         _bot_app.add_handler(ChatJoinRequestHandler(handle_join_request))
-        
-        # Обработчик всех текстовых сообщений (кнопки и ввод)
+
+        # Обработчик текстовых сообщений
         _bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons))
         _bot_app.add_error_handler(error_handler)
-        
+
         await _bot_app.initialize()
         print("✅ Бот инициализирован")
-        
+
         webhook_url = getattr(config, "WEBHOOK_URL", None)
         if webhook_url:
             full_url = f"{webhook_url.rstrip('/')}{WEBHOOK_PATH}"
@@ -104,7 +120,7 @@ async def get_bot_app():
             except Exception as e:
                 print(f"❌ Не удалось установить вебхук: {e}")
         else:
-            print("⚠️ WEBHOOK_URL не задан в config — пропускаю установку вебхука")
+            print("⚠️ WEBHOOK_URL не задан — пропускаю установку вебхука")
 
     return _bot_app
 
@@ -119,10 +135,10 @@ async def webhook_endpoint(request: Request):
         print("🔍 [webhook] Получен запрос")
         bot_app = await get_bot_app()
         json_data = await request.json()
-        
+
         update_type = list(json_data.keys())
         print(f"🔍 [webhook] Тип апдейта: {update_type}")
-        
+
         update = Update.de_json(json_data, bot_app.bot)
         await bot_app.process_update(update)
         print("🔍 [webhook] Обработка завершена")

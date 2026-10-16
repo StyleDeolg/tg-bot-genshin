@@ -1,6 +1,7 @@
 """
 Проверка обязательной подписки на спонсоров.
-Работает для публичных и приватных каналов через get_chat_member.
+Мягкий режим: пользователь жмёт URL-кнопку спонсора + «✅ Отметить»,
+и мы считаем спонсора пройденным.
 """
 import time
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -14,11 +15,11 @@ GATE_COOLDOWN_SECONDS = 5
 
 
 # =========================================================
-# ПОЛУЧЕНИЕ СПОНСОРОВ
+# СПОНСОРЫ
 # =========================================================
 
 async def get_active_sponsors() -> list[dict]:
-    """Все активные спонсоры с заполненным channel_id."""
+    """Все активные спонсоры."""
     db = SessionLocal()
     try:
         sponsors = db.query(Sponsor).filter(
@@ -39,46 +40,67 @@ async def get_active_sponsors() -> list[dict]:
 
 
 # =========================================================
-# ФЛАГИ ПОЛЬЗОВАТЕЛЯ (один SELECT — все флаги)
+# ФЛАГИ И КЛИКИ
 # =========================================================
 
 def get_user_flags(telegram_id: int) -> dict:
-    """
-    Возвращает флаги пользователя одним запросом:
-    - exists: есть ли в БД
-    - skip_check: пропускать ли проверку подписки (старый юзер)
-    - claimed: получал ли награду
-    """
+    """Один SELECT — флаги + клики."""
     db = SessionLocal()
     try:
         user = db.query(User).filter_by(telegram_id=str(telegram_id)).first()
         if not user:
-            return {"exists": False, "skip_check": False, "claimed": False}
+            return {"exists": False, "skip_check": False, "claimed": False, "clicked": []}
         return {
             "exists": True,
             "skip_check": bool(user.skip_subscription_check),
             "claimed": bool(user.sponsor_reward_claimed),
+            "clicked": list(user.clicked_sponsors or []),
         }
     finally:
         db.close()
 
 
+def mark_sponsor_clicked(telegram_id: int, sponsor_id: str) -> None:
+    """Записывает ID спонсора в clicked_sponsors, если ещё нет."""
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter_by(telegram_id=str(telegram_id)).first()
+        if not user:
+            return
+
+        clicked = list(user.clicked_sponsors or [])
+        if sponsor_id not in clicked:
+            clicked.append(sponsor_id)
+            user.clicked_sponsors = clicked
+            db.commit()
+            print(f"👆 [subscription] {telegram_id} отметил {sponsor_id}")
+    except Exception as e:
+        db.rollback()
+        print(f"❌ [subscription] Ошибка записи клика: {e}")
+    finally:
+        db.close()
+
+
 # =========================================================
-# ПРОВЕРКА ПОДПИСКИ
+# ПРОВЕРКА ПОДПИСКИ (get_chat_member + клики)
 # =========================================================
 
 async def get_user_subscription_status(telegram_id: int, bot) -> dict:
     """
-    Проверяет подписку на всех спонсоров.
-    Если пользователь «старый» (skip_subscription_check=True) — пропускает.
+    Возвращает прогресс пользователя:
+    - has_access: bool (все спонсоры пройдены)
+    - missing: список непройденных
+    - passed_ids: список пройденных ID
+    - total: всего спонсоров
     """
-    # 🔥 Старый пользователь — пропуск без проверки
     flags = get_user_flags(telegram_id)
+
     if flags["skip_check"]:
-        print(f"ℹ️ [subscription] user={telegram_id} — старый, пропускаю проверку")
+        print(f"ℹ️ [subscription] user={telegram_id} — старый, пропускаю")
         return {
             "has_access": True,
             "missing": [],
+            "passed_ids": [],
             "total": 0,
             "subscribed_count": 0,
             "is_old": True,
@@ -89,15 +111,21 @@ async def get_user_subscription_status(telegram_id: int, bot) -> dict:
         return {
             "has_access": True,
             "missing": [],
+            "passed_ids": [],
             "total": 0,
             "subscribed_count": 0,
             "is_old": False,
         }
 
+    clicked = flags["clicked"]
+
     missing = []
+    passed_ids = []
     subscribed_count = 0
 
     for sp in sponsors:
+        # Реальная подписка через Telegram
+        is_subscribed = False
         try:
             member = await bot.get_chat_member(
                 chat_id=int(sp["channel_id"]),
@@ -105,25 +133,34 @@ async def get_user_subscription_status(telegram_id: int, bot) -> dict:
             )
             status = member.status
             if status in ("member", "administrator", "creator", "requested"):
-                subscribed_count += 1
-                print(f"   • {sp['name']}: {status} ✅")
-            else:
-                missing.append({"name": sp["name"], "link": sp["link"]})
-                print(f"   • {sp['name']}: {status} ❌")
+                is_subscribed = True
         except Exception as e:
-            print(f"⚠️ [subscription] Ошибка проверки {sp['name']}: {e}")
-            continue
+            print(f"⚠️ [subscription] Ошибка {sp['name']}: {e}")
+
+        # Пройден, если реально подписан ИЛИ кликнул
+        is_passed = is_subscribed or (sp["id"] in clicked)
+
+        if is_passed:
+            passed_ids.append(sp["id"])
+            subscribed_count += 1
+        else:
+            missing.append({
+                "id": sp["id"],
+                "name": sp["name"],
+                "link": sp["link"],
+            })
 
     result = {
         "has_access": len(missing) == 0,
         "missing": missing,
+        "passed_ids": passed_ids,
         "total": len(sponsors),
         "subscribed_count": subscribed_count,
         "is_old": False,
     }
 
     print(f"🔍 [subscription] user={telegram_id} | "
-          f"subscribed={subscribed_count}/{len(sponsors)} | "
+          f"passed={subscribed_count}/{len(sponsors)} | "
           f"has_access={result['has_access']}")
     return result
 
@@ -133,7 +170,7 @@ async def get_user_subscription_status(telegram_id: int, bot) -> dict:
 # =========================================================
 
 async def grant_sponsor_reward(telegram_id: int, reward: int) -> bool:
-    """Выдаёт reward билетиков один раз (флаг sponsor_reward_claimed)."""
+    """Выдаёт reward билетиков один раз."""
     if reward <= 0:
         return False
 
@@ -172,24 +209,37 @@ def _pluralize(count: int, one: str, few: str, many: str) -> str:
     return many
 
 
-def build_subscription_gate_keyboard(missing: list[dict]) -> InlineKeyboardMarkup:
-    """Кнопки на каналы, где не подписан + '✅ Я подписался'."""
+def build_gate_keyboard(sponsors_all: list[dict], passed_ids: list[str]) -> InlineKeyboardMarkup:
+    """
+    Клавиатура гейта:
+    - Для пройденных: «✅ Название» (callback noop)
+    - Для непройденных: две кнопки в ряд — «📢 Название» (URL) и «✅ Отметить» (callback)
+    - Внизу: «✅ Я подписался»
+    """
+    passed_set = set(passed_ids)
     rows = []
-    for sp in missing:
-        name = sp.get("name") or "Спонсор"
-        link = sp.get("link") or ""
-        if link:
-            rows.append([InlineKeyboardButton(f"📢 {name}", url=link)])
+
+    for sp in sponsors_all:
+        if sp["id"] in passed_set:
+            rows.append([InlineKeyboardButton(
+                f"✅ {sp['name']}",
+                callback_data="noop",
+            )])
+        else:
+            row = []
+            if sp.get("link"):
+                row.append(InlineKeyboardButton(
+                    f"📢 {sp['name']}",
+                    url=sp["link"],
+                ))
+            row.append(InlineKeyboardButton(
+                "✅ Отметить",
+                callback_data=f"sponsor_clicked_{sp['id']}",
+            ))
+            rows.append(row)
 
     rows.append([InlineKeyboardButton("✅ Я подписался", callback_data="check_subscription")])
     return InlineKeyboardMarkup(rows)
-
-
-def build_confirm_keyboard() -> InlineKeyboardMarkup:
-    """Клавиатура только с '✅ Я подписался' — когда URL-кнопок нет."""
-    return InlineKeyboardMarkup([
-        [InlineKeyboardButton("✅ Я подписался", callback_data="check_subscription")]
-    ])
 
 
 def get_gate_text_new(user_name: str, missing: list[dict], total: int) -> str:
@@ -248,30 +298,38 @@ def get_welcome_text_returning(user_name: str) -> str:
 
 async def send_subscription_gate(
     update: Update,
-    missing: list[dict],
+    context: ContextTypes.DEFAULT_TYPE,
     is_new: bool,
-    total_sponsors: int,
-    context: ContextTypes.DEFAULT_TYPE | None = None,
-    hide_urls: bool = False,
 ):
-    """Отправляет гейт с антиспамом."""
+    """Отправляет гейт с актуальными кнопками."""
     user_id = update.effective_user.id
 
-    if context is not None:
-        last_shown = context.user_data.get("gate_shown_at", 0)
-        now = time.time()
-        if now - last_shown < GATE_COOLDOWN_SECONDS:
-            print(f"ℹ️ [subscription] Антиспам: пропускаю гейт для {user_id}")
-            return
-        context.user_data["gate_shown_at"] = now
+    # Антиспам
+    last_shown = context.user_data.get("gate_shown_at", 0)
+    now = time.time()
+    if now - last_shown < GATE_COOLDOWN_SECONDS:
+        print(f"ℹ️ [subscription] Антиспам: пропускаю гейт для {user_id}")
+        return
+    context.user_data["gate_shown_at"] = now
 
-    keyboard = build_confirm_keyboard() if hide_urls else build_subscription_gate_keyboard(missing)
-    user_name = update.effective_user.first_name if update.effective_user else "пользователь"
+    user_name = update.effective_user.first_name or "пользователь"
+    sponsors_all = await get_active_sponsors()
+    status = await get_user_subscription_status(user_id, context.bot)
 
+    if status["is_old"] or not sponsors_all:
+        from app.keyboards import get_keyboard_for_user
+        await update.message.reply_text(
+            get_welcome_text_returning(user_name),
+            parse_mode="Markdown",
+            reply_markup=get_keyboard_for_user(user_id),
+        )
+        return
+
+    keyboard = build_gate_keyboard(sponsors_all, status["passed_ids"])
     text = (
-        get_gate_text_new(user_name, missing, total_sponsors)
+        get_gate_text_new(user_name, status["missing"], status["total"])
         if is_new
-        else get_gate_text_returning(user_name, missing)
+        else get_gate_text_returning(user_name, status["missing"])
     )
 
     await update.message.reply_text(
@@ -283,7 +341,7 @@ async def send_subscription_gate(
 
 
 # =========================================================
-# ОБРАБОТЧИК КНОПКИ "✅ Я ПОДПИСАЛСЯ"
+# ОБРАБОТЧИКИ CALLBACK
 # =========================================================
 
 async def check_subscription_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -296,7 +354,6 @@ async def check_subscription_callback(update: Update, context: ContextTypes.DEFA
 
     flags = get_user_flags(telegram_id)
 
-    # 🔥 Старый пользователь — просто приветствие
     if flags["skip_check"]:
         try:
             await query.message.delete()
@@ -313,11 +370,9 @@ async def check_subscription_callback(update: Update, context: ContextTypes.DEFA
         return
 
     is_new = not flags["claimed"]
-
     status = await get_user_subscription_status(telegram_id, context.bot)
 
     if status["has_access"]:
-        # Выдаём награду, если ещё не получал
         if is_new:
             reward = status["total"]
             granted = await grant_sponsor_reward(telegram_id, reward)
@@ -347,13 +402,13 @@ async def check_subscription_callback(update: Update, context: ContextTypes.DEFA
                 reply_markup=get_keyboard_for_user(telegram_id),
             )
     else:
-        # Обновляем гейт — показываем только оставшиеся каналы
-        missing = status["missing"]
-        keyboard = build_subscription_gate_keyboard(missing)
+        # Обновляем гейт
+        sponsors_all = await get_active_sponsors()
+        keyboard = build_gate_keyboard(sponsors_all, status["passed_ids"])
         text = (
-            get_gate_text_new(user_name, missing, status["total"])
+            get_gate_text_new(user_name, status["missing"], status["total"])
             if is_new
-            else get_gate_text_returning(user_name, missing)
+            else get_gate_text_returning(user_name, status["missing"])
         )
 
         try:
@@ -365,3 +420,48 @@ async def check_subscription_callback(update: Update, context: ContextTypes.DEFA
             )
         except Exception as e:
             print(f"⚠️ [subscription] Не удалось обновить гейт: {e}")
+
+
+async def sponsor_clicked_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    Обработчик клика '✅ Отметить'.
+    Записывает ID спонсора в БД и обновляет сообщение.
+    """
+    query = update.callback_query
+    await query.answer("✅ Отмечено!")
+
+    data = query.data  # sponsor_clicked_<uuid>
+    sponsor_id = data.replace("sponsor_clicked_", "")
+    telegram_id = update.effective_user.id
+
+    mark_sponsor_clicked(telegram_id, sponsor_id)
+
+    # Обновляем сообщение
+    user_name = update.effective_user.first_name or "пользователь"
+    flags = get_user_flags(telegram_id)
+    is_new = not flags["claimed"]
+
+    sponsors_all = await get_active_sponsors()
+    status = await get_user_subscription_status(telegram_id, context.bot)
+
+    keyboard = build_gate_keyboard(sponsors_all, status["passed_ids"])
+    text = (
+        get_gate_text_new(user_name, status["missing"], status["total"])
+        if is_new
+        else get_gate_text_returning(user_name, status["missing"])
+    )
+
+    try:
+        await query.edit_message_text(
+            text=text,
+            parse_mode="Markdown",
+            reply_markup=keyboard,
+            disable_web_page_preview=True,
+        )
+    except Exception as e:
+        print(f"⚠️ [subscription] Ошибка обновления после клика: {e}")
+
+
+async def noop_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Заглушка для ✅ кнопок."""
+    await update.callback_query.answer("✅ Уже пройдено")

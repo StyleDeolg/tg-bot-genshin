@@ -25,6 +25,8 @@ from app.handlers.admin import (
 )
 from app.handlers.subscription import (
     check_subscription_callback,
+    sponsor_clicked_callback,
+    noop_callback,
     get_user_subscription_status,
     get_user_flags,
     grant_sponsor_reward,
@@ -61,6 +63,8 @@ __all__ = [
     "list_sponsors",
     "add_referral_reward",
     "check_subscription_callback",
+    "sponsor_clicked_callback",
+    "noop_callback",
     "get_user_subscription_status",
     "get_user_flags",
     "grant_sponsor_reward",

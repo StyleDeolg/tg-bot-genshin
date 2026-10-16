@@ -7,7 +7,6 @@ from app.keyboards import get_keyboard_for_user
 from app.handlers.subscription import (
     get_user_flags,
     get_user_subscription_status,
-    grant_sponsor_reward,
     send_subscription_gate,
     get_welcome_text_new,
     get_welcome_text_returning,
@@ -40,6 +39,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             tickets=0,
             sponsor_reward_claimed=False,
             skip_subscription_check=False,
+            clicked_sponsors=[],
         )
         db.add(new_user)
         db.flush()
@@ -77,7 +77,6 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # ===== ФЛАГИ =====
     flags = get_user_flags(user.id)
 
-    # 🔥 Старый пользователь — пропуск без проверки и без гейта
     if flags["skip_check"]:
         keyboard = get_keyboard_for_user(user.id)
         await update.message.reply_text(
@@ -87,46 +86,26 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    # ===== ОБЫЧНАЯ ЛОГИКА =====
+    # ===== ПРОВЕРКА =====
     is_new = not flags["claimed"]
-
     status = await get_user_subscription_status(user.id, context.bot)
 
-    # Не подписан на всех — гейт
+    # Не всё пройдено — гейт
     if not status["has_access"]:
-        # Показываем гейт
-        # hide_urls=True, если подписан на все (нечего показывать в URL-кнопках)
-        hide_urls = len(status["missing"]) == 0
-
         context.user_data.pop("gate_shown_at", None)
-        await send_subscription_gate(
-            update,
-            status["missing"],
-            is_new=is_new,
-            total_sponsors=status["total"],
-            context=context,
-            hide_urls=hide_urls,
-        )
+        await send_subscription_gate(update, context, is_new=is_new)
         return
 
-    # Подписан на всех
+    # Всё пройдено
     keyboard = get_keyboard_for_user(user.id)
 
     if is_new:
-        # Награду НЕ выдаём тут — только при нажатии «Я подписался».
-        # Показываем гейт с одной кнопкой «Я подписался».
+        # Показываем финальное «✅ Я подписался» (URL-кнопок уже нет)
         context.user_data.pop("gate_shown_at", None)
-        await send_subscription_gate(
-            update,
-            [],
-            is_new=True,
-            total_sponsors=status["total"],
-            context=context,
-            hide_urls=True,
-        )
+        await send_subscription_gate(update, context, is_new=True)
         return
 
-    # Уже получал — просто приветствие
+    # Уже получал — приветствие
     await update.message.reply_text(
         get_welcome_text_returning(user.first_name),
         parse_mode="Markdown",
